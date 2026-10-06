@@ -5,10 +5,74 @@ import io
 
 st.set_page_config(page_title="Analizador Bursátil Automático", page_icon="📈", layout="wide")
 
-st.title("📈 Analizador Bursátil con Enfoque de Broker")
-st.markdown("Introduce una empresa para obtener su puntuación, filtro de racha y perspectiva analítica completa. Las consultas se guardan en tu historial de sesión para exportarlas cuando desees.")
+# Estilos CSS personalizados para los círculos, sellos y tarjetas visuales
+st.markdown("""
+<style>
+    .score-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 30px;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        margin-bottom: 20px;
+        border: 1px solid #334155;
+    }
+    .circular-progress {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: conic-gradient(#38bdf8 var(--deg), #334155 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    }
+    .circular-progress::before {
+        content: "";
+        position: absolute;
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background-color: #0f172a;
+    }
+    .progress-value {
+        position: relative;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #f8fafc;
+    }
+    .grade-stamp {
+        font-size: 3rem;
+        font-weight: 900;
+        padding: 10px 24px;
+        border: 4px dashed;
+        border-radius: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        transform: rotate(-5deg);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        animation: popIn 0.5s ease-out;
+    }
+    .grade-A-plus { color: #22c55e; border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
+    .grade-A { color: #38bdf8; border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
+    .grade-B { color: #eab308; border-color: #eab308; background: rgba(234, 179, 8, 0.1); }
+    .grade-C { color: #f97316; border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
+    .grade-D { color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
 
-# Inicializar el historial en la sesión del navegador
+    @keyframes popIn {
+        0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
+        100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("📈 Analizador Bursátil con Enfoque de Broker")
+st.markdown("Introduce una empresa para obtener su puntuación visual, calificación por letras, filtro de racha y perspectiva analítica.")
+
 if 'history' not in st.session_state:
     st.session_state.history = []
 
@@ -27,16 +91,13 @@ TICKER_DB = {
     "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria."}
 }
 
-# Panel Lateral para el Historial y Exportación
+# Panel Lateral
 with st.sidebar:
     st.header("📊 Historial de Sesión")
-    st.markdown(f"Empresas analizadas en esta sesión: **{len(st.session_state.history)}**")
+    st.markdown(f"Empresas analizadas: **{len(st.session_state.history)}**")
     
     if st.session_state.history:
-        # Convertir historial a DataFrame para la descarga
         df_history = pd.DataFrame(st.session_state.history)
-        
-        # Generar archivo Excel en memoria
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='openpyxl') as writer:
             df_history.to_excel(writer, sheet_name='Evaluaciones', index=False)
@@ -54,7 +115,7 @@ with st.sidebar:
             st.session_state.history = []
             st.rerun()
     else:
-        st.info("Realiza algún análisis para habilitar la descarga del Excel.")
+        st.info("Analiza alguna empresa para habilitar la exportación a Excel.")
 
 # Cuerpo principal
 col1, col2 = st.columns([2, 1])
@@ -69,12 +130,19 @@ def get_stock_data(query):
         return TICKER_DB[q_lower]["ticker"], TICKER_DB[q_lower]["racha"]
     return query.upper(), "Sin datos de racha previos (Evaluación estándar)."
 
-if st.button("Ejecutar Análisis Completo", type="primary"):
+def get_letter_grade(score):
+    if score >= 5.0: return "A+", "grade-A-plus"
+    elif score >= 4.0: return "A", "grade-A"
+    elif score >= 3.0: return "B", "grade-B"
+    elif score >= 2.0: return "C", "grade-C"
+    else: return "D", "grade-D"
+
+if st.button("Ejecutar Análisis Visual", type="primary"):
     if not user_input:
         st.warning("Por favor, introduce un nombre o ticker válido.")
     else:
         ticker_input, racha_info = get_stock_data(user_input)
-        with st.spinner(f"Analizando fundamentos y contexto para {user_input}..."):
+        with st.spinner(f"Generando informe visual para {user_input}..."):
             try:
                 stock = yf.Ticker(ticker_input)
                 info = stock.info
@@ -99,7 +167,7 @@ if st.button("Ejecutar Análisis Completo", type="primary"):
                     total_score += s_beta
                     metrics_log.append(("BETA", f"{beta:.2f}", s_beta))
 
-                    s_yield = 1.0 if (3.0 <= div_yield <= 6.0) else (0.5 if (1.0 <= div_yield < 3.0 or 6.0 < div_yield <= 9.0) else 0.0)
+                    s_yield = 1.0 if (3.0 <= div_yield <= 6.0) else (0.5 if (1.0 <= div_yield < 3.0 or 6.0 <= div_yield <= 9.0) else 0.0)
                     total_score += s_yield
                     metrics_log.append(("Dividend Yield", f"{div_yield:.2f}%", s_yield))
 
@@ -138,7 +206,9 @@ if st.button("Ejecutar Análisis Completo", type="primary"):
                     total_score += s_moat
                     metrics_log.append(("Moat", "Alto", s_moat))
 
-                # Definir Veredicto texto
+                grade, grade_class = get_letter_grade(total_score)
+                deg = int((total_score / 5.0) * 360)
+
                 if total_score >= 4.0:
                     verdict_text = "COMPRAR / ATRACTIVO"
                 elif total_score >= 3.0:
@@ -146,38 +216,53 @@ if st.button("Ejecutar Análisis Completo", type="primary"):
                 else:
                     verdict_text = "DESCARTAR / NO APTO"
 
-                # Guardar en el historial de la sesión
+                # Guardar en sesión
                 session_record = {
                     "Empresa": name,
                     "Ticker": ticker_input,
                     "Estrategia": strategy,
-                    "Puntuación": f"{total_score:.1f} / 5.0",
+                    "Nota": f"{total_score:.1f} / 5",
+                    "Calificación": grade,
                     "Veredicto": verdict_text,
-                    "Racha / Consistencia": racha_info
+                    "Racha": racha_info
                 }
-                
-                # Evitar duplicados exactos consecutivos si se reanaliza lo mismo
                 if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
                     st.session_state.history.append(session_record)
 
-                # --- MOSTRAR RESULTADOS ---
-                st.subheader(f"📊 Informe de Inversión: {name}")
-                st.metric(label="Puntuación Cuantitativa Final", value=f"{total_score:.1f} / 5.0")
+                # --- RENDERIZADO VISUAL ---
+                st.subheader(f"📊 Informe Visual: {name} ({ticker_input})")
+
+                # Círculo de Puntuación Animado + Sello de Calificación
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;">
+                        <div class="circular-progress" style="--deg: {deg}deg;">
+                            <div class="progress-value">{total_score:.1f}/5</div>
+                        </div>
+                        <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Global</div>
+                    </div>
+                    <div>
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; text-align: center;">Calificación</div>
+                        <div class="grade-stamp {grade_class}">{grade}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
 
                 st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
                 st.info(f"**Estado de la Racha:** {racha_info}")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto de Broker")
                 if total_score >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación Analítica:* Sólidos fundamentales cuantitativos respaldados por métricas de valoración contenidas y retribución generosa.")
+                    st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Sólidos fundamentales cuantitativos respaldados por métricas de valoración óptimas y retribución atractiva.")
                 elif total_score >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación Analítica:* Activo con fortalezas claras, pero condicionado por su naturaleza cíclica o matices de crecimiento.")
+                    st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Activo con fortalezas operativas, condicionado por su ciclicidad o matices de crecimiento a largo plazo.")
                 else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación Analítica:* Baja puntuación en parámetros clave del modelo.")
+                    st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Puntuación baja en los pilares fundamentales del modelo.")
 
                 st.markdown("### 📋 Desglose de Parámetros:")
                 df_res = pd.DataFrame(metrics_log, columns=["Parámetro Evaluado", "Valor Detectado", "Puntuación"])
                 st.table(df_res)
 
             except Exception as e:
-                st.error(f"Error al procesar los datos para '{user_input}'. Detalle: {e}")
+                st.error(f"Error al procesar los datos para '{user_input}': {e}")
+                
