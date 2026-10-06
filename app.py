@@ -5,14 +5,14 @@ import io
 
 st.set_page_config(page_title="Analizador Bursátil Automático", page_icon="📈", layout="wide")
 
-# Estilos CSS personalizados para los círculos, sellos y tarjetas visuales
+# Estilos CSS personalizados con el nuevo efecto de sello de tinta / rotulador
 st.markdown("""
 <style>
     .score-container {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 30px;
+        gap: 50px;
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         padding: 25px;
         border-radius: 16px;
@@ -25,7 +25,7 @@ st.markdown("""
         width: 120px;
         height: 120px;
         border-radius: 50%;
-        background: conic-gradient(#38bdf8 var(--deg), #334155 0deg);
+        background: conic-gradient(var(--progress-color) var(--deg), #334155 0deg);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -45,33 +45,39 @@ st.markdown("""
         font-weight: bold;
         color: #f8fafc;
     }
+    /* Estilo Sello / Tinta de Rotulador */
     .grade-stamp {
-        font-size: 3rem;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 4rem;
         font-weight: 900;
-        padding: 10px 24px;
+        line-height: 1;
+        padding: 6px 20px;
         border: 4px dashed;
-        border-radius: 12px;
+        border-radius: 8px;
         text-transform: uppercase;
         letter-spacing: 2px;
-        transform: rotate(-5deg);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        animation: popIn 0.5s ease-out;
+        transform: rotate(-8deg);
+        display: inline-block;
+        box-shadow: none;
+        background: transparent;
+        opacity: 0.9;
+        animation: stampEffect 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-    .grade-A-plus { color: #22c55e; border-color: #22c55e; background: rgba(34, 197, 94, 0.1); }
-    .grade-A { color: #38bdf8; border-color: #38bdf8; background: rgba(56, 189, 248, 0.1); }
-    .grade-B { color: #eab308; border-color: #eab308; background: rgba(234, 179, 8, 0.1); }
-    .grade-C { color: #f97316; border-color: #f97316; background: rgba(249, 115, 22, 0.1); }
-    .grade-D { color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.1); }
+    .grade-A-plus { color: #22c55e; border-color: rgba(34, 197, 94, 0.7); }
+    .grade-A { color: #38bdf8; border-color: rgba(56, 189, 248, 0.7); }
+    .grade-B { color: #eab308; border-color: rgba(234, 179, 8, 0.7); }
+    .grade-C { color: #f97316; border-color: rgba(249, 115, 22, 0.7); }
+    .grade-D { color: #ef4444; border-color: rgba(239, 68, 68, 0.7); }
 
-    @keyframes popIn {
-        0% { transform: scale(0.5) rotate(-15deg); opacity: 0; }
-        100% { transform: scale(1) rotate(-5deg); opacity: 1; }
+    @keyframes stampEffect {
+        0% { transform: scale(2) rotate(-20deg); opacity: 0; }
+        100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("📈 Analizador Bursátil con Enfoque de Broker")
-st.markdown("Introduce una empresa para obtener su puntuación visual, calificación por letras, filtro de racha y perspectiva analítica.")
+st.markdown("Introduce una empresa para obtener su puntuación visual, calificación en sello, filtro de racha y perspectiva analítica.")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -211,12 +217,14 @@ if st.button("Ejecutar Análisis Visual", type="primary"):
 
                 if total_score >= 4.0:
                     verdict_text = "COMPRAR / ATRACTIVO"
+                    progress_color = "#22c55e"
                 elif total_score >= 3.0:
                     verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
+                    progress_color = "#eab308"
                 else:
                     verdict_text = "DESCARTAR / NO APTO"
+                    progress_color = "#ef4444"
 
-                # Guardar en sesión
                 session_record = {
                     "Empresa": name,
                     "Ticker": ticker_input,
@@ -232,17 +240,17 @@ if st.button("Ejecutar Análisis Visual", type="primary"):
                 # --- RENDERIZADO VISUAL ---
                 st.subheader(f"📊 Informe Visual: {name} ({ticker_input})")
 
-                # Círculo de Puntuación Animado + Sello de Calificación
+                # Círculo con semáforo dinámico + Sello de tinta estilo rotulador
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;">
-                        <div class="circular-progress" style="--deg: {deg}deg;">
+                        <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
                             <div class="progress-value">{total_score:.1f}/5</div>
                         </div>
                         <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Global</div>
                     </div>
-                    <div>
-                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px; text-align: center;">Calificación</div>
+                    <div style="text-align: center;">
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 8px;">Calificación</div>
                         <div class="grade-stamp {grade_class}">{grade}</div>
                     </div>
                 </div>
