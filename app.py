@@ -58,7 +58,7 @@ if st.button("Ejecutar Análisis Completo", type="primary"):
 
                 if strategy == "Dividendo":
                     # 1. PER (Ajustado para ser más realista con banca y valor: <12 excelente, 12-20 razonable)
-                    s_per = 1.0 if per < 12 else (0.5 if per <= 22 else 0.0)
+                    s_per = 1.0 if per <= 12 else (0.5 if per <= 22 else 0.0)
                     total_score += s_per
                     metrics_log.append(("PER (Valoración)", f"{per:.2f}", s_per))
 
