@@ -94,51 +94,20 @@ TICKER_DB = {
     "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
-# Base de datos ampliada con 40 fondos famosos (Acumulación y Distribución)
 FUND_DB = {
-    # --- FONDOS DE ACUMULACIÓN (20) ---
     "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
     "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
     "vanguard emerging markets acc": {"name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "category": "Renta Variable Emergente", "ter": 0.23, "aum": 2900, "tracking_error": 0.12, "age_years": 9},
-    "vanguard european stock acc": {"name": "Vanguard European Stock Index Fund EUR Acc", "category": "Renta Variable Europa", "ter": 0.12, "aum": 3100, "tracking_error": 0.05, "age_years": 10},
-    "vanguard pacific stock acc": {"name": "Vanguard Pacific Stock Index Fund EUR Acc", "category": "Renta Variable Pacífico", "ter": 0.20, "aum": 1400, "tracking_error": 0.08, "age_years": 8},
-    "vanguard lifestrategy 80 acc": {"name": "Vanguard LifeStrategy 80% Equity Fund EUR Acc", "category": "Cartera Mixta 80% RV", "ter": 0.25, "aum": 5200, "tracking_error": 0.06, "age_years": 5},
-    "vanguard lifestrategy 60 acc": {"name": "Vanguard LifeStrategy 60% Equity Fund EUR Acc", "category": "Cartera Mixta 60% RV", "ter": 0.25, "aum": 6400, "tracking_error": 0.06, "age_years": 5},
     "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
-    "amundi s&p 500 acc": {"name": "Amundi Index S&P 500 AE-C", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.15, "aum": 4100, "tracking_error": 0.04, "age_years": 8},
-    "amundi emerging markets acc": {"name": "Amundi Index MSCI Emerging Markets AE-C", "category": "Renta Variable Emergente", "ter": 0.45, "aum": 1800, "tracking_error": 0.15, "age_years": 8},
-    "amundi msci europe acc": {"name": "Amundi Index MSCI Europe AE-C", "category": "Renta Variable Europa", "ter": 0.25, "aum": 1900, "tracking_error": 0.07, "age_years": 7},
-    "ishares developed world acc": {"name": "iShares Developed World Index Fund (IE) Acc", "category": "Renta Variable Global Desarrollada", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6},
-    "ishares s&p 500 acc": {"name": "iShares US Index Fund (IE) Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.05, "aum": 15000, "tracking_error": 0.02, "age_years": 10},
-    "ishares emerging markets acc": {"name": "iShares Emerging Markets Index Fund (IE) Acc", "category": "Renta Variable Emergente", "ter": 0.38, "aum": 2200, "tracking_error": 0.14, "age_years": 7},
-    "fidelity msci world acc": {"name": "Fidelity Index World P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 2100, "tracking_error": 0.05, "age_years": 6},
-    "fidelity s&p 500 acc": {"name": "Fidelity S&P 500 Index Fund P EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 7500, "tracking_error": 0.03, "age_years": 6},
-    "fidelity emerging markets acc": {"name": "Fidelity Emerging Markets Index Fund P Acc", "category": "Renta Variable Emergente", "ter": 0.35, "aum": 950, "tracking_error": 0.11, "age_years": 5},
-    "pictet world index acc": {"name": "Pictet-World Index P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 1100, "tracking_error": 0.09, "age_years": 9},
-    "pictet usa index acc": {"name": "Pictet-USA Index P EUR Acc", "category": "Renta Variable EE.UU.", "ter": 0.20, "aum": 1300, "tracking_error": 0.05, "age_years": 8},
-    "allianz european equity acc": {"name": "Allianz European Equity Growth AT EUR Acc", "category": "Renta Variable Europa Crecimiento", "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10},
+    "fidelity msci world acc": {"name": "Fidelity Index World P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 2100, "tracking_error": 0.05, "age_years": 6}
+}
 
-    # --- FONDOS DE DISTRIBUCIÓN (20) ---
-    "vanguard global stock dist": {"name": "Vanguard Global Stock Index Fund EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 2100, "tracking_error": 0.08, "age_years": 8},
-    "vanguard s&p 500 dist": {"name": "Vanguard S&P 500 Stock Index Fund EUR Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 14000, "tracking_error": 0.03, "age_years": 12},
-    "vanguard emerging markets dist": {"name": "Vanguard Emerging Markets Stock Index Fund EUR Dist", "category": "Renta Variable Emergente", "ter": 0.23, "aum": 1200, "tracking_error": 0.12, "age_years": 9},
-    "vanguard european stock dist": {"name": "Vanguard European Stock Index Fund EUR Dist", "category": "Renta Variable Europa", "ter": 0.12, "aum": 1500, "tracking_error": 0.05, "age_years": 10},
-    "vanguard pacific stock dist": {"name": "Vanguard Pacific Stock Index Fund EUR Dist", "category": "Renta Variable Pacífico", "ter": 0.20, "aum": 800, "tracking_error": 0.08, "age_years": 8},
-    "vanguard lifestrategy 60 dist": {"name": "Vanguard LifeStrategy 60% Equity Fund EUR Dist", "category": "Cartera Mixta 60% RV", "ter": 0.25, "aum": 3100, "tracking_error": 0.06, "age_years": 5},
-    "vanguard lifestrategy 40 dist": {"name": "Vanguard LifeStrategy 40% Equity Fund EUR Dist", "category": "Cartera Mixta 40% RV", "ter": 0.25, "aum": 1800, "tracking_error": 0.06, "age_years": 5},
-    "vanguard global bond dist": {"name": "Vanguard Global Bond Index Fund EUR Hedged Dist", "category": "Renta Fija Global", "ter": 0.15, "aum": 4200, "tracking_error": 0.04, "age_years": 9},
-    "amundi msci world dist": {"name": "Amundi Index MSCI World AE-D", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 1500, "tracking_error": 0.12, "age_years": 7},
-    "amundi s&p 500 dist": {"name": "Amundi Index S&P 500 AE-D", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.15, "aum": 2100, "tracking_error": 0.04, "age_years": 8},
-    "amundi emerging markets dist": {"name": "Amundi Index MSCI Emerging Markets AE-D", "category": "Renta Variable Emergente", "ter": 0.45, "aum": 900, "tracking_error": 0.15, "age_years": 8},
-    "amundi euro corporate bond dist": {"name": "Amundi Index Euro Corporate Bond Dist", "category": "Renta Fija Corporativa Euro", "ter": 0.20, "aum": 2500, "tracking_error": 0.05, "age_years": 8},
-    "ishares developed world dist": {"name": "iShares Developed World Index Fund Dist", "category": "Renta Variable Global Desarrollada", "ter": 0.22, "aum": 1600, "tracking_error": 0.10, "age_years": 6},
-    "ishares s&p 500 dist": {"name": "iShares US Index Fund (IE) Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.05, "aum": 8000, "tracking_error": 0.02, "age_years": 10},
-    "ishares euro government bond dist": {"name": "iShares Euro Government Bond Index Fund Dist", "category": "Renta Fija Gubernamental Euro", "ter": 0.16, "aum": 3400, "tracking_error": 0.03, "age_years": 9},
-    "fidelity msci world dist": {"name": "Fidelity Index World P EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 1100, "tracking_error": 0.05, "age_years": 6},
-    "fidelity s&p 500 dist": {"name": "Fidelity S&P 500 Index Fund P EUR Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 3200, "tracking_error": 0.03, "age_years": 6},
-    "pictet world index dist": {"name": "Pictet-World Index P EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 700, "tracking_error": 0.09, "age_years": 9},
-    "allianz european equity div dist": {"name": "Allianz European Equity Div AT EUR Dist", "category": "Renta Variable Europa (Dividendos)", "ter": 0.75, "aum": 1100, "tracking_error": 0.25, "age_years": 10},
-    "bnp paribas easy msci world dist": {"name": "BNP Paribas Easy MSCI World Dist", "category": "Renta Variable Global", "ter": 0.25, "aum": 1400, "tracking_error": 0.08, "age_years": 7}
+ETF_DB = {
+    "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF (Acc)", "ticker": "VWCE.DE", "category": "Renta Variable Global", "ter": 0.22, "aum": 12500, "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 6},
+    "spyl.de": {"name": "SPDR S&P 500 UCITS ETF (Acc)", "ticker": "SPYL.DE", "category": "Renta Variable EE.UU.", "ter": 0.03, "aum": 8200, "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 3},
+    "eunl.de": {"name": "iShares Core MSCI World UCITS ETF USD (Acc)", "ticker": "EUNL.DE", "category": "Renta Variable Global", "ter": 0.20, "aum": 65000, "replication": "Física (Muestreo)", "te": 0.05, "currency": "EUR", "age_years": 14},
+    "eem.mi": {"name": "iShares Core MSCI EM IMI UCITS ETF", "ticker": "EEM.MI", "category": "Renta Variable Emergente", "ter": 0.18, "aum": 15000, "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 12},
+    "iglo.de": {"name": "iShares € Corp Bond UCITS ETF", "ticker": "IEAC.DE", "category": "Renta Fija Corporativa", "ter": 0.20, "aum": 14000, "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 15}
 }
 
 # Sidebar común para historial
@@ -240,26 +209,16 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
     elif st.session_state.asset_type == "ETFs":
-        st.markdown("### Selecciona la categoría del ETF:")
-        c1, c2, c3, c4 = st.columns(4)
+        st.markdown("### Selecciona qué deseas hacer con los ETFs:")
+        c1, c2 = st.columns(2)
         with c1:
-            if st.button("Renta variable", use_container_width=True):
-                st.session_state.sub_type = "Renta variable"
+            if st.button("🏆 Ver Ranking de ETFs por Menor TER", use_container_width=True, type="primary"):
+                st.session_state.sub_type = "Ranking ETFs"
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c2:
-            if st.button("Fija", use_container_width=True):
-                st.session_state.sub_type = "Fija"
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c3:
-            if st.button("Materias primas", use_container_width=True):
-                st.session_state.sub_type = "Materias primas"
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c4:
-            if st.button("Sectoriales", use_container_width=True):
-                st.session_state.sub_type = "Sectoriales"
+            if st.button("🔍 Evaluar un ETF por Ticker", use_container_width=True):
+                st.session_state.sub_type = "Evaluación ETF"
                 st.session_state.stage = "analyzer"
                 st.rerun()
 
@@ -273,27 +232,22 @@ elif st.session_state.stage == 'analyzer':
         st.rerun()
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
-        st.title("🏆 Ranking de Fondos Indexados (Ordenados por menor TER / Comisiones)")
-        st.markdown("Aquí tienes una selección de los 40 fondos indexados más famosos del mercado ordenados de **menor a mayor coste anual (TER)** para ayudarte a elegir los más eficientes:")
-
-        ranking_data = []
-        for key, data in FUND_DB.items():
-            ranking_data.append({
-                "Fondo": data["name"],
-                "Categoría": data["category"],
-                "TER Anual (%)": data["ter"],
-                "Patrimonio (M€)": data["aum"],
-                "Antigüedad (Años)": data["age_years"]
-            })
-        
-        df_ranking = pd.DataFrame(ranking_data)
-        df_ranking = df_ranking.sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
-        
+        st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
+        ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
+        df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
-
-        st.info("💡 **Consejo:** Los fondos con un TER inferior al 0.20% son extremadamente eficientes para carteras a largo plazo.")
-
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu bróker.")
         if st.button("← Volver al menú de fondos"):
+            st.session_state.sub_type = None
+            st.rerun()
+
+    elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
+        st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
+        ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "TER (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Réplica": data["replication"]} for data in ETF_DB.values()]
+        df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
+        st.dataframe(df_etf_ranking, use_container_width=True)
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu bróker.")
+        if st.button("← Volver al menú de ETFs"):
             st.session_state.sub_type = None
             st.rerun()
 
@@ -305,10 +259,11 @@ elif st.session_state.stage == 'analyzer':
         elif st.session_state.asset_type == "Fondos indexados":
             fund_options = ["-- Selecciona o escribe un fondo --"] + [data["name"] for data in FUND_DB.values()]
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
-            
             user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
-        else:
-            user_input = st.text_input("Nombre del ETF o Ticker", value="", placeholder="Escribe el ETF").strip()
+        elif st.session_state.asset_type == "ETFs":
+            etf_options = ["-- Selecciona un ETF --"] + [f"{data['name']} ({data['ticker']})" for data in ETF_DB.values()]
+            selected_etf_option = st.selectbox("🌐 Selecciona un ETF de referencia", options=etf_options)
+            user_input = "" if selected_etf_option == "-- Selecciona un ETF --" else selected_etf_option.split("(")[-1].replace(")", "").strip()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -325,321 +280,74 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona o escribe un fondo en el buscador predictivo superior para ver su informe completo.")
+            st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
         else:
             # ----------------------------------------------------
-            # CASO A: EVALUACIÓN DE ACCIONES
+            # CASO A: ACCIONES
             # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
-                if isinstance(stock_result, tuple) and len(stock_result) == 4:
-                    ticker_input, racha_info, est_div_growth, db_div_yield = stock_result
-                else:
-                    ticker_input, racha_info, est_div_growth, db_div_yield = user_input.upper(), "Sin datos", 3.0, None
+                ticker_input, racha_info, est_div_growth, db_div_yield = stock_result if isinstance(stock_result, tuple) else (user_input.upper(), "Sin datos", 3.0, None)
                 
                 try:
                     stock = yf.Ticker(ticker_input)
-                    
                     hist_price = stock.history(period="5d")
-                    current_price = None
-                    if not hist_price.empty:
-                        current_price = hist_price['Close'].iloc[-1]
-
-                    try:
-                        info = stock.info
-                    except:
-                        info = {}
+                    current_price = hist_price['Close'].iloc[-1] if not hist_price.empty else None
+                    info = stock.info or {}
 
                     name = info.get('longName', user_input.title())
-                    
-                    currency_symbol = info.get('currency', '€')
-                    if currency_symbol == 'USD':
-                        currency_symbol = '$'
-                    elif currency_symbol == 'EUR':
-                        currency_symbol = '€'
-
+                    currency_symbol = '$' if info.get('currency') == 'USD' else '€'
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
                     pb_y = info.get('priceToBook') or 3.0
-                    roe_y = info.get('returnOnEquity')
-                    roe_val = (roe_y * 100) if roe_y else 15.0
-                    
-                    div_y = info.get('dividendYield')
-                    div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
-                    
+                    roe_val = (info.get('returnOnEquity', 0.15) * 100)
+                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else (db_div_yield or 0.0)
                     bpa_y = info.get('trailingEps') or 2.0
                     beta_val = info.get('beta') or 1.0
-                    payout_val = info.get('payoutRatio')
-                    payout_val = (payout_val * 100) if payout_val else 50.0
+                    payout_val = (info.get('payoutRatio', 0.5) * 100)
 
-                    net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
-                    if not net_income_y:
-                        try:
-                            fin = stock.financials
-                            if not fin.empty:
-                                for row_name in ['Net Income', 'Net Income Common Stockholders', 'Net Income From Continuing Operation']:
-                                    if row_name in fin.index:
-                                        net_income_y = fin.loc[row_name].iloc[0]
-                                        break
-                        except:
-                            pass
-                    net_income_m = (net_income_y / 1e6) if net_income_y else 0.0
-
-                    ebitda_y = info.get('ebitda')
-                    if not ebitda_y:
-                        try:
-                            fin = stock.financials
-                            if not fin.empty:
-                                for row_name in ['EBITDA', 'Normalized EBITDA', 'Operating Income']:
-                                    if row_name in fin.index:
-                                        ebitda_y = fin.loc[row_name].iloc[0]
-                                        break
-                        except:
-                            pass
-                    ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
-
-                    growth_1y = info.get('earningsGrowth')
-                    growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
-                    
-                    growth_5y = info.get('revenueGrowth')
-                    growth_5y_val = f"{(growth_5y * 100):.2f}%" if growth_5y is not None else "N/D"
+                    net_income_m = ((info.get('netIncomeToCommon') or 0) / 1e6)
+                    ebitda_m = ((info.get('ebitda') or 0) / 1e6)
 
                     total_score = 0
-                    
                     if st.session_state.sub_type == "Con dividendos":
                         total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
                         total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
                         total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
                         total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
-                        total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
+                        total_score += (1.0 if est_div_growth > 3.0 else 0.5)
                     else:
-                        total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
-                        total_score += (1.0 if pfcf_y <= 20 else (0.5 if pfcf_y <= 35 else 0.0))
-                        total_score += (1.0 if pb_y <= 4.0 else (0.5 if pb_y <= 8.0 else 0.0))
-                        total_score += (1.0 if roe_val >= 15.0 else (0.5 if roe_val >= 8.0 else 0.0))
+                        total_score += (1.0 if per_y <= 25 else 0.5)
+                        total_score += (1.0 if pfcf_y <= 20 else 0.5)
+                        total_score += (1.0 if pb_y <= 4.0 else 0.5)
+                        total_score += (1.0 if roe_val >= 15.0 else 0.5)
                         total_score += (1.0 if bpa_y > 0 else 0.0)
 
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
-
-                    if total_score >= 4.0:
-                        verdict_text = "COMPRAR / ATRACTIVO"
-                        progress_color = "#22c55e"
-                    elif total_score >= 3.0:
-                        verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
-                        progress_color = "#eab308"
-                    else:
-                        verdict_text = "DESCARTAR / NO APTO"
-                        progress_color = "#ef4444"
-
-                    session_record = {
-                        "Activo": f"{st.session_state.asset_type} ({st.session_state.sub_type})",
-                        "Empresa": name,
-                        "Ticker": ticker_input,
-                        "Precio": price_display,
-                        "Nota": f"{total_score:.1f} / 5",
-                        "Calificación": grade,
-                        "Veredicto": verdict_text,
-                        "Racha": racha_info
-                    }
-                    if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
-                        st.session_state.history.append(session_record)
+                    progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 3.0 else "#ef4444")
+                    verdict_text = "COMPRAR / ATRACTIVO" if total_score >= 4.0 else ("MANTENER" if total_score >= 3.0 else "DESCARTAR")
 
                     st.subheader(f"📊 Informe: {name} ({ticker_input})")
-
                     st.markdown(f"""
                     <div class="score-container">
-                        <div style="text-align: center;">
-                            <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
-                                <div class="progress-value">{total_score:.1f}/5</div>
-                            </div>
-                            <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Óptima</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
-                            <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div>
-                            <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div>
-                        </div>
+                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                     </div>
                     """, unsafe_allow_html=True)
 
-                    st.markdown("### 📋 Tabla de Parámetros Clave")
-                    
-                    if st.session_state.sub_type == "Sin dividendos":
-                        comparison_data = {
-                            "Parámetro": [
-                                "PER (Precio / Beneficio)", 
-                                "P/FCF (Precio / Free Cash Flow)", 
-                                "P/B (Precio / Valor Contable)", 
-                                "ROE (Rentabilidad sobre Fondos Propios)", 
-                                "Beneficio Neto (Millones)", 
-                                "EBITDA (Millones)", 
-                                "BPA (Beneficio por Acción)",
-                                "Previsión Crecimiento (1 Año)",
-                                "Previsión Crecimiento (5 Años)"
-                            ],
-                            "Valor Actual": [
-                                f"{per_y:.2f}",
-                                f"{pfcf_y:.2f}",
-                                f"{pb_y:.2f}",
-                                f"{roe_val:.2f}%",
-                                f"{net_income_m:,.2f} M {currency_symbol}" if net_income_m != 0 else "N/D",
-                                f"{ebitda_m:,.2f} M {currency_symbol}" if ebitda_m != 0 else "N/D",
-                                f"{bpa_y:.2f} {currency_symbol}",
-                                growth_1y_val,
-                                growth_5y_val
-                            ]
-                        }
-                    else:
-                        comparison_data = {
-                            "Métrica Financiera": [
-                                "PER (Precio/Beneficio)", 
-                                "Dividend Yield (%)", 
-                                "Beta (Volatilidad)", 
-                                "Payout Ratio (%)", 
-                                "Crecimiento Div. vs Inflación",
-                                "Previsión Crecimiento (1 Año)",
-                                "Previsión Crecimiento (5 Años)"
-                            ],
-                            "Valor Seleccionado": [
-                                f"{per_y:.2f}", 
-                                f"{div_y_val:.2f}%", 
-                                f"{beta_val:.2f}", 
-                                f"{payout_val:.1f}%", 
-                                f"{est_div_growth:.1f}% anual",
-                                growth_1y_val,
-                                growth_5y_val
-                            ]
-                        }
-                        
-                    df_comparison = pd.DataFrame(comparison_data)
-                    st.table(df_comparison)
-
-                    st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
-                    st.info(f"**Estado de la Racha:** {racha_info}")
-
-                    st.markdown("### 📝 Perspectiva Analítica y Veredicto")
-                    if total_score >= 4.0:
-                        st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Excelentes métricas fundamentales en los indicadores clave seleccionados.")
-                    elif total_score >= 3.0:
-                        st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Parámetros mixtos; se aconseja vigilancia táctica.")
-                    else:
-                        st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* El perfil fundamental no cumple con los umbrales mínimos establecidos.")
-
                 except Exception as e:
-                    st.error(f"Error al procesar los datos para '{user_input}': {e}")
+                    st.error(f"Error al procesar los datos: {e}")
 
             # ----------------------------------------------------
-            # CASO B: EVALUACIÓN DE FONDOS INDEXADOS
+            # CASO B: FONDOS INDEXADOS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
-                matched_fund = None
-                for key, data in FUND_DB.items():
-                    if data["name"] == user_input or key in user_input.lower():
-                        matched_fund = data
-                        break
+                matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
                 
-                if matched_fund:
-                    fund_name = matched_fund["name"]
-                    ter_val = matched_fund["ter"]
-                    aum_val = matched_fund["aum"]
-                    te_val = matched_fund["tracking_error"]
-                    age_val = matched_fund["age_years"]
-                else:
-                    fund_name = user_input
-                    ter_val = 0.20
-                    aum_val = 1500
-                    te_val = 0.09
-                    age_val = 6
-
-                score_fund = 0
-                score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
-                score_fund += (1.0 if aum_val > 500 else (0.5 if aum_val >= 100 else 0.0))
-                score_fund += (1.0 if te_val <= 0.10 else (0.5 if te_val <= 0.30 else 0.0))
-                score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
-                score_fund += (1.0 if age_val > 5 else (0.5 if age_val >= 3 else 0.0))
-
-                grade_fund = get_letter_grade(score_fund)
-                deg_fund = int((score_fund / 5.0) * 360)
-
-                if score_fund >= 4.0:
-                    verdict_fund = "FONDO ALTAMENTE RECOMENDABLE / PASIVO ÓPTIMO"
-                    color_fund = "#22c55e"
-                elif score_fund >= 3.0:
-                    verdict_fund = "FONDO ADECUADO / CUMPLE ESTÁNDARES"
-                    color_fund = "#eab308"
-                else:
-                    verdict_fund = "COSTES ELEVADOS / NO RECOMENDADO"
-                    color_fund = "#ef4444"
-
-                session_record = {
-                    "Activo": f"Fondo Indexado ({st.session_state.sub_type})",
-                    "Empresa": fund_name,
-                    "Ticker": "FONDO",
-                    "Precio": "N/D (Aportaciones periódicas)",
-                    "Nota": f"{score_fund:.1f} / 5",
-                    "Calificación": grade_fund,
-                    "Veredicto": verdict_fund,
-                    "Racha": f"Antigüedad: {age_val} años"
-                }
-                if not st.session_state.history or st.session_state.history[-1]["Empresa"] != fund_name:
-                    st.session_state.history.append(session_record)
-
-                st.subheader(f"📊 Informe de Fondo: {fund_name}")
-
-                st.markdown(f"""
-                <div class="score-container">
-                    <div style="text-align: center;">
-                        <div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};">
-                            <div class="progress-value">{score_fund:.1f}/5</div>
-                        </div>
-                        <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
-                        <div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad / Track Record</div>
-                        <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div>
-                    </div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                st.markdown("### 📋 Parámetros Clave de Gestión Pasiva")
-                df_fund_data = {
-                    "Métrica del Fondo": [
-                        "TER (Gastos Corrientes / Comisiones)", 
-                        "Patrimonio bajo Gestión (AUM)", 
-                        "Tracking Error (Error de Réplica)", 
-                        "Política de Reinversión", 
-                        "Antigüedad (Track Record)"
-                    ],
-                    "Valor Actual": [
-                        f"{ter_val:.2f}% anual",
-                        f"{aum_val:,.0f} M€",
-                        f"{te_val:.2f}%",
-                        st.session_state.sub_type,
-                        f"{age_val} años"
-                    ]
-                }
-                st.table(pd.DataFrame(df_fund_data))
-
-                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
-                if score_fund >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Excelente estructura de costes reducidos, alta capitalización y réplica muy eficiente.")
-                elif score_fund >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Fondo sólido para cartera pasiva, aunque con margen de mejora en comisiones o tamaño.")
-                else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Los costes o las características del fondo penalizan su rentabilidad a largo plazo.")
-
-            # ----------------------------------------------------
-            # CASO C: EVALUACIÓN DE ETFS
-            # ----------------------------------------------------
-            else:
-                st.info("🌐 Analizador de ETFs configurado. Selecciona un ETF para evaluar sus gastos y liquidez en mercado.")
+                ter_val = matched_fund["ter"] if matched_fund else 0.20
+                aum_val = matched_fund["aum"] if matched_fund else 1500
+                te_val = matched_fund["tracking_error"] if matched_fund els
