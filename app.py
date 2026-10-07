@@ -258,12 +258,23 @@ elif st.session_state.stage == 'analyzer':
             
             name = info.get('longName', user_input.title())
             
-            # Precio actual en tiempo real
-            current_price = info.get('currentPrice') or info.get('regularMarketPrice')
+            # Extracción robusta de precio actual (Cascada de claves en info y fallback histórico)
+            current_price = (
+                info.get('currentPrice') or 
+                info.get('regularMarketPrice') or 
+                info.get('previousClose') or 
+                info.get('regularMarketOpen') or 
+                info.get('ask') or 
+                info.get('bid')
+            )
+            
             if current_price is None:
-                hist_price = stock.history(period="1d")
-                if not hist_price.empty:
-                    current_price = hist_price['Close'].iloc[-1]
+                try:
+                    hist_price = stock.history(period="5d")
+                    if not hist_price.empty:
+                        current_price = hist_price['Close'].iloc[-1]
+                except:
+                    pass
             
             currency_symbol = info.get('currency', '€')
             if currency_symbol == 'USD':
