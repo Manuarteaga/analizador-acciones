@@ -53,7 +53,7 @@ st.markdown("""
         text-transform: uppercase;
         transform: rotate(-8deg);
         display: inline-block;
-        text-shadow: 2px 2px 0px rgba(0,0,0,0.4), 0 0 15px var(--stamp-color);
+        text-shadow: 0px 0px 0px rgba(0,0,0,0.4), 0 0 15px var(--stamp-color);
         animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     @keyframes stampPop {
