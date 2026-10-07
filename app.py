@@ -95,10 +95,10 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "VWCE.DE", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8, "default_price": 115.50},
-    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ticker": "CW8.PA", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7, "default_price": 420.20},
-    "ishares developed world": {"name": "iShares Developed World Index Fund", "ticker": "EUNL.DE", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6, "default_price": 85.10},
-    "allianz european equity div": {"name": "Allianz European Equity Div AT EUR", "ticker": None, "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10, "default_price": 184.30}
+    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
+    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
+    "ishares developed world": {"name": "iShares Developed World Index Fund", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6},
+    "allianz european equity div": {"name": "Allianz European Equity Div AT EUR", "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10}
 }
 
 # Sidebar común para historial
@@ -471,51 +471,19 @@ elif st.session_state.stage == 'analyzer':
         elif st.session_state.asset_type == "Fondos indexados":
             q_lower = user_input.lower().strip()
             
-            fund_ticker = None
-            default_p = 100.0
             if q_lower in FUND_DB:
                 f_data = FUND_DB[q_lower]
                 fund_name = f_data["name"]
-                fund_ticker = f_data["ticker"]
                 ter_val = f_data["ter"]
                 aum_val = f_data["aum"]
                 te_val = f_data["tracking_error"]
                 age_val = f_data["age_years"]
-                default_p = f_data["default_price"]
             else:
                 fund_name = user_input.title()
                 ter_val = 0.20
                 aum_val = 1500
                 te_val = 0.09
                 age_val = 6
-
-            # Intentar buscar precio real si tiene ticker válido en Yahoo
-            fund_price = None
-            currency_symbol = "€"
-            if fund_ticker:
-                try:
-                    f_stock = yf.Ticker(fund_ticker)
-                    f_hist = f_stock.history(period="5d")
-                    if not f_hist.empty:
-                        fund_price = f_hist['Close'].iloc[-1]
-                    f_info = f_stock.info
-                    currency_symbol = f_info.get('currency', 'EUR')
-                    if currency_symbol == 'USD': currency_symbol = '$'
-                    elif currency_symbol == 'EUR': currency_symbol = '€'
-                except:
-                    pass
-
-            # Si Yahoo no da precio, usar el valor por defecto de la base de datos
-            if fund_price is None:
-                fund_price = default_p
-
-            # Opción interactiva para que el usuario pueda ajustar el Valor Liquidativo si lo desea
-            col_p1, col_p2 = st.columns([2, 1])
-            with col_p2:
-                manual_price = st.number_input("Actualizar Valor Liquidativo (€)", value=float(fund_price), step=0.10)
-            
-            final_price = manual_price if manual_price > 0 else fund_price
-            fund_price_display = f"{final_price:,.2f} {currency_symbol}"
 
             # Puntuación sobre 5 puntos para Fondos Indexados
             score_fund = 0
@@ -542,7 +510,7 @@ elif st.session_state.stage == 'analyzer':
                 "Activo": f"Fondo Indexado ({st.session_state.sub_type})",
                 "Empresa": fund_name,
                 "Ticker": user_input.upper(),
-                "Precio": fund_price_display,
+                "Precio": "N/D (Aportaciones periódicas)",
                 "Nota": f"{score_fund:.1f} / 5",
                 "Calificación": grade_fund,
                 "Veredicto": verdict_fund,
@@ -566,8 +534,8 @@ elif st.session_state.stage == 'analyzer':
                     <div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Valor Liquidativo (VL)</div>
-                    <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{fund_price_display}</div>
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad / Track Record</div>
+                    <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
