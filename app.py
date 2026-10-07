@@ -273,7 +273,7 @@ elif st.session_state.stage == 'analyzer':
 
             price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
 
-            # Extracción de parámetros avanzados
+            # Extracción robusta de parámetros avanzados
             per_y = info.get('trailingPE') or info.get('forwardPE') or 22.0
             pfcf_y = info.get('priceToFreeCashflow') or 18.5
             pb_y = info.get('priceToBook') or 3.2
@@ -283,17 +283,37 @@ elif st.session_state.stage == 'analyzer':
             div_y = info.get('dividendYield')
             div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
             
-            net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
-            net_income_m = (net_income_y / 1e6) if net_income_y else 0.0
-            
-            ebitda_y = info.get('ebitda')
-            ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
-            
             bpa_y = info.get('trailingEps') or 2.5
-
             beta_val = info.get('beta') or 1.0
             payout_val = info.get('payoutRatio')
             payout_val = (payout_val * 100) if payout_val else 60.0
+
+            # Búsqueda robusta de Beneficio Neto y EBITDA (con respaldo en los estados financieros)
+            net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
+            if not net_income_y:
+                try:
+                    fin = stock.financials
+                    if not fin.empty:
+                        for row_name in ['Net Income', 'Net Income Common Stockholders', 'Net Income From Continuing Operation']:
+                            if row_name in fin.index:
+                                net_income_y = fin.loc[row_name].iloc[0]
+                                break
+                except:
+                    pass
+            net_income_m = (net_income_y / 1e6) if net_income_y else 0.0
+
+            ebitda_y = info.get('ebitda')
+            if not ebitda_y:
+                try:
+                    fin = stock.financials
+                    if not fin.empty:
+                        for row_name in ['EBITDA', 'Normalized EBITDA', 'Operating Income']:
+                            if row_name in fin.index:
+                                ebitda_y = fin.loc[row_name].iloc[0]
+                                break
+                except:
+                    pass
+            ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
 
             # Previsiones de crecimiento (1 año y 5 años) desde yfinance
             growth_1y = info.get('earningsGrowth')
@@ -389,8 +409,8 @@ elif st.session_state.stage == 'analyzer':
                         f"{pfcf_y:.2f}",
                         f"{pb_y:.2f}",
                         f"{roe_val:.2f}%",
-                        f"{net_income_m:,.2f} M {currency_symbol}",
-                        f"{ebitda_m:,.2f} M {currency_symbol}",
+                        f"{net_income_m:,.2f} M {currency_symbol}" if net_income_m != 0 else "N/D",
+                        f"{ebitda_m:,.2f} M {currency_symbol}" if ebitda_m != 0 else "N/D",
                         f"{bpa_y:.2f} {currency_symbol}",
                         growth_1y_val,
                         growth_5y_val
