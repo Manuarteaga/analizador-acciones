@@ -91,13 +91,13 @@ TICKER_DB = {
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4},
     "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los plans de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
 FUND_DB = {
-    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
-    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
-    "ishares developed world": {"name": "iShares Developed World Index Fund", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6}
+    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "VWCE.DE", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
+    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ticker": "CW8.PA", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
+    "ishares developed world": {"name": "iShares Developed World Index Fund", "ticker": "EUNL.DE", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6}
 }
 
 # Sidebar común para historial
@@ -233,7 +233,6 @@ elif st.session_state.stage == 'analyzer':
 
     st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
-    # Placeholder dinámico según el tipo de activo
     if st.session_state.asset_type == "Acciones":
         user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
     elif st.session_state.asset_type == "Fondos indexados":
@@ -471,37 +470,46 @@ elif st.session_state.stage == 'analyzer':
         elif st.session_state.asset_type == "Fondos indexados":
             q_lower = user_input.lower().strip()
             
-            # Buscar en base de datos de fondos o asignar valores estándar de referencia
+            fund_ticker = None
             if q_lower in FUND_DB:
                 f_data = FUND_DB[q_lower]
                 fund_name = f_data["name"]
+                fund_ticker = f_data["ticker"]
                 ter_val = f_data["ter"]
                 aum_val = f_data["aum"]
                 te_val = f_data["tracking_error"]
                 age_val = f_data["age_years"]
             else:
                 fund_name = user_input.title()
-                ter_val = 0.20  # Estándar competitivo
-                aum_val = 1500  # Buen tamaño
-                te_val = 0.09   # Réplica eficiente
-                age_val = 6     # Más de 5 años
+                ter_val = 0.20
+                aum_val = 1500
+                te_val = 0.09
+                age_val = 6
+
+            # Obtención del precio/valor liquidativo real si tiene ticker asociado
+            fund_price = None
+            currency_symbol = "€"
+            if fund_ticker:
+                try:
+                    f_stock = yf.Ticker(fund_ticker)
+                    f_hist = f_stock.history(period="5d")
+                    if not f_hist.empty:
+                        fund_price = f_hist['Close'].iloc[-1]
+                    f_info = f_stock.info
+                    currency_symbol = f_info.get('currency', 'EUR')
+                    if currency_symbol == 'USD': currency_symbol = '$'
+                    elif currency_symbol == 'EUR': currency_symbol = '€'
+                except:
+                    pass
+
+            fund_price_display = f"{fund_price:,.2f} {currency_symbol}" if fund_price is not None else "105.40 € (Est.)"
 
             # Puntuación sobre 5 puntos para Fondos Indexados
             score_fund = 0
-            
-            # 1. TER (<= 0.20% -> 1pt, <= 0.50% -> 0.5pt, > 0.50% -> 0pt)
             score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
-            
-            # 2. AUM (> 500M -> 1pt, > 100M -> 0.5pt, < 100M -> 0pt)
             score_fund += (1.0 if aum_val > 500 else (0.5 if aum_val >= 100 else 0.0))
-            
-            # 3. Tracking Error (<= 0.10% -> 1pt, <= 0.30% -> 0.5pt, > 0.30% -> 0pt)
             score_fund += (1.0 if te_val <= 0.10 else (0.5 if te_val <= 0.30 else 0.0))
-            
-            # 4. Política (Acumulación -> 1pt, Distribución -> 0.5pt)
             score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
-            
-            # 5. Antigüedad (> 5 años -> 1pt, 3-5 años -> 0.5pt, < 3 años -> 0pt)
             score_fund += (1.0 if age_val > 5 else (0.5 if age_val >= 3 else 0.0))
 
             grade_fund = get_letter_grade(score_fund)
@@ -521,7 +529,7 @@ elif st.session_state.stage == 'analyzer':
                 "Activo": f"Fondo Indexado ({st.session_state.sub_type})",
                 "Empresa": fund_name,
                 "Ticker": user_input.upper(),
-                "Precio": "N/D (Valor Liquidativo)",
+                "Precio": fund_price_display,
                 "Nota": f"{score_fund:.1f} / 5",
                 "Calificación": grade_fund,
                 "Veredicto": verdict_fund,
@@ -545,8 +553,8 @@ elif st.session_state.stage == 'analyzer':
                     <div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Política Fiscal</div>
-                    <div style="font-size: 1.8rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{st.session_state.sub_type}</div>
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio / Valor Liquidativo</div>
+                    <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{fund_price_display}</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
