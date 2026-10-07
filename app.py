@@ -390,6 +390,9 @@ elif st.session_state.stage == 'analyzer':
             df_comparison = pd.DataFrame(comparison_data)
             st.table(df_comparison)
 
+            st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
+            st.info(f"**Estado de la Racha:** {racha_info}")
+
             st.markdown("### 📝 Perspectiva Analítica y Veredicto")
             if total_score >= 4.0:
                 st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Excelentes métricas fundamentales en los indicadores clave seleccionados.")
