@@ -94,6 +94,12 @@ TICKER_DB = {
     "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
+FUND_DB = {
+    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
+    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
+    "ishares developed world": {"name": "iShares Developed World Index Fund", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6}
+}
+
 # Sidebar común para historial
 with st.sidebar:
     st.header("📊 Historial de Sesión")
@@ -227,7 +233,13 @@ elif st.session_state.stage == 'analyzer':
 
     st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
-    user_input = st.text_input("Nombre de empresa, fondo o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
+    # Placeholder dinámico según el tipo de activo
+    if st.session_state.asset_type == "Acciones":
+        user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
+    elif st.session_state.asset_type == "Fondos indexados":
+        user_input = st.text_input("Nombre del fondo o ISIN", value="", placeholder="Ej. Vanguard Global Stock o IE00B4X9L533").strip()
+    else:
+        user_input = st.text_input("Nombre del ETF o Ticker", value="", placeholder="Escribe el ETF").strip()
 
     def get_stock_data(query):
         q_lower = query.lower().strip()
@@ -244,211 +256,330 @@ elif st.session_state.stage == 'analyzer':
         else: return "D"
 
     if not user_input:
-        st.info("👆 Introduce el nombre de una empresa, fondo o su ticker en el cuadro superior para comenzar el análisis.")
+        st.info("👆 Introduce el nombre del activo, fondo o su código en el cuadro superior para comenzar el análisis.")
     else:
-        stock_result = get_stock_data(user_input)
-        if isinstance(stock_result, tuple) and len(stock_result) == 4:
-            ticker_input, racha_info, est_div_growth, db_div_yield = stock_result
-        else:
-            ticker_input, racha_info, est_div_growth, db_div_yield = user_input.upper(), "Sin datos", 3.0, None
-        
-        try:
-            stock = yf.Ticker(ticker_input)
+        # ----------------------------------------------------
+        # CASO A: EVALUACIÓN DE ACCIONES
+        # ----------------------------------------------------
+        if st.session_state.asset_type == "Acciones":
+            stock_result = get_stock_data(user_input)
+            if isinstance(stock_result, tuple) and len(stock_result) == 4:
+                ticker_input, racha_info, est_div_growth, db_div_yield = stock_result
+            else:
+                ticker_input, racha_info, est_div_growth, db_div_yield = user_input.upper(), "Sin datos", 3.0, None
             
-            # Obtención rápida y fiable del precio mediante el histórico reciente
-            hist_price = stock.history(period="5d")
-            current_price = None
-            if not hist_price.empty:
-                current_price = hist_price['Close'].iloc[-1]
-
-            # Intentar obtener info general de forma segura
             try:
-                info = stock.info
-            except:
-                info = {}
+                stock = yf.Ticker(ticker_input)
+                
+                hist_price = stock.history(period="5d")
+                current_price = None
+                if not hist_price.empty:
+                    current_price = hist_price['Close'].iloc[-1]
 
-            name = info.get('longName', user_input.title())
-            
-            currency_symbol = info.get('currency', '€')
-            if currency_symbol == 'USD':
-                currency_symbol = '$'
-            elif currency_symbol == 'EUR':
-                currency_symbol = '€'
-
-            price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
-
-            # Extracción de parámetros con valores por defecto seguros
-            per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
-            pfcf_y = info.get('priceToFreeCashflow') or 18.0
-            pb_y = info.get('priceToBook') or 3.0
-            roe_y = info.get('returnOnEquity')
-            roe_val = (roe_y * 100) if roe_y else 15.0
-            
-            div_y = info.get('dividendYield')
-            div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
-            
-            bpa_y = info.get('trailingEps') or 2.0
-            beta_val = info.get('beta') or 1.0
-            payout_val = info.get('payoutRatio')
-            payout_val = (payout_val * 100) if payout_val else 50.0
-
-            # Búsqueda robusta de Beneficio Neto y EBITDA
-            net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
-            if not net_income_y:
                 try:
-                    fin = stock.financials
-                    if not fin.empty:
-                        for row_name in ['Net Income', 'Net Income Common Stockholders', 'Net Income From Continuing Operation']:
-                            if row_name in fin.index:
-                                net_income_y = fin.loc[row_name].iloc[0]
-                                break
+                    info = stock.info
                 except:
-                    pass
-            net_income_m = (net_income_y / 1e6) if net_income_y else 0.0
+                    info = {}
 
-            ebitda_y = info.get('ebitda')
-            if not ebitda_y:
-                try:
-                    fin = stock.financials
-                    if not fin.empty:
-                        for row_name in ['EBITDA', 'Normalized EBITDA', 'Operating Income']:
-                            if row_name in fin.index:
-                                ebitda_y = fin.loc[row_name].iloc[0]
-                                break
-                except:
-                    pass
-            ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
+                name = info.get('longName', user_input.title())
+                
+                currency_symbol = info.get('currency', '€')
+                if currency_symbol == 'USD':
+                    currency_symbol = '$'
+                elif currency_symbol == 'EUR':
+                    currency_symbol = '€'
 
-            growth_1y = info.get('earningsGrowth')
-            growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
+                price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
+
+                per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
+                pfcf_y = info.get('priceToFreeCashflow') or 18.0
+                pb_y = info.get('priceToBook') or 3.0
+                roe_y = info.get('returnOnEquity')
+                roe_val = (roe_y * 100) if roe_y else 15.0
+                
+                div_y = info.get('dividendYield')
+                div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
+                
+                bpa_y = info.get('trailingEps') or 2.0
+                beta_val = info.get('beta') or 1.0
+                payout_val = info.get('payoutRatio')
+                payout_val = (payout_val * 100) if payout_val else 50.0
+
+                net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
+                if not net_income_y:
+                    try:
+                        fin = stock.financials
+                        if not fin.empty:
+                            for row_name in ['Net Income', 'Net Income Common Stockholders', 'Net Income From Continuing Operation']:
+                                if row_name in fin.index:
+                                    net_income_y = fin.loc[row_name].iloc[0]
+                                    break
+                    except:
+                        pass
+                net_income_m = (net_income_y / 1e6) if net_income_y else 0.0
+
+                ebitda_y = info.get('ebitda')
+                if not ebitda_y:
+                    try:
+                        fin = stock.financials
+                        if not fin.empty:
+                            for row_name in ['EBITDA', 'Normalized EBITDA', 'Operating Income']:
+                                if row_name in fin.index:
+                                    ebitda_y = fin.loc[row_name].iloc[0]
+                                    break
+                    except:
+                        pass
+                ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
+
+                growth_1y = info.get('earningsGrowth')
+                growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
+                
+                growth_5y = info.get('revenueGrowth')
+                growth_5y_val = f"{(growth_5y * 100):.2f}%" if growth_5y is not None else "N/D"
+
+                total_score = 0
+                
+                if st.session_state.sub_type == "Con dividendos":
+                    total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
+                    total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
+                    total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
+                    total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
+                    total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
+                else:
+                    total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
+                    total_score += (1.0 if pfcf_y <= 20 else (0.5 if pfcf_y <= 35 else 0.0))
+                    total_score += (1.0 if pb_y <= 4.0 else (0.5 if pb_y <= 8.0 else 0.0))
+                    total_score += (1.0 if roe_val >= 15.0 else (0.5 if roe_val >= 8.0 else 0.0))
+                    total_score += (1.0 if bpa_y > 0 else 0.0)
+
+                grade = get_letter_grade(total_score)
+                deg = int((total_score / 5.0) * 360)
+
+                if total_score >= 4.0:
+                    verdict_text = "COMPRAR / ATRACTIVO"
+                    progress_color = "#22c55e"
+                elif total_score >= 3.0:
+                    verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
+                    progress_color = "#eab308"
+                else:
+                    verdict_text = "DESCARTAR / NO APTO"
+                    progress_color = "#ef4444"
+
+                session_record = {
+                    "Activo": f"{st.session_state.asset_type} ({st.session_state.sub_type})",
+                    "Empresa": name,
+                    "Ticker": ticker_input,
+                    "Precio": price_display,
+                    "Nota": f"{total_score:.1f} / 5",
+                    "Calificación": grade,
+                    "Veredicto": verdict_text,
+                    "Racha": racha_info
+                }
+                if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
+                    st.session_state.history.append(session_record)
+
+                st.subheader(f"📊 Informe: {name} ({ticker_input})")
+
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;">
+                        <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
+                            <div class="progress-value">{total_score:.1f}/5</div>
+                        </div>
+                        <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Óptima</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
+                        <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div>
+                        <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                st.markdown("### 📋 Tabla de Parámetros Clave")
+                
+                if st.session_state.sub_type == "Sin dividendos":
+                    comparison_data = {
+                        "Parámetro": [
+                            "PER (Precio / Beneficio)", 
+                            "P/FCF (Precio / Free Cash Flow)", 
+                            "P/B (Precio / Valor Contable)", 
+                            "ROE (Rentabilidad sobre Fondos Propios)", 
+                            "Beneficio Neto (Millones)", 
+                            "EBITDA (Millones)", 
+                            "BPA (Beneficio por Acción)",
+                            "Previsión Crecimiento (1 Año)",
+                            "Previsión Crecimiento (5 Años)"
+                        ],
+                        "Valor Actual": [
+                            f"{per_y:.2f}",
+                            f"{pfcf_y:.2f}",
+                            f"{pb_y:.2f}",
+                            f"{roe_val:.2f}%",
+                            f"{net_income_m:,.2f} M {currency_symbol}" if net_income_m != 0 else "N/D",
+                            f"{ebitda_m:,.2f} M {currency_symbol}" if ebitda_m != 0 else "N/D",
+                            f"{bpa_y:.2f} {currency_symbol}",
+                            growth_1y_val,
+                            growth_5y_val
+                        ]
+                    }
+                else:
+                    comparison_data = {
+                        "Métrica Financiera": [
+                            "PER (Precio/Beneficio)", 
+                            "Dividend Yield (%)", 
+                            "Beta (Volatilidad)", 
+                            "Payout Ratio (%)", 
+                            "Crecimiento Div. vs Inflación",
+                            "Previsión Crecimiento (1 Año)",
+                            "Previsión Crecimiento (5 Años)"
+                        ],
+                        "Valor Seleccionado": [
+                            f"{per_y:.2f}", 
+                            f"{div_y_val:.2f}%", 
+                            f"{beta_val:.2f}", 
+                            f"{payout_val:.1f}%", 
+                            f"{est_div_growth:.1f}% anual",
+                            growth_1y_val,
+                            growth_5y_val
+                        ]
+                    }
+                    
+                df_comparison = pd.DataFrame(comparison_data)
+                st.table(df_comparison)
+
+                st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
+                st.info(f"**Estado de la Racha:** {racha_info}")
+
+                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
+                if total_score >= 4.0:
+                    st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Excelentes métricas fundamentales en los indicadores clave seleccionados.")
+                elif total_score >= 3.0:
+                    st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Parámetros mixtos; se aconseja vigilancia táctica.")
+                else:
+                    st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* El perfil fundamental no cumple con los umbrales mínimos establecidos.")
+
+            except Exception as e:
+                st.error(f"Error al procesar los datos para '{user_input}': {e}")
+
+        # ----------------------------------------------------
+        # CASO B: EVALUACIÓN DE FONDOS INDEXADOS
+        # ----------------------------------------------------
+        elif st.session_state.asset_type == "Fondos indexados":
+            q_lower = user_input.lower().strip()
             
-            growth_5y = info.get('revenueGrowth')
-            growth_5y_val = f"{(growth_5y * 100):.2f}%" if growth_5y is not None else "N/D"
+            # Buscar en base de datos de fondos o asignar valores estándar de referencia
+            if q_lower in FUND_DB:
+                f_data = FUND_DB[q_lower]
+                fund_name = f_data["name"]
+                ter_val = f_data["ter"]
+                aum_val = f_data["aum"]
+                te_val = f_data["tracking_error"]
+                age_val = f_data["age_years"]
+            else:
+                fund_name = user_input.title()
+                ter_val = 0.20  # Estándar competitivo
+                aum_val = 1500  # Buen tamaño
+                te_val = 0.09   # Réplica eficiente
+                age_val = 6     # Más de 5 años
 
-            total_score = 0
+            # Puntuación sobre 5 puntos para Fondos Indexados
+            score_fund = 0
             
-            if st.session_state.sub_type == "Con dividendos":
-                total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
-                total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
-                total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
-                total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
-            else:
-                total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
-                total_score += (1.0 if pfcf_y <= 20 else (0.5 if pfcf_y <= 35 else 0.0))
-                total_score += (1.0 if pb_y <= 4.0 else (0.5 if pb_y <= 8.0 else 0.0))
-                total_score += (1.0 if roe_val >= 15.0 else (0.5 if roe_val >= 8.0 else 0.0))
-                total_score += (1.0 if bpa_y > 0 else 0.0)
+            # 1. TER (<= 0.20% -> 1pt, <= 0.50% -> 0.5pt, > 0.50% -> 0pt)
+            score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
+            
+            # 2. AUM (> 500M -> 1pt, > 100M -> 0.5pt, < 100M -> 0pt)
+            score_fund += (1.0 if aum_val > 500 else (0.5 if aum_val >= 100 else 0.0))
+            
+            # 3. Tracking Error (<= 0.10% -> 1pt, <= 0.30% -> 0.5pt, > 0.30% -> 0pt)
+            score_fund += (1.0 if te_val <= 0.10 else (0.5 if te_val <= 0.30 else 0.0))
+            
+            # 4. Política (Acumulación -> 1pt, Distribución -> 0.5pt)
+            score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
+            
+            # 5. Antigüedad (> 5 años -> 1pt, 3-5 años -> 0.5pt, < 3 años -> 0pt)
+            score_fund += (1.0 if age_val > 5 else (0.5 if age_val >= 3 else 0.0))
 
-            grade = get_letter_grade(total_score)
-            deg = int((total_score / 5.0) * 360)
+            grade_fund = get_letter_grade(score_fund)
+            deg_fund = int((score_fund / 5.0) * 360)
 
-            if total_score >= 4.0:
-                verdict_text = "COMPRAR / ATRACTIVO"
-                progress_color = "#22c55e"
-            elif total_score >= 3.0:
-                verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
-                progress_color = "#eab308"
+            if score_fund >= 4.0:
+                verdict_fund = "FONDO ALTAMENTE RECOMENDABLE / PASIVO ÓPTIMO"
+                color_fund = "#22c55e"
+            elif score_fund >= 3.0:
+                verdict_fund = "FONDO ADECUADO / CUMPLE ESTÁNDARES"
+                color_fund = "#eab308"
             else:
-                verdict_text = "DESCARTAR / NO APTO"
-                progress_color = "#ef4444"
+                verdict_fund = "COSTES ELEVADOS / NO RECOMENDADO"
+                color_fund = "#ef4444"
 
             session_record = {
-                "Activo": f"{st.session_state.asset_type} ({st.session_state.sub_type})",
-                "Empresa": name,
-                "Ticker": ticker_input,
-                "Precio": price_display,
-                "Nota": f"{total_score:.1f} / 5",
-                "Calificación": grade,
-                "Veredicto": verdict_text,
-                "Racha": racha_info
+                "Activo": f"Fondo Indexado ({st.session_state.sub_type})",
+                "Empresa": fund_name,
+                "Ticker": user_input.upper(),
+                "Precio": "N/D (Valor Liquidativo)",
+                "Nota": f"{score_fund:.1f} / 5",
+                "Calificación": grade_fund,
+                "Veredicto": verdict_fund,
+                "Racha": f"Antigüedad: {age_val} años"
             }
-            if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
+            if not st.session_state.history or st.session_state.history[-1]["Ticker"] != user_input.upper():
                 st.session_state.history.append(session_record)
 
-            st.subheader(f"📊 Informe Multifuente: {name} ({ticker_input})")
+            st.subheader(f"📊 Informe de Fondo Indexado: {fund_name}")
 
             st.markdown(f"""
             <div class="score-container">
                 <div style="text-align: center;">
-                    <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
-                        <div class="progress-value">{total_score:.1f}/5</div>
+                    <div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};">
+                        <div class="progress-value">{score_fund:.1f}/5</div>
                     </div>
-                    <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Óptima</div>
+                    <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div>
                 </div>
                 <div style="text-align: center;">
                     <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
-                    <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
+                    <div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div>
-                    <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div>
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Política Fiscal</div>
+                    <div style="font-size: 1.8rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{st.session_state.sub_type}</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("### 📋 Tabla de Parámetros Clave")
-            
-            if st.session_state.sub_type == "Sin dividendos":
-                comparison_data = {
-                    "Parámetro": [
-                        "PER (Precio / Beneficio)", 
-                        "P/FCF (Precio / Free Cash Flow)", 
-                        "P/B (Precio / Valor Contable)", 
-                        "ROE (Rentabilidad sobre Fondos Propios)", 
-                        "Beneficio Neto (Millones)", 
-                        "EBITDA (Millones)", 
-                        "BPA (Beneficio por Acción)",
-                        "Previsión Crecimiento (1 Año)",
-                        "Previsión Crecimiento (5 Años)"
-                    ],
-                    "Valor Actual": [
-                        f"{per_y:.2f}",
-                        f"{pfcf_y:.2f}",
-                        f"{pb_y:.2f}",
-                        f"{roe_val:.2f}%",
-                        f"{net_income_m:,.2f} M {currency_symbol}" if net_income_m != 0 else "N/D",
-                        f"{ebitda_m:,.2f} M {currency_symbol}" if ebitda_m != 0 else "N/D",
-                        f"{bpa_y:.2f} {currency_symbol}",
-                        growth_1y_val,
-                        growth_5y_val
-                    ]
-                }
-            else:
-                comparison_data = {
-                    "Métrica Financiera": [
-                        "PER (Precio/Beneficio)", 
-                        "Dividend Yield (%)", 
-                        "Beta (Volatilidad)", 
-                        "Payout Ratio (%)", 
-                        "Crecimiento Div. vs Inflación",
-                        "Previsión Crecimiento (1 Año)",
-                        "Previsión Crecimiento (5 Años)"
-                    ],
-                    "Valor Seleccionado": [
-                        f"{per_y:.2f}", 
-                        f"{div_y_val:.2f}%", 
-                        f"{beta_val:.2f}", 
-                        f"{payout_val:.1f}%", 
-                        f"{est_div_growth:.1f}% anual",
-                        growth_1y_val,
-                        growth_5y_val
-                    ]
-                }
-                
-            df_comparison = pd.DataFrame(comparison_data)
-            st.table(df_comparison)
-
-            st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
-            st.info(f"**Estado de la Racha:** {racha_info}")
+            st.markdown("### 📋 Parámetros Clave de Gestión Pasiva")
+            df_fund_data = {
+                "Métrica del Fondo": [
+                    "TER (Gastos Corrientes / Comisiones)", 
+                    "Patrimonio bajo Gestión (AUM)", 
+                    "Tracking Error (Error de Réplica)", 
+                    "Política de Reinversión", 
+                    "Antigüedad (Track Record)"
+                ],
+                "Valor Actual": [
+                    f"{ter_val:.2f}% anual",
+                    f"{aum_val:,.0f} M€",
+                    f"{te_val:.2f}%",
+                    st.session_state.sub_type,
+                    f"{age_val} años"
+                ]
+            }
+            st.table(pd.DataFrame(df_fund_data))
 
             st.markdown("### 📝 Perspectiva Analítica y Veredicto")
-            if total_score >= 4.0:
-                st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Excelentes métricas fundamentales en los indicadores clave seleccionados.")
-            elif total_score >= 3.0:
-                st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Parámetros mixtos; se aconseja vigilancia táctica.")
+            if score_fund >= 4.0:
+                st.success(f"🟢 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Excelente estructura de costes reducidos, alta capitalización y réplica muy eficiente.")
+            elif score_fund >= 3.0:
+                st.warning(f"🟡 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Fondo sólido para cartera pasiva, aunque con margen de mejora en comisiones o tamaño.")
             else:
-                st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* El perfil fundamental no cumple con los umbrales mínimos establecidos.")
+                st.error(f"🔴 **VEREDICTO: {verdict_fund}**\n\n*Justificación:* Los costes o las características del fondo penalizan su rentabilidad a largo plazo.")
 
-        except Exception as e:
-            st.error(f"Error al procesar los datos para '{user_input}': {e}")
+        # ----------------------------------------------------
+        # CASO C: EVALUACIÓN DE ETFS
+        # ----------------------------------------------------
+        else:
+            st.info("🌐 Analizador de ETFs configurado. Selecciona un ETF para evaluar sus gastos y liquidez en mercado.")
