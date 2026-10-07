@@ -1,10 +1,3 @@
-He añadido la sección para mostrar el precio actual de la acción en tiempo real justo al lado de la calificación oficial, dentro del contenedor principal de resultados.
-
-Para ello, el sistema consulta el precio de mercado actual a través de la API y lo muestra junto a su moneda correspondiente (euros, dólares, etc.).
-
-Aquí tienes el código completo y actualizado de tu archivo app.py:
-
-Python
 import streamlit as st
 import yfinance as yf
 import pandas as pd
