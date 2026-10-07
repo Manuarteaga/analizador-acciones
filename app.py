@@ -254,27 +254,20 @@ elif st.session_state.stage == 'analyzer':
         
         try:
             stock = yf.Ticker(ticker_input)
-            info = stock.info
             
+            # Obtención rápida y fiable del precio mediante el histórico reciente
+            hist_price = stock.history(period="5d")
+            current_price = None
+            if not hist_price.empty:
+                current_price = hist_price['Close'].iloc[-1]
+
+            # Intentar obtener info general de forma segura
+            try:
+                info = stock.info
+            except:
+                info = {}
+
             name = info.get('longName', user_input.title())
-            
-            # Extracción robusta de precio actual (Cascada de claves en info y fallback histórico)
-            current_price = (
-                info.get('currentPrice') or 
-                info.get('regularMarketPrice') or 
-                info.get('previousClose') or 
-                info.get('regularMarketOpen') or 
-                info.get('ask') or 
-                info.get('bid')
-            )
-            
-            if current_price is None:
-                try:
-                    hist_price = stock.history(period="5d")
-                    if not hist_price.empty:
-                        current_price = hist_price['Close'].iloc[-1]
-                except:
-                    pass
             
             currency_symbol = info.get('currency', '€')
             if currency_symbol == 'USD':
@@ -284,22 +277,22 @@ elif st.session_state.stage == 'analyzer':
 
             price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
 
-            # Extracción robusta de parámetros avanzados
-            per_y = info.get('trailingPE') or info.get('forwardPE') or 22.0
-            pfcf_y = info.get('priceToFreeCashflow') or 18.5
-            pb_y = info.get('priceToBook') or 3.2
+            # Extracción de parámetros con valores por defecto seguros
+            per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
+            pfcf_y = info.get('priceToFreeCashflow') or 18.0
+            pb_y = info.get('priceToBook') or 3.0
             roe_y = info.get('returnOnEquity')
             roe_val = (roe_y * 100) if roe_y else 15.0
             
             div_y = info.get('dividendYield')
             div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
             
-            bpa_y = info.get('trailingEps') or 2.5
+            bpa_y = info.get('trailingEps') or 2.0
             beta_val = info.get('beta') or 1.0
             payout_val = info.get('payoutRatio')
-            payout_val = (payout_val * 100) if payout_val else 60.0
+            payout_val = (payout_val * 100) if payout_val else 50.0
 
-            # Búsqueda robusta de Beneficio Neto y EBITDA (con respaldo en los estados financieros)
+            # Búsqueda robusta de Beneficio Neto y EBITDA
             net_income_y = info.get('netIncomeToCommon') or info.get('netIncome')
             if not net_income_y:
                 try:
@@ -326,7 +319,6 @@ elif st.session_state.stage == 'analyzer':
                     pass
             ebitda_m = (ebitda_y / 1e6) if ebitda_y else 0.0
 
-            # Previsiones de crecimiento (1 año y 5 años) desde yfinance
             growth_1y = info.get('earningsGrowth')
             growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
             
@@ -336,15 +328,10 @@ elif st.session_state.stage == 'analyzer':
             total_score = 0
             
             if st.session_state.sub_type == "Con dividendos":
-                # PER
                 total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
-                # Beta
                 total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                # Dividend Yield (0% - 6%: 1 pt, 6% - 9%: 0.5 pts, >9%: 0 pts)
                 total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
-                # Payout Ratio (35% - 75%: 1 pt, fuera de rango: 0 pts)
                 total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
-                # Crecimiento Div. vs Inflación
                 total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
             else:
                 total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
