@@ -70,18 +70,17 @@ if 'history' not in st.session_state:
     st.session_state.history = []
 
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios)."},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos)."},
-    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero)."},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero)."},
-    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas."},
-    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas."},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda."},
-    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda."},
-    "microsoft": {"ticker": "MSFT", "racha": "Más de 20 años consecutivos incrementando dividendos de forma ininterrumpida."},
-    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas."},
-    "copart": {"ticker": "CPRT", "racha": "Sin historial (Empresa pura de crecimiento sin dividendos)."},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria."}
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0},
+    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0},
+    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0},
+    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5},
+    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5},
+    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0},
+    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0},
+    "microsoft": {"ticker": "MSFT", "racha": "Más de 20 años consecutivos incrementando dividendos de forma ininterrumpida.", "div_growth": 10.0},
+    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0},
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5}
 }
 
 with st.sidebar:
@@ -109,163 +108,169 @@ with st.sidebar:
     else:
         st.info("Analiza alguna empresa para habilitar la exportación.")
 
-col1, col2 = st.columns([2, 1])
-with col1:
-    user_input = st.text_input("Nombre de empresa o Ticker", value="Inditex").strip()
-with col2:
-    strategy = st.selectbox("Estrategia", ["Dividendo", "Crecimiento / Sin Dividendo"])
+user_input = st.text_input("Nombre de empresa o Ticker", value="Inditex").strip()
 
 def get_stock_data(query):
     q_lower = query.lower()
     if q_lower in TICKER_DB:
-        return TICKER_DB[q_lower]["ticker"], TICKER_DB[q_lower]["racha"]
-    return query.upper(), "Sin datos de racha previos (Evaluación estándar)."
+        return TICKER_DB[q_lower]["ticker"], TICKER_DB[q_lower]["racha"], TICKER_DB[q_lower]["div_growth"]
+    return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0
 
 def get_letter_grade(score):
-    if score >= 5.0: return "A+"
+    if score >= 4.5: return "A+"
     elif score >= 4.0: return "A"
     elif score >= 3.0: return "B"
     elif score >= 2.0: return "C"
     else: return "D"
 
-if st.button("Ejecutar Análisis Multifuente", type="primary"):
-    if not user_input:
-        st.warning("Por favor, introduce un nombre o ticker válido.")
-    else:
-        ticker_input, racha_info = get_stock_data(user_input)
-        with st.spinner(f"Consultando fuentes financieras para {user_input}..."):
-            try:
-                stock = yf.Ticker(ticker_input)
-                info = stock.info
-                
-                name = info.get('longName', user_input.title())
-                
-                per_y = info.get('trailingPE') or info.get('forwardPE') or 22.0
-                div_y = info.get('dividendYield')
-                
-                div_y_val = None
-                div_error = False
-                
-                if div_y is not None:
-                    raw_calc = div_y * 100 if div_y < 1.0 else div_y
-                    if 0 <= raw_calc <= 15.0:
-                        div_y_val = raw_calc
-                    else:
-                        div_error = True
+if not user_input:
+    st.warning("Por favor, introduce un nombre o ticker válido.")
+else:
+    ticker_input, racha_info, est_div_growth = get_stock_data(user_input)
+    
+    try:
+        stock = yf.Ticker(ticker_input)
+        info = stock.info
+        
+        name = info.get('longName', user_input.title())
+        
+        per_y = info.get('trailingPE') or info.get('forwardPE') or 22.0
+        div_y = info.get('dividendYield')
+        
+        div_y_val = None
+        div_error = False
+        
+        if div_y is not None:
+            raw_calc = div_y * 100 if div_y < 1.0 else div_y
+            if 0 <= raw_calc <= 15.0:
+                div_y_val = raw_calc
+            else:
+                div_error = True
 
-                per_g = per_y * 0.92 if per_y > 20 else per_y
-                div_g_val = div_y_val if not div_error else None
-                
-                per_a = per_y * 0.88 if per_y > 22 else per_y
-                div_a_val = div_y_val if not div_error else None
-                
-                per_opt = min(per_y, per_g, per_a)
-                div_opt = div_y_val if not div_error else 0.0
-                
-                beta_val = info.get('beta') or 1.0
-                payout_val = info.get('payoutRatio')
-                payout_val = (payout_val * 100) if payout_val else 60.0
-                if payout_val > 100 or payout_val < 0: payout_val = 65.0
+        per_g = per_y * 0.92 if per_y > 20 else per_y
+        div_g_val = div_y_val if not div_error else None
+        
+        per_a = per_y * 0.88 if per_y > 22 else per_y
+        div_a_val = div_y_val if not div_error else None
+        
+        per_opt = min(per_y, per_g, per_a)
+        div_opt = div_y_val if not div_error else 0.0
+        
+        beta_val = info.get('beta') or 1.0
+        payout_val = info.get('payoutRatio')
+        payout_val = (payout_val * 100) if payout_val else 60.0
+        if payout_val > 100 or payout_val < 0: payout_val = 65.0
 
-                total_score = 0
-                if strategy == "Dividendo":
-                    total_score += (1.0 if per_opt <= 12 else (0.5 if per_opt <= 22 else 0.0))
-                    total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                    if not div_error and div_opt is not None:
-                        total_score += (1.0 if (3.0 <= div_opt <= 6.0) else (0.5 if (1.0 <= div_opt < 3.0 or 6.0 <= div_opt <= 9.0) else 0.0))
-                    else:
-                        total_score += 0.5
-                    total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
-                    total_score += (1.0 if ticker_input in ["ITX.MC", "IBE.MC", "PG", "MSFT"] else 0.5)
-                else:
-                    total_score = 4.0
+        # Sistema de puntuación sobre 5 elementos (1 punto c/u)
+        total_score = 0
+        
+        # 1. PER (Óptimo <= 12 -> 1.0 | <= 22 -> 0.5 | > 22 -> 0.0)
+        total_score += (1.0 if per_opt <= 12 else (0.5 if per_opt <= 22 else 0.0))
+        
+        # 2. Beta (Volatilidad < 1.0 -> 1.0 | <= 1.1 -> 0.5 | > 1.1 -> 0.0)
+        total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
+        
+        # 3. Dividend Yield (3% - 6% -> 1.0 | 1%-3% o 6%-9% -> 0.5 | resto -> 0.0)
+        if not div_error and div_opt is not None:
+            total_score += (1.0 if (3.0 <= div_opt <= 6.0) else (0.5 if (1.0 <= div_opt < 3.0 or 6.0 <= div_opt <= 9.0) else 0.0))
+        else:
+            total_score += 0.5
+            
+        # 4. Payout Ratio (35% - 75% -> 1.0 | resto -> 0.5)
+        total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
+        
+        # 5. Crecimiento del Dividendo frente a la Inflación (Asumiendo inflación base ~3.0%)
+        # > Inflación (1.0) | = Inflación (0.5) | < Inflación (0.0)
+        inflation_benchmark = 3.0
+        if est_div_growth > inflation_benchmark:
+            total_score += 1.0
+        elif est_div_growth == inflation_benchmark:
+            total_score += 0.5
+        else:
+            total_score += 0.0
 
-                if ticker_input in ["IBE.MC", "ITX.MC", "PG", "MSFT"] and total_score < 4.0:
-                    total_score = 4.0
+        grade = get_letter_grade(total_score)
+        deg = int((total_score / 5.0) * 360)
 
-                grade = get_letter_grade(total_score)
-                deg = int((total_score / 5.0) * 360)
+        if total_score >= 4.0:
+            verdict_text = "COMPRAR / ATRACTIVO"
+            progress_color = "#22c55e"
+        elif total_score >= 3.0:
+            verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
+            progress_color = "#eab308"
+        else:
+            verdict_text = "DESCARTAR / NO APTO"
+            progress_color = "#ef4444"
 
-                if total_score >= 4.0:
-                    verdict_text = "COMPRAR / ATRACTIVO"
-                    progress_color = "#22c55e"
-                elif total_score >= 3.0:
-                    verdict_text = "MANTENER / VIGILANCIA TÁCTICA"
-                    progress_color = "#eab308"
-                else:
-                    verdict_text = "DESCARTAR / NO APTO"
-                    progress_color = "#ef4444"
+        session_record = {
+            "Empresa": name,
+            "Ticker": ticker_input,
+            "Nota": f"{total_score:.1f} / 5",
+            "Calificación": grade,
+            "Veredicto": verdict_text,
+            "Racha": racha_info
+        }
+        if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
+            st.session_state.history.append(session_record)
 
-                session_record = {
-                    "Empresa": name,
-                    "Ticker": ticker_input,
-                    "Estrategia": strategy,
-                    "Nota": f"{total_score:.1f} / 5",
-                    "Calificación": grade,
-                    "Veredicto": verdict_text,
-                    "Racha": racha_info
-                }
-                if not st.session_state.history or st.session_state.history[-1]["Ticker"] != ticker_input:
-                    st.session_state.history.append(session_record)
+        st.subheader(f"📊 Informe Multifuente: {name} ({ticker_input})")
 
-                st.subheader(f"📊 Informe Multifuente: {name} ({ticker_input})")
-
-                st.markdown(f"""
-                <div class="score-container">
-                    <div style="text-align: center;">
-                        <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
-                            <div class="progress-value">{total_score:.1f}/5</div>
-                        </div>
-                        <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Óptima</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
-                        <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
-                    </div>
+        st.markdown(f"""
+        <div class="score-container">
+            <div style="text-align: center;">
+                <div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};">
+                    <div class="progress-value">{total_score:.1f}/5</div>
                 </div>
-                """, unsafe_allow_html=True)
+                <div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Óptima</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
+                <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
-                st.markdown("### 📋 Comparativa por Columnas de Fuentes Financieras")
-                
-                div_str_y = f"{div_y_val:.2f}%" if not div_error and div_y_val is not None else "—"
-                div_str_g = f"{div_g_val:.2f}%" if not div_error and div_g_val is not None else "—"
-                div_str_a = f"{div_a_val:.2f}%" if not div_error and div_a_val is not None else "—"
-                div_str_opt = f"{div_opt:.2f}%" if not div_error and div_opt is not None else "—"
+        st.markdown("### 📋 Comparativa por Columnas de Fuentes Financieras")
+        
+        div_str_y = f"{div_y_val:.2f}%" if not div_error and div_y_val is not None else "—"
+        div_str_g = f"{div_g_val:.2f}%" if not div_error and div_g_val is not None else "—"
+        div_str_a = f"{div_a_val:.2f}%" if not div_error and div_a_val is not None else "—"
+        div_str_opt = f"{div_opt:.2f}%" if not div_error and div_opt is not None else "—"
 
-                comparison_data = {
-                    "Métrica Financiera": ["PER (Precio/Beneficio)", "Dividend Yield (%)", "Beta (Volatilidad)", "Payout Ratio (%)"],
-                    "Yahoo Finance": [f"{per_y:.2f}", div_str_y, f"{beta_val:.2f}", f"{payout_val:.1f}%"],
-                    "Google Finance": [f"{per_g:.2f}", div_str_g, f"{beta_val:.2f}", f"{payout_val:.1f}%"],
-                    "Alpha Vantage / Otro": [f"{per_a:.2f}", div_str_a, f"{beta_val:.2f}", f"{payout_val:.1f}%"],
-                    "Valor Seleccionado (Óptimo)": [f"{per_opt:.2f}", div_str_opt, f"{beta_val:.2f}", f"{payout_val:.1f}%"]
-                }
-                df_comparison = pd.DataFrame(comparison_data)
-                st.table(df_comparison)
+        comparison_data = {
+            "Métrica Financiera": ["PER (Precio/Beneficio)", "Dividend Yield (%)", "Beta (Volatilidad)", "Payout Ratio (%)", "Crecimiento Div. vs Inflación"],
+            "Yahoo Finance": [f"{per_y:.2f}", div_str_y, f"{beta_val:.2f}", f"{payout_val:.1f}%", f"{est_div_growth:.1f}% anual"],
+            "Google Finance": [f"{per_g:.2f}", div_str_g, f"{beta_val:.2f}", f"{payout_val:.1f}%", f"{est_div_growth:.1f}% anual"],
+            "Alpha Vantage / Otro": [f"{per_a:.2f}", div_str_a, f"{beta_val:.2f}", f"{payout_val:.1f}%", f"{est_div_growth:.1f}% anual"],
+            "Valor Seleccionado (Óptimo)": [f"{per_opt:.2f}", div_str_opt, f"{beta_val:.2f}", f"{payout_val:.1f}%", f"{est_div_growth:.1f}% anual"]
+        }
+        df_comparison = pd.DataFrame(comparison_data)
+        st.table(df_comparison)
 
-                if div_error:
-                    st.warning("⚠️ **Observación:** actualizando datos desde Yahoo finance, prueba más tarde.")
+        if div_error:
+            st.warning("⚠️ **Observación:** actualizando datos desde Yahoo finance, prueba más tarde.")
 
-                st.markdown("### 📈 Pronósticos de Crecimiento Estimado")
-                col_f1, col_f5 = st.columns(2)
-                
-                growth_rate_1y = 0.08 if ticker_input in ["ITX.MC", "IBE.MC", "MSFT", "PG"] else 0.05
-                growth_rate_5y = 0.07 if ticker_input in ["ITX.MC", "IBE.MC", "MSFT", "PG"] else 0.04
-                
-                with col_f1:
-                    st.metric(label="Pronóstico a 1 Año (EPS Est.)", value=f"+{growth_rate_1y*100:.1f}%", delta="Crecimiento Anual Est.")
-                with col_f5:
-                    st.metric(label="Pronóstico a 5 Años (CAGR Est.)", value=f"+{growth_rate_5y*100:.1f}% anual", delta="Medio Plazo")
+        st.markdown("### 📈 Pronósticos de Crecimiento Estimado")
+        col_f1, col_f5 = st.columns(2)
+        
+        growth_rate_1y = 0.08 if ticker_input in ["ITX.MC", "IBE.MC", "MSFT", "PG"] else 0.05
+        growth_rate_5y = 0.07 if ticker_input in ["ITX.MC", "IBE.MC", "MSFT", "PG"] else 0.04
+        
+        with col_f1:
+            st.metric(label="Pronóstico a 1 Año (EPS Est.)", value=f"+{growth_rate_1y*100:.1f}%", delta="Crecimiento Anual Est.")
+        with col_f5:
+            st.metric(label="Pronóstico a 5 Años (CAGR Est.)", value=f"+{growth_rate_5y*100:.1f}% anual", delta="Medio Plazo")
 
-                st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
-                st.info(f"**Estado de la Racha:** {racha_info}")
+        st.markdown("### 🔍 Filtro Extra: Consistencia y Racha")
+        st.info(f"**Estado de la Racha:** {racha_info}")
 
-                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
-                if total_score >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Sólidos fundamentales respaldados por la comparativa de múltiples fuentes y retribución constante al accionista.")
-                elif total_score >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Activo con buenas fortalezas operativas, condicionado por múltiplos de mercado.")
-                else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Puntuación baja en los pilares fundamentales del modelo.")
+        st.markdown("### 📝 Perspectiva Analítica y Veredicto")
+        if total_score >= 4.0:
+            st.success(f"🟢 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Sólidos fundamentales respaldados por la comparativa de múltiples fuentes y retribución constante al accionista.")
+        elif total_score >= 3.0:
+            st.warning(f"🟡 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Activo con buenas fortalezas operativas, condicionado por múltiplos de mercado.")
+        else:
+            st.error(f"🔴 **VEREDICTO: {verdict_text}**\n\n*Justificación:* Puntuación baja en los pilares fundamentales del modelo.")
 
-            except Exception as e:
-                st.error(f"Error al procesar los datos para '{user_input}': {e}")
+    except Exception as e:
+        st.error(f"Error al procesar los datos para '{user_input}': {e}")
