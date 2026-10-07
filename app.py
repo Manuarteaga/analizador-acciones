@@ -226,7 +226,7 @@ elif st.session_state.stage == 'analyzer':
 
     st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
-    user_input = st.text_input("Nombre de empresa, fondo o Ticker", value="Inditex").strip()
+    user_input = st.text_input("Nombre de empresa, fondo o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
 
     def get_stock_data(query):
         q_lower = query.lower().strip()
@@ -243,9 +243,8 @@ elif st.session_state.stage == 'analyzer':
         else: return "D"
 
     if not user_input:
-        st.warning("Por favor, introduce un nombre o ticker válido.")
+        st.info("👆 Introduce el nombre de una empresa, fondo o su ticker en el cuadro superior para comenzar el análisis.")
     else:
-        # Desempaquetado seguro con validación
         stock_result = get_stock_data(user_input)
         if isinstance(stock_result, tuple) and len(stock_result) == 3:
             ticker_input, racha_info, est_div_growth = stock_result
