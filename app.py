@@ -51,9 +51,9 @@ st.markdown("""
         line-height: 1;
         color: var(--stamp-color);
         text-transform: uppercase;
-        transform: rotate(+8deg);
+        transform: rotate(-8deg);
         display: inline-block;
-        text-shadow: 0px 0px 0px rgba(0,0,0,0.4), 0 0 15px var(--stamp-color);
+        text-shadow: 3px 3px 0px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.5);
         animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     @keyframes stampPop {
@@ -79,18 +79,18 @@ def reset_navigation():
     st.session_state.sub_type = None
 
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0},
-    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0},
-    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5},
-    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0},
-    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0},
-    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0},
-    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0},
-    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5}
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8},
+    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5},
+    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5},
+    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0},
+    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0},
+    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5},
+    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5},
+    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7},
+    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4},
+    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0},
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
 # Sidebar común para historial
@@ -232,8 +232,8 @@ elif st.session_state.stage == 'analyzer':
         q_lower = query.lower().strip()
         if q_lower in TICKER_DB:
             data = TICKER_DB[q_lower]
-            return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0)
-        return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0
+            return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", None)
+        return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0, None
 
     def get_letter_grade(score):
         if score >= 4.5: return "A+"
@@ -246,10 +246,10 @@ elif st.session_state.stage == 'analyzer':
         st.info("👆 Introduce el nombre de una empresa, fondo o su ticker en el cuadro superior para comenzar el análisis.")
     else:
         stock_result = get_stock_data(user_input)
-        if isinstance(stock_result, tuple) and len(stock_result) == 3:
-            ticker_input, racha_info, est_div_growth = stock_result
+        if isinstance(stock_result, tuple) and len(stock_result) == 4:
+            ticker_input, racha_info, est_div_growth, db_div_yield = stock_result
         else:
-            ticker_input, racha_info, est_div_growth = user_input.upper(), "Sin datos", 3.0
+            ticker_input, racha_info, est_div_growth, db_div_yield = user_input.upper(), "Sin datos", 3.0, None
         
         try:
             stock = yf.Ticker(ticker_input)
@@ -269,6 +269,11 @@ elif st.session_state.stage == 'analyzer':
                     div_y_val = raw_calc
                 else:
                     div_error = True
+
+            # Si yfinance no devuelve el dato, respaldamos con el valor de la base de datos
+            if div_y_val is None and db_div_yield is not None:
+                div_y_val = db_div_yield
+                div_error = False
 
             per_g = per_y * 0.92 if per_y > 20 else per_y
             div_g_val = div_y_val if not div_error else None
