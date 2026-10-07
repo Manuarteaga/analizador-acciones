@@ -283,14 +283,22 @@ elif st.session_state.stage == 'analyzer':
             
             # Evaluación adaptada según sub_type
             if st.session_state.sub_type == "Con dividendos":
-                total_score += (1.0 if per_opt <= 12 else (0.5 if per_opt <= 22 else 0.0))
+                # 1. PER (<= 10 -> 1.0 | <= 25 -> 0.5 | > 25 -> 0.0)
+                total_score += (1.0 if per_opt <= 10 else (0.5 if per_opt <= 25 else 0.0))
+                
+                # 2. Beta (< 1.0 -> 1.0 | <= 1.1 -> 0.5 | > 1.1 -> 0.0)
                 total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
+                
+                # 3. Dividend Yield
                 if not div_error and div_opt is not None:
                     total_score += (1.0 if (3.0 <= div_opt <= 6.0) else (0.5 if (1.0 <= div_opt < 3.0 or 6.0 <= div_opt <= 9.0) else 0.0))
                 else:
                     total_score += 0.5
+                    
+                # 4. Payout Ratio
                 total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
                 
+                # 5. Crecimiento del Dividendo frente a la Inflación (~3.0%)
                 inflation_benchmark = 3.0
                 if est_div_growth > inflation_benchmark:
                     total_score += 1.0
@@ -299,12 +307,12 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     total_score += 0.0
             else:
-                # Modelo adaptado para Activos sin dividendos / Fondos / ETFs basado en crecimiento y múltiplos
+                # Modelo alternativo para activos sin dividendos / fondos / ETFs
                 total_score += (1.0 if per_opt <= 25 else (0.5 if per_opt <= 35 else 0.0))
                 total_score += (1.0 if beta_val < 1.1 else 0.5)
-                total_score += 1.0 # Eficiencia operativa estimada
-                total_score += 1.0 # Consistencia de tendencia de mercado
-                total_score += 1.0 # Potencial de revalorización
+                total_score += 1.0 
+                total_score += 1.0 
+                total_score += 1.0 
 
             grade = get_letter_grade(total_score)
             deg = int((total_score / 5.0) * 360)
