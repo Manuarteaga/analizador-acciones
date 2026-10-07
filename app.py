@@ -361,8 +361,8 @@ elif st.session_state.stage == 'analyzer':
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("### 📋 Comparativa por Columnas de Fuentes Financieras *")
-            st.caption("* Se utilizan 3 fuentes de datos para contrastar la información y garantizar que, ante posibles retrasos o desactualizaciones puntuales en una de ellas, el sistema pueda seguir calculando la nota de forma fiable.")
+            st.markdown("### 📋 Comparativa por Columnas de Fuentes Financieras")
+            st.info("ℹ️ **Nota:** Se utilizan 3 fuentes de datos para contrastar la información y garantizar que, ante posibles retrasos o desactualizaciones puntuales en una de ellas, el sistema pueda seguir calculando la nota de forma fiable.")
             
             div_str_y = f"{div_y_val:.2f}%" if not div_error and div_y_val is not None else "—"
             div_str_g = f"{div_g_val:.2f}%" if not div_error and div_g_val is not None else "—"
