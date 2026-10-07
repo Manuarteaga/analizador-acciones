@@ -350,4 +350,106 @@ elif st.session_state.stage == 'analyzer':
                 
                 ter_val = matched_fund["ter"] if matched_fund else 0.20
                 aum_val = matched_fund["aum"] if matched_fund else 1500
-                te_val = matched_fund["tracking_error"] if matched_fund els
+                te_val = matched_fund["tracking_error"] if matched_fund else 0.09
+                age_val = matched_fund["age_years"] if matched_fund else 6
+                fund_name = matched_fund["name"] if matched_fund else user_input
+
+                score_fund = 0
+                score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
+                score_fund += (1.0 if aum_val > 500 else 0.5)
+                score_fund += (1.0 if te_val <= 0.10 else 0.5)
+                score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
+                score_fund += (1.0 if age_val > 5 else 0.5)
+
+                grade_fund = get_letter_grade(score_fund)
+                deg_fund = int((score_fund / 5.0) * 360)
+                color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
+                verdict_fund = "FONDO ALTAMENTE RECOMENDABLE" if score_fund >= 4.0 else "FONDO ADECUADO"
+
+                st.subheader(f"📊 Informe de Fondo: {fund_name}")
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                df_fund_data = {
+                    "Métrica del Fondo": ["TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Política", "Antigüedad"],
+                    "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
+                }
+                st.table(pd.DataFrame(df_fund_data))
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia o intermediación de tu bróker habitual.")
+
+            # ----------------------------------------------------
+            # CASO C: ETFs
+            # ----------------------------------------------------
+            elif st.session_state.asset_type == "ETFs":
+                matched_etf = ETF_DB.get(user_input.lower())
+                
+                if matched_etf:
+                    etf_name = matched_etf["name"]
+                    etf_ticker = matched_etf["ticker"]
+                    ter_etf = matched_etf["ter"]
+                    aum_etf = matched_etf["aum"]
+                    repl_etf = matched_etf["replication"]
+                    te_etf = matched_etf["te"]
+                    curr_etf = matched_etf["currency"]
+                    age_etf = matched_etf["age_years"]
+                else:
+                    etf_name = user_input.upper()
+                    etf_ticker = user_input.upper()
+                    ter_etf = 0.20
+                    aum_etf = 1000
+                    repl_etf = "Física (Completa)"
+                    te_etf = 0.05
+                    curr_etf = "EUR"
+                    age_etf = 5
+
+                etf_price = None
+                try:
+                    etf_stock = yf.Ticker(etf_ticker)
+                    etf_hist = etf_stock.history(period="5d")
+                    if not etf_hist.empty:
+                        etf_price = etf_hist['Close'].iloc[-1]
+                except:
+                    pass
+
+                price_display_etf = f"{etf_price:,.2f} €" if etf_price is not None else "—"
+
+                score_etf = 0
+                score_etf += (1.0 if ter_etf <= 0.15 else (0.5 if ter_etf <= 0.45 else 0.0))
+                score_etf += (1.0 if aum_etf > 1000 else (0.5 if aum_etf >= 200 else 0.0))
+                score_etf += (1.0 if "Física" in repl_etf and te_etf <= 0.05 else (0.5 if te_etf <= 0.20 else 0.0))
+                score_etf += (1.0 if curr_etf == "EUR" else 0.5)
+                score_etf += (1.0 if age_etf > 5 else (0.5 if age_etf >= 2 else 0.0))
+
+                grade_etf = get_letter_grade(score_etf)
+                deg_etf = int((score_etf / 5.0) * 360)
+                color_etf = "#22c55e" if score_etf >= 4.0 else ("#eab308" if score_etf >= 3.0 else "#ef4444")
+                verdict_etf = "ETF ALTAMENTE EFICIENTE / ÓPTIMO" if score_etf >= 4.0 else "ETF ADECUADO"
+
+                st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                df_etf_data = {
+                    "Métrica del ETF": ["TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa de Cotización", "Antigüedad"],
+                    "Valor Actual": [f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                }
+                st.table(pd.DataFrame(df_etf_data))
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides tener en cuenta las comisiones de compraventa de tu bróker y posibles diferenciales de cambio de divisa (spreads).")
+
+                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
+                if score_etf >= 4.0:
+                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Excelente combinación de costes reducidos, alta liquidez en mercado y réplica física directa.")
+                elif score_etf >= 3.0:
+                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sólido para operativa bursátil, aunque con ligera penalización en costes o tamaño.")
+                else:
+                    st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes o las características estructurales del ETF no cumplen con los estándares óptimos.")
