@@ -94,7 +94,6 @@ TICKER_DB = {
     "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
-# Base de datos ampliada de fondos indexados con información de categoría y TER
 FUND_DB = {
     "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
     "vanguard s&p 500": {"name": "Vanguard S&P 500 UCITS ETF (Acc)", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 35000, "tracking_error": 0.03, "age_years": 12},
@@ -198,8 +197,8 @@ elif st.session_state.stage == 'sub_options':
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c2:
-            if st.button("✍️ Evaluar un Fondo por Nombre / ISIN", use_container_width=True):
-                st.session_state.sub_type = "Acumulación" # Por defecto acumulación
+            if st.button("✍️ Evaluar un Fondo con Buscador Predictivo", use_container_width=True):
+                st.session_state.sub_type = "Acumulación"
                 st.session_state.stage = "analyzer"
                 st.rerun()
 
@@ -236,12 +235,10 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
-    # Si el usuario seleccionó ver el ranking de fondos
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Ordenados por menor TER / Comisiones)")
         st.markdown("Aquí tienes una selección de los fondos indexados más populares del mercado ordenados de **menor a mayor coste anual (TER)** para ayudarte a elegir los más eficientes:")
 
-        # Crear DataFrame ordenado por TER ascendente
         ranking_data = []
         for key, data in FUND_DB.items():
             ranking_data.append({
@@ -255,7 +252,6 @@ elif st.session_state.stage == 'analyzer':
         df_ranking = pd.DataFrame(ranking_data)
         df_ranking = df_ranking.sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         
-        # Mostrar tabla estilizada
         st.dataframe(df_ranking, use_container_width=True)
 
         st.info("💡 **Consejo:** Los fondos con un TER inferior al 0.20% (como los de Fidelity o Vanguard) son extremadamente eficientes para carteras a largo plazo.")
@@ -267,10 +263,15 @@ elif st.session_state.stage == 'analyzer':
     else:
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
+        # Buscador predictivo según el tipo de activo
         if st.session_state.asset_type == "Acciones":
             user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
         elif st.session_state.asset_type == "Fondos indexados":
-            user_input = st.text_input("Nombre del fondo o ISIN", value="", placeholder="Ej. Vanguard Global Stock o Fidelity World").strip()
+            # Creamos la lista desplegable con buscador predictivo integrado de Streamlit
+            fund_options = ["-- Selecciona o escribe un fondo --"] + [data["name"] for data in FUND_DB.values()]
+            selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
+            
+            user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
         else:
             user_input = st.text_input("Nombre del ETF o Ticker", value="", placeholder="Escribe el ETF").strip()
 
@@ -289,7 +290,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Introduce el nombre del activo, fondo o su código en el cuadro superior para comenzar el análisis.")
+            st.info("👆 Selecciona o escribe un fondo en el buscador predictivo superior para ver su informe completo.")
         else:
             # ----------------------------------------------------
             # CASO A: EVALUACIÓN DE ACCIONES
@@ -499,20 +500,23 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos para '{user_input}': {e}")
 
             # ----------------------------------------------------
-            # CASO B: EVALUACIÓN DE FONDOS INDEXADOS
+            # CASO B: EVALUACIÓN DE FONDOS INDEXADOS (CON BUSCADOR PREDICTIVO)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
-                q_lower = user_input.lower().strip()
+                matched_fund = None
+                for key, data in FUND_DB.items():
+                    if data["name"] == user_input or key in user_input.lower():
+                        matched_fund = data
+                        break
                 
-                if q_lower in FUND_DB:
-                    f_data = FUND_DB[q_lower]
-                    fund_name = f_data["name"]
-                    ter_val = f_data["ter"]
-                    aum_val = f_data["aum"]
-                    te_val = f_data["tracking_error"]
-                    age_val = f_data["age_years"]
+                if matched_fund:
+                    fund_name = matched_fund["name"]
+                    ter_val = matched_fund["ter"]
+                    aum_val = matched_fund["aum"]
+                    te_val = matched_fund["tracking_error"]
+                    age_val = matched_fund["age_years"]
                 else:
-                    fund_name = user_input.title()
+                    fund_name = user_input
                     ter_val = 0.20
                     aum_val = 1500
                     te_val = 0.09
@@ -541,14 +545,14 @@ elif st.session_state.stage == 'analyzer':
                 session_record = {
                     "Activo": f"Fondo Indexado ({st.session_state.sub_type})",
                     "Empresa": fund_name,
-                    "Ticker": user_input.upper(),
+                    "Ticker": "FONDO",
                     "Precio": "N/D (Aportaciones periódicas)",
                     "Nota": f"{score_fund:.1f} / 5",
                     "Calificación": grade_fund,
                     "Veredicto": verdict_fund,
                     "Racha": f"Antigüedad: {age_val} años"
                 }
-                if not st.session_state.history or st.session_state.history[-1]["Ticker"] != user_input.upper():
+                if not st.session_state.history or st.session_state.history[-1]["Empresa"] != fund_name:
                     st.session_state.history.append(session_record)
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
