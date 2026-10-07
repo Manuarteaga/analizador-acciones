@@ -74,13 +74,5 @@ TICKER_DB = {
     "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Sin recortes)."},
     "sabadell": {"ticker": "SAB.MC", "racha": "Ciclica e irregular."},
     "santander": {"ticker": "SAN.MC", "racha": "Ciclica con ajustes."},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular con deuda."},
-    "microsoft": {"ticker": "MSFT", "racha": "+20 anos subiendo dividendo."},
-    "procter": {"ticker": "PG", "racha": "Aristocrata (+65 anos)."},
-    "copart": {"ticker": "CPRT", "racha": "Sin historial (Crecimiento)."},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Ciclica sectorial."}
-}
-
-with st.sidebar:
-    st.header("📊 Historial")
-    st.markdown(f"Anal
+    "telefonica": {"ticker": "TE
+                   
