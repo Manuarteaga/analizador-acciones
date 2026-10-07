@@ -295,6 +295,13 @@ elif st.session_state.stage == 'analyzer':
             payout_val = info.get('payoutRatio')
             payout_val = (payout_val * 100) if payout_val else 60.0
 
+            # Previsiones de crecimiento (1 año y 5 años) desde yfinance
+            growth_1y = info.get('earningsGrowth')
+            growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
+            
+            growth_5y = info.get('revenueGrowth') # Usado como aproximación general de crecimiento o estimación analistas
+            growth_5y_val = f"{(growth_5y * 100):.2f}%" if growth_5y is not None else "N/D"
+
             total_score = 0
             
             if st.session_state.sub_type == "Con dividendos":
@@ -304,7 +311,6 @@ elif st.session_state.stage == 'analyzer':
                 total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
                 total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
             else:
-                # Evaluación específica para Sin Dividendos basada en los parámetros
                 total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
                 total_score += (1.0 if pfcf_y <= 20 else (0.5 if pfcf_y <= 35 else 0.0))
                 total_score += (1.0 if pb_y <= 4.0 else (0.5 if pb_y <= 8.0 else 0.0))
@@ -369,7 +375,9 @@ elif st.session_state.stage == 'analyzer':
                         "ROE (Rentabilidad sobre Fondos Propios)", 
                         "Beneficio Neto (Millones)", 
                         "EBITDA (Millones)", 
-                        "BPA (Beneficio por Acción)"
+                        "BPA (Beneficio por Acción)",
+                        "Previsión Crecimiento (1 Año)",
+                        "Previsión Crecimiento (5 Años)"
                     ],
                     "Valor Actual": [
                         f"{per_y:.2f}",
@@ -378,13 +386,31 @@ elif st.session_state.stage == 'analyzer':
                         f"{roe_val:.2f}%",
                         f"{net_income_m:,.2f} M {currency_symbol}",
                         f"{ebitda_m:,.2f} M {currency_symbol}",
-                        f"{bpa_y:.2f} {currency_symbol}"
+                        f"{bpa_y:.2f} {currency_symbol}",
+                        growth_1y_val,
+                        growth_5y_val
                     ]
                 }
             else:
                 comparison_data = {
-                    "Métrica Financiera": ["PER (Precio/Beneficio)", "Dividend Yield (%)", "Beta (Volatilidad)", "Payout Ratio (%)", "Crecimiento Div. vs Inflación"],
-                    "Valor Seleccionado": [f"{per_y:.2f}", f"{div_y_val:.2f}%", f"{beta_val:.2f}", f"{payout_val:.1f}%", f"{est_div_growth:.1f}% anual"]
+                    "Métrica Financiera": [
+                        "PER (Precio/Beneficio)", 
+                        "Dividend Yield (%)", 
+                        "Beta (Volatilidad)", 
+                        "Payout Ratio (%)", 
+                        "Crecimiento Div. vs Inflación",
+                        "Previsión Crecimiento (1 Año)",
+                        "Previsión Crecimiento (5 Años)"
+                    ],
+                    "Valor Seleccionado": [
+                        f"{per_y:.2f}", 
+                        f"{div_y_val:.2f}%", 
+                        f"{beta_val:.2f}", 
+                        f"{payout_val:.1f}%", 
+                        f"{est_div_growth:.1f}% anual",
+                        growth_1y_val,
+                        growth_5y_val
+                    ]
                 }
                 
             df_comparison = pd.DataFrame(comparison_data)
