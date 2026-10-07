@@ -54,16 +54,4 @@ st.markdown("""
         transform: rotate(-8deg);
         display: inline-block;
         text-shadow: 2px 2px 0px rgba(0,0,0,0.4), 0 0 15px var(--stamp-color);
-        animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-    @keyframes stampPop {
-        0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
-        100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
-    }
-</style>
-""", unsafe_allow_html=True)
-
-st.title("📈 Analizador Bursatil Multifuente")
-st.markdown("Compara metricas financieras y evalua proyecciones de crecimiento a corto plazo en tiempo real.")
-
-if 'history' not in st.session
+        animation: stampPop 0.
