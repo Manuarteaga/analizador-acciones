@@ -280,7 +280,6 @@ elif st.session_state.stage == 'analyzer':
             roe_y = info.get('returnOnEquity')
             roe_val = (roe_y * 100) if roe_y else 15.0
             
-            div_neto_y = info.get('dividendRate') or 0.0
             div_y = info.get('dividendYield')
             div_y_val = (div_y * 100 if div_y < 1.0 else div_y) if div_y else (db_div_yield or 0.0)
             
@@ -305,7 +304,7 @@ elif st.session_state.stage == 'analyzer':
                 total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
                 total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
             else:
-                # Evaluación específica para Sin Dividendos basada en los nuevos parámetros
+                # Evaluación específica para Sin Dividendos basada en los parámetros
                 total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
                 total_score += (1.0 if pfcf_y <= 20 else (0.5 if pfcf_y <= 35 else 0.0))
                 total_score += (1.0 if pb_y <= 4.0 else (0.5 if pb_y <= 8.0 else 0.0))
@@ -368,8 +367,6 @@ elif st.session_state.stage == 'analyzer':
                         "P/FCF (Precio / Free Cash Flow)", 
                         "P/B (Precio / Valor Contable)", 
                         "ROE (Rentabilidad sobre Fondos Propios)", 
-                        "Dividendo Neto por Acción", 
-                        "Rentabilidad por Dividendo", 
                         "Beneficio Neto (Millones)", 
                         "EBITDA (Millones)", 
                         "BPA (Beneficio por Acción)"
@@ -379,8 +376,6 @@ elif st.session_state.stage == 'analyzer':
                         f"{pfcf_y:.2f}",
                         f"{pb_y:.2f}",
                         f"{roe_val:.2f}%",
-                        f"{div_neto_y:.2f} {currency_symbol}",
-                        f"{div_y_val:.2f}%",
                         f"{net_income_m:,.2f} M {currency_symbol}",
                         f"{ebitda_m:,.2f} M {currency_symbol}",
                         f"{bpa_y:.2f} {currency_symbol}"
