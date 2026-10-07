@@ -3,7 +3,7 @@ import yfinance as yf
 import pandas as pd
 import io
 
-st.set_page_config(page_title="Analizador Bursátil", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Analizador Bursatil", page_icon="📈", layout="wide")
 
 st.markdown("""
 <style>
@@ -63,8 +63,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("📈 Analizador Bursátil Multifuente")
-st.markdown("Compara métricas financieras y visualiza proyecciones de crecimiento.")
+st.title("📈 Analizador Bursatil Multifuente")
+st.markdown("Compara metricas financieras y visualiza proyecciones de crecimiento.")
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -72,8 +72,19 @@ if 'history' not in st.session_state:
 TICKER_DB = {
     "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Pagos estables)."},
     "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Sin recortes)."},
-    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica e irregular."},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica e irregular."},
-    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica con ajustes."},
-    "santander": {"ticker": "SAN.MC", "racha": "Cíclica con ajustes."},
-    "telefonica": {"ticker
+    "sabadell": {"ticker": "SAB.MC", "racha": "Ciclica e irregular."},
+    "santander": {"ticker": "SAN.MC", "racha": "Ciclica con ajustes."},
+    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular con deuda."},
+    "microsoft": {"ticker": "MSFT", "racha": "+20 anos subiendo dividendo."},
+    "procter": {"ticker": "PG", "racha": "Aristocrata (+65 anos)."},
+    "copart": {"ticker": "CPRT", "racha": "Sin historial (Crecimiento)."},
+    "caixabank": {"ticker": "CABK.MC", "racha": "Ciclica sectorial."}
+}
+
+with st.sidebar:
+    st.header("📊 Historial")
+    st.markdown(f"Analizadas: **{len(st.session_state.history)}**")
+    
+    if st.session_state.history:
+        df_history = pd.DataFrame(st.session_state.history)
+        output = io.Bytes
