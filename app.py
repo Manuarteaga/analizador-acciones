@@ -44,13 +44,17 @@ st.markdown("Compara metricas financieras y evalua proyecciones de crecimiento a
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-TICKER_DB = {
-    "inditex": ("ITX.MC", "Muy alta (Pagos estables)."),
-    "iberdrola": ("IBE.MC", "Impecable (Sin recortes)."),
-    "sabadell": ("SAB.MC", "Ciclica e irregular."),
-    "santander": ("SAN.MC", "Ciclica con ajustes."),
-    "telefonica": ("TEF.MC", "Irregular con deuda."),
-    "microsoft": ("MSFT", "+20 anos subiendo dividendo."),
-    "procter": ("PG", "Aristocrata (+65 anos)."),
-    "copart": ("CPRT", "Sin historial (Crecimiento)."),
-    "caixabank": ("CABK.MC", "Ciclica sectorial.")
+TICKER_DB = {}
+TICKER_DB["inditex"] = ("ITX.MC", "Muy alta (Pagos estables).")
+TICKER_DB["iberdrola"] = ("IBE.MC", "Impecable (Sin recortes).")
+TICKER_DB["sabadell"] = ("SAB.MC", "Ciclica e irregular.")
+TICKER_DB["santander"] = ("SAN.MC", "Ciclica con ajustes.")
+TICKER_DB["telefonica"] = ("TEF.MC", "Irregular con deuda.")
+TICKER_DB["microsoft"] = ("MSFT", "+20 anos subiendo dividendo.")
+TICKER_DB["procter"] = ("PG", "Aristocrata (+65 anos).")
+TICKER_DB["copart"] = ("CPRT", "Sin historial (Crecimiento).")
+TICKER_DB["caixabank"] = ("CABK.MC", "Ciclica sectorial.")
+
+with st.sidebar:
+    st.header("📊 Historial")
+    st.write(f"Empresas anal
