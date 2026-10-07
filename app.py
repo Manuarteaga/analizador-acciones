@@ -97,17 +97,18 @@ TICKER_DB = {
 FUND_DB = {
     "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
     "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
-    "vanguard emerging markets acc": {"name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "category": "Renta Variable Emergente", "ter": 0.23, "aum": 2900, "tracking_error": 0.12, "age_years": 9},
-    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
-    "fidelity msci world acc": {"name": "Fidelity Index World P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 2100, "tracking_error": 0.05, "age_years": 6}
+    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7}
 }
 
 ETF_DB = {
     "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF (Acc)", "ticker": "VWCE.DE", "category": "Renta Variable Global", "ter": 0.22, "aum": 12500, "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 6},
     "spyl.de": {"name": "SPDR S&P 500 UCITS ETF (Acc)", "ticker": "SPYL.DE", "category": "Renta Variable EE.UU.", "ter": 0.03, "aum": 8200, "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 3},
-    "eunl.de": {"name": "iShares Core MSCI World UCITS ETF USD (Acc)", "ticker": "EUNL.DE", "category": "Renta Variable Global", "ter": 0.20, "aum": 65000, "replication": "Física (Muestreo)", "te": 0.05, "currency": "EUR", "age_years": 14},
-    "eem.mi": {"name": "iShares Core MSCI EM IMI UCITS ETF", "ticker": "EEM.MI", "category": "Renta Variable Emergente", "ter": 0.18, "aum": 15000, "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 12},
-    "iglo.de": {"name": "iShares € Corp Bond UCITS ETF", "ticker": "IEAC.DE", "category": "Renta Fija Corporativa", "ter": 0.20, "aum": 14000, "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 15}
+    "sgld.l": {"name": "iShares Physical Gold ETC", "ticker": "SGLD.L", "category": "Materias Primas (Oro Físico)", "ter": 0.15, "aum": 14500, "replication": "Física (Lingotes)", "te": 0.01, "currency": "USD", "age_years": 11},
+    "IEMG": {"name": "iShares Core MSCI Emerging Markets IMI ETF", "ticker": "IEMG", "category": "Empresas Emergentes", "ter": 0.09, "aum": 78000, "replication": "Física (Muestreo)", "te": 0.06, "currency": "USD", "age_years": 12},
+    "qdve.de": {"name": "iShares S&P 500 Information Technology Sector ETF", "ticker": "QDVE.DE", "category": "Tecnología", "ter": 0.15, "aum": 4200, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 6},
+    "INRG.MI": {"name": "iShares Global Clean Energy UCITS ETF", "ticker": "INRG.MI", "category": "Energías Renovables", "ter": 0.65, "aum": 2800, "replication": "Física (Completa)", "te": 0.18, "currency": "EUR", "age_years": 15},
+    "EXV1.DE": {"name": "iShares STOXX Europe 600 Utilities UCITS ETF", "ticker": "EXV1.DE", "category": "Eléctricas y Utilities", "ter": 0.46, "aum": 1100, "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 20},
+    "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
 # Sidebar común para historial
@@ -210,20 +211,25 @@ elif st.session_state.stage == 'sub_options':
 
     elif st.session_state.asset_type == "ETFs":
         st.markdown("### Selecciona qué deseas hacer con los ETFs:")
-        c1, c2 = st.columns(2)
+        c1, c2, c3 = st.columns(3)
         with c1:
-            if st.button("🏆 Ver Ranking de ETFs por Menor TER", use_container_width=True, type="primary"):
-                st.session_state.sub_type = "Ranking ETFs"
+            if st.button("🗺️ Explorar Tipos de ETFs (Guía)", use_container_width=True, type="primary"):
+                st.session_state.sub_type = "Explorador ETFs"
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c2:
-            if st.button("🔍 Evaluar un ETF por Ticker", use_container_width=True):
+            if st.button("🏆 Ver Ranking por Menor TER", use_container_width=True):
+                st.session_state.sub_type = "Ranking ETFs"
+                st.session_state.stage = "analyzer"
+                st.rerun()
+        with c3:
+            if st.button("🔍 Evaluar un ETF Específico", use_container_width=True):
                 st.session_state.sub_type = "Evaluación ETF"
                 st.session_state.stage = "analyzer"
                 st.rerun()
 
 # ----------------------------------------------------
-# ETAPA 2: ANALIZADOR (MOTOR DE EVALUACIÓN)
+# ETAPA 2: ANALIZADOR (MOTOR DE EVALUACIÓN Y EXPLORADOR)
 # ----------------------------------------------------
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
@@ -251,6 +257,59 @@ elif st.session_state.stage == 'analyzer':
             st.session_state.sub_type = None
             st.rerun()
 
+    elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
+        st.title("🗺️ Guía y Tipos de ETFs Disponibles")
+        st.markdown("Selecciona una categoría para entender su objetivo, nivel de riesgo y ver ejemplos destacados:")
+        
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
+        
+        with tab1:
+            st.subheader("Renta Variable Global (Ej: MSCI World / FTSE All-World)")
+            st.markdown("- **Objetivo:** Invertir de forma diversificada en miles de empresas de países desarrollados o de todo el mundo.")
+            st.markdown("- **Perfil de riesgo:** Moderado-Alto (renta variable a largo plazo).")
+            st.markdown("- **Ideal para:** La columna vertebral o núcleo (*core*) de cualquier cartera de inversión a largo plazo.")
+            st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World UCITS ETF (Acc)`")
+            
+        with tab2:
+            st.subheader("Empresas de Alto Dividendo (High Dividend Yield)")
+            st.markdown("- **Objetivo:** Seleccionar empresas maduras con flujos de caja estables que reparten una parte importante de sus beneficios en dividendos.")
+            st.markdown("- **Perfil de riesgo:** Moderado (empresas menos volátiles y más defensivas).")
+            st.markdown("- **Ideal para:** Inversores que buscan generar ingresos periódicos o rentas complementarias.")
+            st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World High Dividend Yield ETF`")
+
+        with tab3:
+            st.subheader("Materias Primas (Commodities / ETCs)")
+            st.markdown("- **Objetivo:** Exposición directa a activos físicos como oro, plata, energía o metales industriales.")
+            st.markdown("- **Perfil de riesgo:** Medio-Alto (actúan como refugio ante la inflación, pero con altibajos cíclicos).")
+            st.markdown("- **Ideal para:** Descorrelacionar la cartera y proteger el poder adquisitivo frente a crisis o inflación.")
+            st.markdown("- *Ejemplo en BD:* `iShares Physical Gold ETC`")
+
+        with tab4:
+            st.subheader("Sector Tecnológico")
+            st.markdown("- **Objetivo:** Invertir en los gigantes de la innovación, software, semiconductores e inteligencia artificial.")
+            st.markdown("- **Perfil de riesgo:** Alto (gran potencial de revalorización pero también mayor volatilidad y caídas puntuales).")
+            st.markdown("- **Ideal para:** Dar un sesgo de crecimiento (*growth*) a una parte de la cartera.")
+            st.markdown("- *Ejemplo en BD:* `iShares S&P 500 Information Technology Sector ETF`")
+
+        with tab5:
+            st.subheader("Energías Renovables y Eléctricas (Utilities)")
+            st.markdown("- **Objetivo:** Empresas dedicadas a la transición energética (solar, eólica) o compañías eléctricas tradicionales reguladas.")
+            st.markdown("- **Perfil de riesgo:** Variable (las eléctricas son muy defensivas y estables; las renovables puras son muy cíclicas y sensibles a los tipos de interés).")
+            st.markdown("- **Ideal para:** Apostar por macrotendencias de sostenibilidad o buscar flujos defensivos estables.")
+            st.markdown("- *Ejemplos en BD:* `iShares Global Clean Energy` / `iShares STOXX Europe 600 Utilities`")
+
+        with tab6:
+            st.subheader("Empresas Emergentes (Emerging Markets)")
+            st.markdown("- **Objetivo:** Exposición a economías en rápido desarrollo como Asia (China, India), Latinoamérica o Europa del Este.")
+            st.markdown("- **Perfil de riesgo:** Alto (mayor exposición a riesgos geopolíticos, divisas volátiles y ciclos económicos diferentes a Occidente).")
+            st.markdown("- **Ideal para:** Complementar la cartera global buscando mayor diversificación geográfica y crecimiento demográfico.")
+            st.markdown("- *Ejemplo en BD:* `iShares Core MSCI Emerging Markets IMI ETF`")
+
+        st.markdown("---")
+        if st.button("← Volver al menú principal de ETFs"):
+            st.session_state.sub_type = None
+            st.rerun()
+
     else:
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
@@ -261,9 +320,9 @@ elif st.session_state.stage == 'analyzer':
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
             user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
         elif st.session_state.asset_type == "ETFs":
-            etf_options = ["-- Selecciona un ETF --"] + [f"{data['name']} ({data['ticker']})" for data in ETF_DB.values()]
-            selected_etf_option = st.selectbox("🌐 Selecciona un ETF de referencia", options=etf_options)
-            user_input = "" if selected_etf_option == "-- Selecciona un ETF --" else selected_etf_option.split("(")[-1].replace(")", "").strip()
+            etf_options = ["-- Selecciona un ETF (Global, Tecnología, Renovables, Materias Primas, Dividendos...) --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
+            selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
+            user_input = "" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -308,9 +367,6 @@ elif st.session_state.stage == 'analyzer':
                     beta_val = info.get('beta') or 1.0
                     payout_val = (info.get('payoutRatio', 0.5) * 100)
 
-                    net_income_m = ((info.get('netIncomeToCommon') or 0) / 1e6)
-                    ebitda_m = ((info.get('ebitda') or 0) / 1e6)
-
                     total_score = 0
                     if st.session_state.sub_type == "Con dividendos":
                         total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
@@ -328,7 +384,6 @@ elif st.session_state.stage == 'analyzer':
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
                     progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 3.0 else "#ef4444")
-                    verdict_text = "COMPRAR / ATRACTIVO" if total_score >= 4.0 else ("MANTENER" if total_score >= 3.0 else "DESCARTAR")
 
                     st.subheader(f"📊 Informe: {name} ({ticker_input})")
                     st.markdown(f"""
@@ -364,7 +419,6 @@ elif st.session_state.stage == 'analyzer':
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
-                verdict_fund = "FONDO ALTAMENTE RECOMENDABLE" if score_fund >= 4.0 else "FONDO ADECUADO"
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 st.markdown(f"""
@@ -383,14 +437,15 @@ elif st.session_state.stage == 'analyzer':
                 st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia o intermediación de tu bróker habitual.")
 
             # ----------------------------------------------------
-            # CASO C: ETFs
+            # CASO C: ETFs (GLOBALES, TECNOLOGÍA, RENOVABLES, MATERIAS PRIMAS, DIVIDENDOS, ETC.)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
-                matched_etf = ETF_DB.get(user_input.lower())
+                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
                 
                 if matched_etf:
                     etf_name = matched_etf["name"]
                     etf_ticker = matched_etf["ticker"]
+                    etf_cat = matched_etf["category"]
                     ter_etf = matched_etf["ter"]
                     aum_etf = matched_etf["aum"]
                     repl_etf = matched_etf["replication"]
@@ -400,12 +455,13 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     etf_name = user_input.upper()
                     etf_ticker = user_input.upper()
-                    ter_etf = 0.20
-                    aum_etf = 1000
+                    etf_cat = "Sectorial / Especializado"
+                    ter_etf = 0.35
+                    aum_etf = 800
                     repl_etf = "Física (Completa)"
-                    te_etf = 0.05
+                    te_etf = 0.10
                     curr_etf = "EUR"
-                    age_etf = 5
+                    age_etf = 4
 
                 etf_price = None
                 try:
@@ -419,9 +475,10 @@ elif st.session_state.stage == 'analyzer':
                 price_display_etf = f"{etf_price:,.2f} €" if etf_price is not None else "—"
 
                 score_etf = 0
-                score_etf += (1.0 if ter_etf <= 0.15 else (0.5 if ter_etf <= 0.45 else 0.0))
+                max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.15
+                score_etf += (1.0 if ter_etf <= max_ter_threshold else (0.5 if ter_etf <= 0.70 else 0.0))
                 score_etf += (1.0 if aum_etf > 1000 else (0.5 if aum_etf >= 200 else 0.0))
-                score_etf += (1.0 if "Física" in repl_etf and te_etf <= 0.05 else (0.5 if te_etf <= 0.20 else 0.0))
+                score_etf += (1.0 if "Física" in repl_etf and te_etf <= 0.10 else 0.5)
                 score_etf += (1.0 if curr_etf == "EUR" else 0.5)
                 score_etf += (1.0 if age_etf > 5 else (0.5 if age_etf >= 2 else 0.0))
 
@@ -440,16 +497,16 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 df_etf_data = {
-                    "Métrica del ETF": ["TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa de Cotización", "Antigüedad"],
-                    "Valor Actual": [f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica del ETF": ["Categoría Temática", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
+                    "Valor Actual": [etf_cat, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
                 st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides tener en cuenta las comisiones de compraventa de tu bróker y posibles diferenciales de cambio de divisa (spreads).")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Excelente combinación de costes reducidos, alta liquidez en mercado y réplica física directa.")
+                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Excelente combinación en su categoría temática, adecuada capitalización y sólida estructura de réplica.")
                 elif score_etf >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sólido para operativa bursátil, aunque con ligera penalización en costes o tamaño.")
+                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sectorial/temático apto para satélites de cartera, con ligera penalización en costes o volatilidad.")
                 else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes o las características estructurales del ETF no cumplen con los estándares óptimos.")
+                    st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes elevados o el escaso patrimonio penalizan la eficiencia de este fondo sectorial.")
