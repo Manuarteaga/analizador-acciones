@@ -70,4 +70,6 @@ if 'history' not in st.session_state:
     st.session_state.history = []
 
 TICKER_DB = {
-    
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios)."},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos)."},
+    "banco sabadell": {"ticker": "SAB.MC", "racha": "C
