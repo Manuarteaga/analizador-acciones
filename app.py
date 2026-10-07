@@ -19,39 +19,38 @@ st.markdown("""
         margin-bottom: 20px;
         border: 1px solid #334155;
     }
-    .circular-progress {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: conic-gradient(var(--progress-color) var(--deg), #334155 0deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-    }
-    .circular-progress::before {
-        content: "";
-        position: absolute;
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        background-color: #0f172a;
-    }
     .progress-value {
-        position: relative;
-        font-size: 1.8rem;
+        font-size: 2.2rem;
         font-weight: bold;
         color: #f8fafc;
+        text-align: center;
     }
     .pure-stamp-grade {
         font-family: 'Courier New', Courier, monospace;
-        font-size: 5.5rem;
+        font-size: 4.5rem;
         font-weight: 900;
         line-height: 1;
         color: var(--stamp-color);
         text-transform: uppercase;
-        transform: rotate(-8deg);
-        display: inline-block;
-        text-shadow: 2px 2px 0px rgba(0,0,0,0.4), 0 0 15px var(--stamp-color);
-        animation: stampPop 0.
+        text-shadow: 2px 2px 0px rgba(0,0,0,0.4);
+        text-align: center;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.title("📈 Analizador Bursatil Multifuente")
+st.markdown("Compara metricas financieras y evalua proyecciones de crecimiento a corto plazo en tiempo real.")
+
+if 'history' not in st.session_state:
+    st.session_state.history = []
+
+TICKER_DB = {
+    "inditex": ("ITX.MC", "Muy alta (Pagos estables)."),
+    "iberdrola": ("IBE.MC", "Impecable (Sin recortes)."),
+    "sabadell": ("SAB.MC", "Ciclica e irregular."),
+    "santander": ("SAN.MC", "Ciclica con ajustes."),
+    "telefonica": ("TEF.MC", "Irregular con deuda."),
+    "microsoft": ("MSFT", "+20 anos subiendo dividendo."),
+    "procter": ("PG", "Aristocrata (+65 anos)."),
+    "copart": ("CPRT", "Sin historial (Crecimiento)."),
+    "caixabank": ("CABK.MC", "Ciclica sectorial.")
