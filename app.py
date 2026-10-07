@@ -69,10 +69,5 @@ st.markdown("Compara metricas financieras y evalua proyecciones de crecimiento a
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Pagos estables)."},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Sin recortes)."},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Ciclica e irregular."},
-    "santander": {"ticker": "SAN.MC", "racha": "Ciclica con ajustes."},
-    "telefonica": {"ticker": "TE
-                   
+TICKER_DB = {}
+TICKER_DB["inditex"] = {"ticker
