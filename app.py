@@ -94,14 +94,51 @@ TICKER_DB = {
     "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
+# Base de datos ampliada con 40 fondos famosos (Acumulación y Distribución)
 FUND_DB = {
-    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
-    "vanguard s&p 500": {"name": "Vanguard S&P 500 UCITS ETF (Acc)", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 35000, "tracking_error": 0.03, "age_years": 12},
-    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
-    "ishares developed world": {"name": "iShares Developed World Index Fund", "category": "Renta Variable Global Desarrollada", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6},
-    "amundi index msci emerging markets": {"name": "Amundi Index MSCI Emerging Markets AE-C", "category": "Renta Variable Emergente", "ter": 0.45, "aum": 1800, "tracking_error": 0.15, "age_years": 8},
-    "fidelity msci world": {"name": "Fidelity Index World P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 2100, "tracking_error": 0.05, "age_years": 6},
-    "allianz european equity div": {"name": "Allianz European Equity Div AT EUR", "category": "Renta Variable Europa (Dividendos)", "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10}
+    # --- FONDOS DE ACUMULACIÓN (20) ---
+    "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
+    "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
+    "vanguard emerging markets acc": {"name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "category": "Renta Variable Emergente", "ter": 0.23, "aum": 2900, "tracking_error": 0.12, "age_years": 9},
+    "vanguard european stock acc": {"name": "Vanguard European Stock Index Fund EUR Acc", "category": "Renta Variable Europa", "ter": 0.12, "aum": 3100, "tracking_error": 0.05, "age_years": 10},
+    "vanguard pacific stock acc": {"name": "Vanguard Pacific Stock Index Fund EUR Acc", "category": "Renta Variable Pacífico", "ter": 0.20, "aum": 1400, "tracking_error": 0.08, "age_years": 8},
+    "vanguard lifestrategy 80 acc": {"name": "Vanguard LifeStrategy 80% Equity Fund EUR Acc", "category": "Cartera Mixta 80% RV", "ter": 0.25, "aum": 5200, "tracking_error": 0.06, "age_years": 5},
+    "vanguard lifestrategy 60 acc": {"name": "Vanguard LifeStrategy 60% Equity Fund EUR Acc", "category": "Cartera Mixta 60% RV", "ter": 0.25, "aum": 6400, "tracking_error": 0.06, "age_years": 5},
+    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
+    "amundi s&p 500 acc": {"name": "Amundi Index S&P 500 AE-C", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.15, "aum": 4100, "tracking_error": 0.04, "age_years": 8},
+    "amundi emerging markets acc": {"name": "Amundi Index MSCI Emerging Markets AE-C", "category": "Renta Variable Emergente", "ter": 0.45, "aum": 1800, "tracking_error": 0.15, "age_years": 8},
+    "amundi msci europe acc": {"name": "Amundi Index MSCI Europe AE-C", "category": "Renta Variable Europa", "ter": 0.25, "aum": 1900, "tracking_error": 0.07, "age_years": 7},
+    "ishares developed world acc": {"name": "iShares Developed World Index Fund (IE) Acc", "category": "Renta Variable Global Desarrollada", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6},
+    "ishares s&p 500 acc": {"name": "iShares US Index Fund (IE) Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.05, "aum": 15000, "tracking_error": 0.02, "age_years": 10},
+    "ishares emerging markets acc": {"name": "iShares Emerging Markets Index Fund (IE) Acc", "category": "Renta Variable Emergente", "ter": 0.38, "aum": 2200, "tracking_error": 0.14, "age_years": 7},
+    "fidelity msci world acc": {"name": "Fidelity Index World P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 2100, "tracking_error": 0.05, "age_years": 6},
+    "fidelity s&p 500 acc": {"name": "Fidelity S&P 500 Index Fund P EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 7500, "tracking_error": 0.03, "age_years": 6},
+    "fidelity emerging markets acc": {"name": "Fidelity Emerging Markets Index Fund P Acc", "category": "Renta Variable Emergente", "ter": 0.35, "aum": 950, "tracking_error": 0.11, "age_years": 5},
+    "pictet world index acc": {"name": "Pictet-World Index P EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 1100, "tracking_error": 0.09, "age_years": 9},
+    "pictet usa index acc": {"name": "Pictet-USA Index P EUR Acc", "category": "Renta Variable EE.UU.", "ter": 0.20, "aum": 1300, "tracking_error": 0.05, "age_years": 8},
+    "allianz european equity acc": {"name": "Allianz European Equity Growth AT EUR Acc", "category": "Renta Variable Europa Crecimiento", "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10},
+
+    # --- FONDOS DE DISTRIBUCIÓN (20) ---
+    "vanguard global stock dist": {"name": "Vanguard Global Stock Index Fund EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 2100, "tracking_error": 0.08, "age_years": 8},
+    "vanguard s&p 500 dist": {"name": "Vanguard S&P 500 Stock Index Fund EUR Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 14000, "tracking_error": 0.03, "age_years": 12},
+    "vanguard emerging markets dist": {"name": "Vanguard Emerging Markets Stock Index Fund EUR Dist", "category": "Renta Variable Emergente", "ter": 0.23, "aum": 1200, "tracking_error": 0.12, "age_years": 9},
+    "vanguard european stock dist": {"name": "Vanguard European Stock Index Fund EUR Dist", "category": "Renta Variable Europa", "ter": 0.12, "aum": 1500, "tracking_error": 0.05, "age_years": 10},
+    "vanguard pacific stock dist": {"name": "Vanguard Pacific Stock Index Fund EUR Dist", "category": "Renta Variable Pacífico", "ter": 0.20, "aum": 800, "tracking_error": 0.08, "age_years": 8},
+    "vanguard lifestrategy 60 dist": {"name": "Vanguard LifeStrategy 60% Equity Fund EUR Dist", "category": "Cartera Mixta 60% RV", "ter": 0.25, "aum": 3100, "tracking_error": 0.06, "age_years": 5},
+    "vanguard lifestrategy 40 dist": {"name": "Vanguard LifeStrategy 40% Equity Fund EUR Dist", "category": "Cartera Mixta 40% RV", "ter": 0.25, "aum": 1800, "tracking_error": 0.06, "age_years": 5},
+    "vanguard global bond dist": {"name": "Vanguard Global Bond Index Fund EUR Hedged Dist", "category": "Renta Fija Global", "ter": 0.15, "aum": 4200, "tracking_error": 0.04, "age_years": 9},
+    "amundi msci world dist": {"name": "Amundi Index MSCI World AE-D", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 1500, "tracking_error": 0.12, "age_years": 7},
+    "amundi s&p 500 dist": {"name": "Amundi Index S&P 500 AE-D", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.15, "aum": 2100, "tracking_error": 0.04, "age_years": 8},
+    "amundi emerging markets dist": {"name": "Amundi Index MSCI Emerging Markets AE-D", "category": "Renta Variable Emergente", "ter": 0.45, "aum": 900, "tracking_error": 0.15, "age_years": 8},
+    "amundi euro corporate bond dist": {"name": "Amundi Index Euro Corporate Bond Dist", "category": "Renta Fija Corporativa Euro", "ter": 0.20, "aum": 2500, "tracking_error": 0.05, "age_years": 8},
+    "ishares developed world dist": {"name": "iShares Developed World Index Fund Dist", "category": "Renta Variable Global Desarrollada", "ter": 0.22, "aum": 1600, "tracking_error": 0.10, "age_years": 6},
+    "ishares s&p 500 dist": {"name": "iShares US Index Fund (IE) Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.05, "aum": 8000, "tracking_error": 0.02, "age_years": 10},
+    "ishares euro government bond dist": {"name": "iShares Euro Government Bond Index Fund Dist", "category": "Renta Fija Gubernamental Euro", "ter": 0.16, "aum": 3400, "tracking_error": 0.03, "age_years": 9},
+    "fidelity msci world dist": {"name": "Fidelity Index World P EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 1100, "tracking_error": 0.05, "age_years": 6},
+    "fidelity s&p 500 dist": {"name": "Fidelity S&P 500 Index Fund P EUR Dist", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 3200, "tracking_error": 0.03, "age_years": 6},
+    "pictet world index dist": {"name": "Pictet-World Index P EUR Dist", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 700, "tracking_error": 0.09, "age_years": 9},
+    "allianz european equity div dist": {"name": "Allianz European Equity Div AT EUR Dist", "category": "Renta Variable Europa (Dividendos)", "ter": 0.75, "aum": 1100, "tracking_error": 0.25, "age_years": 10},
+    "bnp paribas easy msci world dist": {"name": "BNP Paribas Easy MSCI World Dist", "category": "Renta Variable Global", "ter": 0.25, "aum": 1400, "tracking_error": 0.08, "age_years": 7}
 }
 
 # Sidebar común para historial
@@ -237,7 +274,7 @@ elif st.session_state.stage == 'analyzer':
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Ordenados por menor TER / Comisiones)")
-        st.markdown("Aquí tienes una selección de los fondos indexados más populares del mercado ordenados de **menor a mayor coste anual (TER)** para ayudarte a elegir los más eficientes:")
+        st.markdown("Aquí tienes una selección de los 40 fondos indexados más famosos del mercado ordenados de **menor a mayor coste anual (TER)** para ayudarte a elegir los más eficientes:")
 
         ranking_data = []
         for key, data in FUND_DB.items():
@@ -254,7 +291,7 @@ elif st.session_state.stage == 'analyzer':
         
         st.dataframe(df_ranking, use_container_width=True)
 
-        st.info("💡 **Consejo:** Los fondos con un TER inferior al 0.20% (como los de Fidelity o Vanguard) son extremadamente eficientes para carteras a largo plazo.")
+        st.info("💡 **Consejo:** Los fondos con un TER inferior al 0.20% son extremadamente eficientes para carteras a largo plazo.")
 
         if st.button("← Volver al menú de fondos"):
             st.session_state.sub_type = None
@@ -263,11 +300,9 @@ elif st.session_state.stage == 'analyzer':
     else:
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
-        # Buscador predictivo según el tipo de activo
         if st.session_state.asset_type == "Acciones":
             user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
         elif st.session_state.asset_type == "Fondos indexados":
-            # Creamos la lista desplegable con buscador predictivo integrado de Streamlit
             fund_options = ["-- Selecciona o escribe un fondo --"] + [data["name"] for data in FUND_DB.values()]
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
             
@@ -500,7 +535,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos para '{user_input}': {e}")
 
             # ----------------------------------------------------
-            # CASO B: EVALUACIÓN DE FONDOS INDEXADOS (CON BUSCADOR PREDICTIVO)
+            # CASO B: EVALUACIÓN DE FONDOS INDEXADOS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = None
