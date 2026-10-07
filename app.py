@@ -91,13 +91,14 @@ TICKER_DB = {
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4},
     "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los plans de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
 }
 
 FUND_DB = {
-    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "VWCE.DE", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
-    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ticker": "CW8.PA", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7},
-    "ishares developed world": {"name": "iShares Developed World Index Fund", "ticker": "EUNL.DE", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6}
+    "vanguard global stock": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "VWCE.DE", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8, "default_price": 115.50},
+    "amundi msci world": {"name": "Amundi Index MSCI World AE-C", "ticker": "CW8.PA", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7, "default_price": 420.20},
+    "ishares developed world": {"name": "iShares Developed World Index Fund", "ticker": "EUNL.DE", "ter": 0.22, "aum": 2800, "tracking_error": 0.10, "age_years": 6, "default_price": 85.10},
+    "allianz european equity div": {"name": "Allianz European Equity Div AT EUR", "ticker": None, "ter": 0.75, "aum": 850, "tracking_error": 0.25, "age_years": 10, "default_price": 184.30}
 }
 
 # Sidebar común para historial
@@ -236,7 +237,7 @@ elif st.session_state.stage == 'analyzer':
     if st.session_state.asset_type == "Acciones":
         user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción").strip()
     elif st.session_state.asset_type == "Fondos indexados":
-        user_input = st.text_input("Nombre del fondo o ISIN", value="", placeholder="Ej. Vanguard Global Stock o IE00B4X9L533").strip()
+        user_input = st.text_input("Nombre del fondo o ISIN", value="", placeholder="Ej. Vanguard Global Stock o Allianz European Equity").strip()
     else:
         user_input = st.text_input("Nombre del ETF o Ticker", value="", placeholder="Escribe el ETF").strip()
 
@@ -471,6 +472,7 @@ elif st.session_state.stage == 'analyzer':
             q_lower = user_input.lower().strip()
             
             fund_ticker = None
+            default_p = 100.0
             if q_lower in FUND_DB:
                 f_data = FUND_DB[q_lower]
                 fund_name = f_data["name"]
@@ -479,6 +481,7 @@ elif st.session_state.stage == 'analyzer':
                 aum_val = f_data["aum"]
                 te_val = f_data["tracking_error"]
                 age_val = f_data["age_years"]
+                default_p = f_data["default_price"]
             else:
                 fund_name = user_input.title()
                 ter_val = 0.20
@@ -486,7 +489,7 @@ elif st.session_state.stage == 'analyzer':
                 te_val = 0.09
                 age_val = 6
 
-            # Obtención del precio/valor liquidativo real si tiene ticker asociado
+            # Intentar buscar precio real si tiene ticker válido en Yahoo
             fund_price = None
             currency_symbol = "€"
             if fund_ticker:
@@ -502,7 +505,17 @@ elif st.session_state.stage == 'analyzer':
                 except:
                     pass
 
-            fund_price_display = f"{fund_price:,.2f} {currency_symbol}" if fund_price is not None else "105.40 € (Est.)"
+            # Si Yahoo no da precio, usar el valor por defecto de la base de datos
+            if fund_price is None:
+                fund_price = default_p
+
+            # Opción interactiva para que el usuario pueda ajustar el Valor Liquidativo si lo desea
+            col_p1, col_p2 = st.columns([2, 1])
+            with col_p2:
+                manual_price = st.number_input("Actualizar Valor Liquidativo (€)", value=float(fund_price), step=0.10)
+            
+            final_price = manual_price if manual_price > 0 else fund_price
+            fund_price_display = f"{final_price:,.2f} {currency_symbol}"
 
             # Puntuación sobre 5 puntos para Fondos Indexados
             score_fund = 0
@@ -538,7 +551,7 @@ elif st.session_state.stage == 'analyzer':
             if not st.session_state.history or st.session_state.history[-1]["Ticker"] != user_input.upper():
                 st.session_state.history.append(session_record)
 
-            st.subheader(f"📊 Informe de Fondo Indexado: {fund_name}")
+            st.subheader(f"📊 Informe de Fondo: {fund_name}")
 
             st.markdown(f"""
             <div class="score-container">
@@ -553,7 +566,7 @@ elif st.session_state.stage == 'analyzer':
                     <div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div>
                 </div>
                 <div style="text-align: center;">
-                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio / Valor Liquidativo</div>
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Valor Liquidativo (VL)</div>
                     <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{fund_price_display}</div>
                 </div>
             </div>
