@@ -299,16 +299,21 @@ elif st.session_state.stage == 'analyzer':
             growth_1y = info.get('earningsGrowth')
             growth_1y_val = f"{(growth_1y * 100):.2f}%" if growth_1y is not None else f"{est_div_growth:.1f}% (est.)"
             
-            growth_5y = info.get('revenueGrowth') # Usado como aproximación general de crecimiento o estimación analistas
+            growth_5y = info.get('revenueGrowth')
             growth_5y_val = f"{(growth_5y * 100):.2f}%" if growth_5y is not None else "N/D"
 
             total_score = 0
             
             if st.session_state.sub_type == "Con dividendos":
+                # PER
                 total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
+                # Beta
                 total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                total_score += (1.0 if (3.0 <= div_y_val <= 6.0) else (0.5 if (1.0 <= div_y_val < 3.0 or 6.0 <= div_y_val <= 9.0) else 0.0))
-                total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
+                # Dividend Yield (0% - 6%: 1 pt, 6% - 9%: 0.5 pts, >9%: 0 pts)
+                total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
+                # Payout Ratio (35% - 75%: 1 pt, fuera de rango: 0 pts)
+                total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
+                # Crecimiento Div. vs Inflación
                 total_score += (1.0 if est_div_growth > 3.0 else (0.5 if est_div_growth == 3.0 else 0.0))
             else:
                 total_score += (1.0 if per_y <= 25 else (0.5 if per_y <= 40 else 0.0))
