@@ -1,3 +1,10 @@
+He añadido la sección para mostrar el precio actual de la acción en tiempo real justo al lado de la calificación oficial, dentro del contenedor principal de resultados.
+
+Para ello, el sistema consulta el precio de mercado actual a través de la API y lo muestra junto a su moneda correspondiente (euros, dólares, etc.).
+
+Aquí tienes el código completo y actualizado de tu archivo app.py:
+
+Python
 import streamlit as st
 import yfinance as yf
 import pandas as pd
@@ -11,13 +18,14 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 60px;
+        gap: 50px;
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         padding: 30px;
         border-radius: 16px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         margin-bottom: 20px;
         border: 1px solid #334155;
+        flex-wrap: wrap;
     }
     .circular-progress {
         position: relative;
@@ -257,6 +265,21 @@ elif st.session_state.stage == 'analyzer':
             
             name = info.get('longName', user_input.title())
             
+            # Obtención del precio actual en tiempo real
+            current_price = info.get('currentPrice') or info.get('regularMarketPrice')
+            if current_price is None:
+                hist_price = stock.history(period="1d")
+                if not hist_price.empty:
+                    current_price = hist_price['Close'].iloc[-1]
+            
+            currency_symbol = info.get('currency', '€')
+            if currency_symbol == 'USD':
+                currency_symbol = '$'
+            elif currency_symbol == 'EUR':
+                currency_symbol = '€'
+
+            price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
+
             per_y = info.get('trailingPE') or info.get('forwardPE') or 22.0
             div_y = info.get('dividendYield')
             
@@ -270,7 +293,6 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     div_error = True
 
-            # Si yfinance no devuelve el dato, respaldamos con el valor de la base de datos
             if div_y_val is None and db_div_yield is not None:
                 div_y_val = db_div_yield
                 div_error = False
@@ -291,24 +313,14 @@ elif st.session_state.stage == 'analyzer':
 
             total_score = 0
             
-            # Evaluación adaptada según sub_type
             if st.session_state.sub_type == "Con dividendos":
-                # 1. PER (<= 10 -> 1.0 | <= 25 -> 0.5 | > 25 -> 0.0)
                 total_score += (1.0 if per_opt <= 10 else (0.5 if per_opt <= 25 else 0.0))
-                
-                # 2. Beta (< 1.0 -> 1.0 | <= 1.1 -> 0.5 | > 1.1 -> 0.0)
                 total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                
-                # 3. Dividend Yield
                 if not div_error and div_opt is not None:
                     total_score += (1.0 if (3.0 <= div_opt <= 6.0) else (0.5 if (1.0 <= div_opt < 3.0 or 6.0 <= div_opt <= 9.0) else 0.0))
                 else:
                     total_score += 0.5
-                    
-                # 4. Payout Ratio
                 total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.5)
-                
-                # 5. Crecimiento del Dividendo frente a la Inflación (~3.0%)
                 inflation_benchmark = 3.0
                 if est_div_growth > inflation_benchmark:
                     total_score += 1.0
@@ -317,7 +329,6 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     total_score += 0.0
             else:
-                # Modelo alternativo para activos sin dividendos / fondos / ETFs
                 total_score += (1.0 if per_opt <= 25 else (0.5 if per_opt <= 35 else 0.0))
                 total_score += (1.0 if beta_val < 1.1 else 0.5)
                 total_score += 1.0 
@@ -341,6 +352,7 @@ elif st.session_state.stage == 'analyzer':
                 "Activo": f"{st.session_state.asset_type} ({st.session_state.sub_type})",
                 "Empresa": name,
                 "Ticker": ticker_input,
+                "Precio": price_display,
                 "Nota": f"{total_score:.1f} / 5",
                 "Calificación": grade,
                 "Veredicto": verdict_text,
@@ -362,6 +374,10 @@ elif st.session_state.stage == 'analyzer':
                 <div style="text-align: center;">
                     <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación Oficial</div>
                     <div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div>
+                    <div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div>
                 </div>
             </div>
             """, unsafe_allow_html=True)
