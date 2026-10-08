@@ -111,43 +111,42 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Lista ampliada y organizada de Brókers y Neobancos con comisiones y cambio de divisa (FX fee)
+# Lista de Brókers y Neobancos con costes reales de operativa y cambio de divisa (FX fee)
 BROKER_PROFILES = {
-    "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
+    "MyInvestor (Fondos Indexados / Sin custodia)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
     "Indexa Capital (Cartera / Gestor automatizado)": {
-        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
+        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
-    "Trade Republic (Neobanco / Planes de inversión / 1€ por orden)": {
-        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.50
+    "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
+        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
     },
-    "Lightyear (Bajas comisiones / Muy transparente en divisa)": {
-        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.05, "fx_fee_percent": 0.25
+    "Lightyear (ETFs sin comisión de ejecución / Muy transparente)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.35, "supports_free_plans": True
     },
-    "DEGIRO (Bajas comisiones / Cambio manual o automático)": {
-        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25
+    "DEGIRO (Bajas comisiones / 1€ por operación en ETFs)": {
+        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
     },
-    "Interactive Brokers (Muy bajo coste / FX tipo de cambio real bajísimo)": {
-        "fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03
+    "Interactive Brokers (Ideal internacional / Tipo de cambio real)": {
+        "fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03, "supports_free_plans": False
     },
-    "XTB (Sin comisiones hasta 100k€ / Ojo al cambio de divisa)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50
+    "XTB (0% comisiones hasta 100k€ / Ojo al cambio de divisa)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50, "supports_free_plans": False
     },
-    "Trading 212 (Planes de ahorro / Fracciones de acciones y ETFs)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15
+    "Trading 212 (Planes de ahorro y acciones fraccionadas gratis)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15, "supports_free_plans": True
     },
     "eToro (Social Trading / Acciones y ETFs)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50, "fx_fee_percent": 0.50
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50, "fx_fee_percent": 0.50, "supports_free_plans": False
     },
-    "Renta 4 (Banco tradicional español / Tarifas altas)": {
-        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50
+    "Renta 4 (Banco tradicional / Tarifas altas)": {
+        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
     },
     "Personalizado (Ajustar manualmente las comisiones)": {
-        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25
+        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
     }
 }
-
 # Sidebar común para historial
 with st.sidebar:
     st.header("📊 Historial de Sesión")
