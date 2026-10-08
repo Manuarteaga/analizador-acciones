@@ -135,29 +135,23 @@ ETF_DB = {
 }
 
 ALL_BROKER_PROFILES = {
+    "0% / Sin comisiones (Ej. XTB, Lightyear, Trading 212)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.15, "supports_free_plans": True
+    },
     "MyInvestor (Fondos Indexados / Sin custodia)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
     "Indexa Capital (Cartera / Gestor automatizado)": {
         "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
-    "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
+    "Trade Republic (1€ orden suelta / Planes a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
     },
-    "Lightyear (ETFs sin comisión de ejecución / Muy transparente)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.35, "supports_free_plans": True
-    },
-    "DEGIRO (Bajas comisiones / 1€ por operación en ETFs)": {
+    "DEGIRO (Bajas comisiones / 1€ por operación)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
     },
-    "Interactive Brokers (Ideal internacional / Tipo de cambio real)": {
+    "Interactive Brokers (Ideal internacional)": {
         "fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03, "supports_free_plans": False
-    },
-    "XTB (0% comisiones hasta 100k€ / Ojo al cambio de divisa)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Trading 212 (Planes de ahorro y acciones fraccionadas gratis)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15, "supports_free_plans": True
     },
     "Renta 4 (Banco tradicional / Tarifas altas)": {
         "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
@@ -295,7 +289,6 @@ elif st.session_state.stage == 'analyzer':
         reset_navigation()
         st.rerun()
 
-    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON CÁLCULO DE COMISIONES CORREGIDO
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
         st.markdown("Configura tu cartera seleccionando Fondos Indexados o ETFs en cada activo, asigna su bróker correspondiente y calcula el ahorro real a largo plazo.")
@@ -368,7 +361,7 @@ elif st.session_state.stage == 'analyzer':
                     "plan_gratis": plan_gratis_i
                 })
 
-        # SIMULACIÓN GLOBAL ACUMULADA (CORREGIDA: COMISIÓN PERIÓDICA CERO SI PLAN ACTIVO)
+        # SIMULACIÓN GLOBAL ACUMULADA
         periodos_por_ano = 12 if frecuencia_cartera == "Mensual" else 1
         total_periodos = anos_cartera * periodos_por_ano
 
@@ -378,7 +371,6 @@ elif st.session_state.stage == 'analyzer':
         acum_fx_global = 0.0
         saldo_global_neto = 0.0
 
-        # Costes y saldo de la inversión inicial (mes 0)
         for act in activos_config:
             ini = act["inicial"]
             b_data = act["broker_data"]
@@ -405,7 +397,7 @@ elif st.session_state.stage == 'analyzer':
                     b_data = act["broker_data"]
                     is_free = act["plan_gratis"]
                     
-                    # Si el plan gratuito está activado, la comisión fija y porcentual periódica es 0 €
+                    # Si el plan de aportación está activo, los costes de bróker periódicos son 0 € exactos
                     f_fix = 0.0 if is_free else b_data["fee_fixed"]
                     f_perc = 0.0 if is_free else b_data["fee_percent"]
                     
