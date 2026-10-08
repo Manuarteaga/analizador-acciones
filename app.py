@@ -437,7 +437,7 @@ elif st.session_state.stage == 'analyzer':
                 st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia o intermediación de tu bróker habitual.")
 
             # ----------------------------------------------------
-            # CASO C: ETFs (GLOBALES, TECNOLOGÍA, RENOVABLES, MATERIAS PRIMAS, DIVIDENDOS, ETC.)
+            # CASO C: ETFs (CON CALCULADORA DE INTERÉS COMPUESTO INTEGRADA)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
@@ -510,3 +510,75 @@ elif st.session_state.stage == 'analyzer':
                     st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sectorial/temático apto para satélites de cartera, con ligera penalización en costes o volatilidad.")
                 else:
                     st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes elevados o el escaso patrimonio penalizan la eficiencia de este fondo sectorial.")
+
+                # ----------------------------------------------------
+                # CALCULADORA DE INTERÉS COMPUESTO ESPECÍFICA PARA EL ETF
+                # ----------------------------------------------------
+                st.markdown("---")
+                st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
+                
+                # Botón de activación (Toggle o Checkbox)
+                activar_calculadora = st.toggle("Activar calculadora de interés compuesto para este ETF", value=False)
+
+                if activar_calculadora:
+                    st.markdown(f"Configura tu simulación de aportaciones periódicas en **{etf_name}**:")
+                    
+                    col_c1, col_c2 = st.columns(2)
+                    with col_c1:
+                        inversion_inicial = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0)
+                        aportacion_periodica = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0)
+                        frecuencia = st.selectbox("Frecuencia de aportación", options=["Mensual", "Anual"])
+                    
+                    with col_c2:
+                        anos = st.slider("Plazo temporal (Años)", min_value=1, max_value=40, value=15)
+                        
+                        # Sugerencia de rentabilidad según la categoría del ETF
+                        default_rentabilidad = 7.0 if "Global" in etf_cat or "S&P" in etf_cat else (5.0 if "Materias" in etf_cat or "Utilities" in etf_cat else 8.5)
+                        rentabilidad_anual = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=default_rentabilidad, step=0.5)
+
+                    # Cálculo matemático del interés compuesto
+                    periodos_por_ano = 12 if frecuencia == "Mensual" else 1
+                    tasa_periodica = (rentabilidad_anual / 100.0) / periodos_por_ano
+                    total_periodos = anos * periodos_por_ano
+
+                    # Inicializar simulación
+                    saldo_actual = inversion_inicial
+                    datos_tabla = []
+                    
+                    # Para grafilar año a año
+                    historial_crecimiento = []
+
+                    for periodo in range(1, total_periodos + 1):
+                        saldo_actual = saldo_actual * (1 + tasa_periodica) + (aportacion_periodica if periodo > 1 else 0)
+                        
+                        # Guardar hito anual para gráfico/tabla
+                        if periodo % periodos_por_ano == 0:
+                            ano_actual = periodo // periodos_por_ano
+                            aportacion_acumulada = inversion_inicial + (aportacion_periodica * periodos_por_ano * ano_actual if frecuencia == "Mensual" else aportacion_periodica * ano_actual)
+                            intereses_generados = saldo_actual - aportacion_acumulada
+                            
+                            historial_crecimiento.append({
+                                "Año": f"Año {ano_actual}",
+                                "Capital Aportado (€)": round(aportacion_acumulada, 2),
+                                "Intereses Generados (€)": round(intereses_generados, 2),
+                                "Capital Total (€)": round(saldo_actual, 2)
+                            })
+
+                    # Mostrar métricas resumen del resultado final
+                    if historial_crecimiento:
+                        final_result = historial_crecimiento[-1]
+                        st.markdown("### 📊 Resultados de la Simulación")
+                        
+                        m1, m2, m3 = st.columns(3)
+                        m1.metric("Capital Total Acumulado", f"{final_result['Capital Total (€)']:,.2f} €")
+                        m2.metric("Total Aportado de tu Bolsillo", f"{final_result['Capital Aportado (€)']:,.2f} €")
+                        m3.metric("Beneficio por Interés Compuesto", f"{final_result['Intereses Generados (€)']:,.2f} €", delta=f"{((final_result['Intereses Generados (€)']/final_result['Capital Aportado (€)'])*100):.1f}%")
+
+                        # Gráfica de evolución temporal
+                        df_simulacion = pd.DataFrame(historial_crecimiento)
+                        df_chart = df_simulacion.set_index("Año")[["Capital Aportado (€)", "Capital Total (€)"]]
+                        st.line_chart(df_chart)
+
+                        # Tabla detallada desplegable
+                        with st.expander("Ver desglose anual detallado"):
+                            st.dataframe(df_simulacion, use_container_width=True)
