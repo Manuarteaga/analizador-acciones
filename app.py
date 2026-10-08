@@ -134,21 +134,6 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-FUND_BROKER_PROFILES = {
-    "MyInvestor (Fondos Indexados / Sin custodia)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
-    },
-    "Indexa Capital (Cartera / Gestor automatizado)": {
-        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
-    },
-    "Renta 4 (Banco tradicional / Tarifas altas)": {
-        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Personalizado (Ajustar manualmente las comisiones)": {
-        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
-    }
-}
-
 ETF_BROKER_PROFILES = {
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
@@ -168,14 +153,8 @@ ETF_BROKER_PROFILES = {
     "Trading 212 (Planes de ahorro y acciones fraccionadas gratis)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15, "supports_free_plans": True
     },
-    "eToro (Social Trading / Acciones y ETFs)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
     "Renta 4 (Banco tradicional / Tarifas altas)": {
         "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Personalizado (Ajustar manualmente las comisiones)": {
-        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
     }
 }
 
@@ -310,10 +289,10 @@ elif st.session_state.stage == 'analyzer':
         reset_navigation()
         st.rerun()
 
-    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON BRÓKER INDEPENDIENTE POR CADA ACTIVO
+    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON DESPLEGABLES DE ACTIVOS Y BRÓKER INDEPENDIENTE
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
-        st.markdown("Configura tu cartera combinando varios activos, asignando un bróker independiente a cada uno, y calcula el ahorro real a largo plazo descontando comisiones e impuestos en España.")
+        st.markdown("Configura tu cartera seleccionando los activos desde los desplegables, asigna su bróker independiente y calcula el ahorro real a largo plazo descontando comisiones e impuestos.")
         
         st.markdown("---")
         st.subheader("1️⃣ Plazo General de la Cartera")
@@ -328,30 +307,54 @@ elif st.session_state.stage == 'analyzer':
         st.markdown("---")
         st.subheader("2️⃣ Configuración Independiente de Cada Activo y su Bróker")
 
-        nombres_sugeridos = ["Vanguard S&P 500", "Vanguard MSCI World", "iShares Physical Gold (Oro)", "Vanguard High Dividend Yield ETF"]
+        # Lista combinada de opciones para el desplegable de activos
+        lista_opciones_activos = [
+            "Vanguard S&P 500 Stock Index Fund EUR Acc",
+            "Vanguard Global Stock Index Fund EUR Acc (MSCI World)",
+            "Vanguard FTSE All-World UCITS ETF (Acc)",
+            "Vanguard FTSE All-World High Dividend Yield ETF",
+            "iShares Physical Gold ETC",
+            "iShares Core MSCI Emerging Markets IMI ETF",
+            "iShares S&P 500 Information Technology Sector ETF",
+            "Amundi Index MSCI World AE-C",
+            "Personalizado / Otro activo"
+        ]
         
         activos_config = []
         
         for i in range(num_activos):
-            default_nombre = nombres_sugeridos[i] if i < len(nombres_sugeridos) else f"Activo {i+1}"
-            with st.expander(f"📌 {default_nombre}", expanded=(i < 2)):
+            default_idx = i if i < len(lista_opciones_activos) else 0
+            with st.expander(f"📌 Activo {i+1}", expanded=(i < 2)):
+                selected_asset_option = st.selectbox(f"Selecciona el Activo {i+1}", options=lista_opciones_activos, index=default_idx, key=f"sel_asset_{i}")
+                
+                # Valores por defecto según el activo seleccionado
+                default_ter = 0.15
+                default_rent = 7.0
+                if "S&P 500" in selected_asset_option:
+                    default_ter, default_rent = 0.07, 8.0
+                elif "World" in selected_asset_option or "All-World" in selected_asset_option:
+                    default_ter, default_rent = 0.20, 7.0
+                elif "Gold" in selected_asset_option:
+                    default_ter, default_rent = 0.15, 5.5
+                elif "Dividend" in selected_asset_option:
+                    default_ter, default_rent = 0.29, 6.5
+
                 col_i1, col_i2 = st.columns(2)
                 with col_i1:
-                    nombre_activo = st.text_input(f"Nombre del Activo {i+1}", value=default_nombre, key=f"nom_{i}")
                     inv_ini_act = st.number_input(f"Inversión Inicial (€) - {i+1}", min_value=0.0, value=100.0, step=50.0, key=f"ini_{i}")
                     app_per_act = st.number_input(f"Aportación Periódica (€) - {i+1}", min_value=0.0, value=50.0, step=25.0, key=f"app_{i}")
                 with col_i2:
-                    rent_act = st.slider(f"Rentabilidad anual estimada (%) - {i+1}", min_value=0.0, max_value=15.0, value=7.0, step=0.5, key=f"rent_{i}")
-                    ter_act = st.slider(f"TER anual del activo (%) - {i+1}", min_value=0.0, max_value=1.0, value=0.15, step=0.05, key=f"ter_{i}")
+                    rent_act = st.slider(f"Rentabilidad anual estimada (%) - {i+1}", min_value=0.0, max_value=15.0, value=default_rent, step=0.5, key=f"rent_{i}")
+                    ter_act = st.slider(f"TER anual del activo (%) - {i+1}", min_value=0.0, max_value=1.0, value=default_ter, step=0.05, key=f"ter_{i}")
                 
-                st.markdown(f"**Bróker para {nombre_activo}:**")
-                broker_choice_i = st.selectbox(f"Selecciona bróker para {i+1}", options=list(ETF_BROKER_PROFILES.keys()), key=f"broker_{i}", label_visibility="collapsed")
+                st.markdown(f"**Bróker para este activo:**")
+                broker_choice_i = st.selectbox(f"Bróker {i+1}", options=list(ETF_BROKER_PROFILES.keys()), key=f"broker_{i}", label_visibility="collapsed")
                 broker_data_i = ETF_BROKER_PROFILES[broker_choice_i]
                 
                 plan_gratis_i = st.checkbox(f"🚀 Plan de aportación periódica a 0 € (sin comisión de compra recurrente)", value=broker_data_i["supports_free_plans"], key=f"plan_sc_{i}")
 
                 activos_config.append({
-                    "nombre": nombre_activo,
+                    "nombre": selected_asset_option,
                     "inicial": inv_ini_act,
                     "aportacion": app_per_act,
                     "rentabilidad": rent_act,
@@ -370,7 +373,6 @@ elif st.session_state.stage == 'analyzer':
         acum_fx_global = 0.0
         saldo_global_neto = 0.0
 
-        # Calcular costes y saldo inicial por cada activo con su respectivo bróker
         for act in activos_config:
             ini = act["inicial"]
             b_data = act["broker_data"]
@@ -474,7 +476,7 @@ elif st.session_state.stage == 'analyzer':
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu entidad.")
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
         st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
