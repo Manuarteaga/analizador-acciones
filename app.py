@@ -113,7 +113,6 @@ ETF_DB = {
 
 # Lista de Brókers y Neobancos con comisión de compraventa y recargo por cambio de divisa (FX fee)
 BROKER_PROFILES = 
-{
     "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
     },
