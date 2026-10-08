@@ -111,20 +111,41 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Lista ampliada y organizada de Brókers y Neobancos para el desplegable
+# Lista de Brókers y Neobancos con comisión de compraventa y recargo por cambio de divisa (FX fee)
 BROKER_PROFILES = {
-    "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05},
-    "Indexa Capital (Cartera / Gestor automatizado)": {"fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05},
-    "Trade Republic (Neobanco / Planes de inversión / 1€ por orden suelta)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10},
-    "Lightyear (Bajas comisiones / Intereses en efectivo / Muy intuitivo)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.05},
-    "DEGIRO (Bajas comisiones / ETFs de selección principal)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10},
-    "Interactive Brokers (Muy bajo coste / Global / Profesional)": {"fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02},
-    "XTB (Sin comisiones de compraventa hasta 100k€ / Muy visual)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20},
-    "Trading 212 (Planes de ahorro / Fracciones de acciones y ETFs)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15},
-    "eToro (Social Trading / Acciones y ETFs)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50},
-    "Renta 4 (Banco tradicional español / Tarifas altas)": {"fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30},
-    "Personalizado (Ajustar manualmente las comisiones)": {"fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10}
-}
+    "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
+    },
+    "Indexa Capital (Cartera / Gestor automatizado)": {
+        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
+    },
+    "Trade Republic (Neobanco / Planes de inversión / 1€ por orden)": {
+        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.50
+    },
+    "Lightyear (Bajas comisiones / Muy transparente en divisa)": {
+        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.05, "fx_fee_percent": 0.25
+    },
+    "DEGIRO (Bajas comisiones / Cambio manual o automático)": {
+        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25
+    },
+    "Interactive Brokers (Muy bajo coste / FX tipo de cambio real bajísimo)": {
+        "fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03
+    },
+    "XTB (Sin comisiones hasta 100k€ / Ojo al cambio de divisa)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50
+    },
+    "Trading 212 (Planes de ahorro / Fracciones de acciones y ETFs)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15
+    },
+    "eToro (Social Trading / Acciones y ETFs)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50, "fx_fee_percent": 0.50
+    },
+    "Renta 4 (Banco tradicional español / Tarifas altas)": {
+        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50
+    },
+    "Personalizado (Ajustar manualmente las comisiones)": {
+        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25
+    }
 
 # Sidebar común para historial
 with st.sidebar:
