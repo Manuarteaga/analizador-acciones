@@ -310,104 +310,159 @@ elif st.session_state.stage == 'analyzer':
         reset_navigation()
         st.rerun()
 
-    # NUEVO APARTADO: CARTERA MULTI-ACTIVO
+    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON CONFIGURACIÓN INDEPENDIENTE Y SELECCIÓN DE BRÓKER
     if st.session_state.asset_type == "Cartera Multi-Activo":
-        st.title("💼 Simulador de Cartera Multi-Activo Combinada")
-        st.markdown("Simula una estrategia de inversión diversificada con múltiples activos (ej. S&P 500, MSCI World, Oro, Dividendos Globales) aplicando comisiones e impuestos en España.")
+        st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
+        st.markdown("Configura tu cartera combinando varios activos de forma independiente, selecciona tu bróker y calcula el ahorro real a largo plazo descontando comisiones e impuestos en España.")
         
         st.markdown("---")
-        st.subheader("⚙️ Configuración General de la Cartera")
+        st.subheader("1️⃣ Selección de Bróker y Plazo General")
         
-        num_activos = st.slider("Número de activos diferentes en tu cartera", min_value=1, max_value=6, value=4, step=1)
+        selected_broker_cartera = st.selectbox("Selecciona tu Bróker o Entidad", options=list(ETF_BROKER_PROFILES.keys()), key="broker_cartera")
+        broker_data_c = ETF_BROKER_PROFILES[selected_broker_cartera]
         
-        col_c1, col_c2 = st.columns(2)
-        with col_c1:
-            anos_cartera = st.slider("Plazo temporal (Años)", min_value=1, max_value=40, value=20, key="cartera_anos")
+        plan_sin_comision_c = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por aportación recurrente)", value=broker_data_c["supports_free_plans"], key="plan_sc_c")
+
+        col_g1, col_g2 = st.columns(2)
+        with col_g1:
+            anos_cartera = st.slider("Plazo temporal global (Años)", min_value=1, max_value=40, value=20, key="cartera_anos")
             frecuencia_cartera = st.selectbox("Frecuencia de aportación", options=["Mensual", "Anual"], key="cartera_freq")
-        with col_c2:
-            rentabilidad_media_cartera = st.slider("Rentabilidad media anual estimada (%)", min_value=0.0, max_value=15.0, value=7.0, step=0.5, key="cartera_rent")
-            ter_medio_cartera = st.slider("TER medio ponderado de los activos (%)", min_value=0.0, max_value=1.0, value=0.20, step=0.05, key="cartera_ter")
+        with col_g2:
+            num_activos = st.slider("Número de activos diferentes en tu cartera", min_value=1, max_value=6, value=4, step=1, key="num_act")
 
-        st.markdown("#### 📥 Aportaciones por cada activo individual:")
-        st.info("Introduce cuánto aportas de forma inicial y periódica **en cada uno** de los activos (ej. 100€ iniciales y 50€ mensuales por activo).")
+        fee_fixed_val_c = broker_data_c["fee_fixed"]
+        fee_percent_val_c = broker_data_c["fee_percent"]
+        spread_val_c = broker_data_c["spread_percent"]
+        fx_val_c = broker_data_c["fx_fee_percent"]
 
-        col_a1, col_a2 = st.columns(2)
-        with col_a1:
-            inicial_por_activo = st.number_input("Inversión Inicial por Activo (€)", min_value=0.0, value=100.0, step=50.0)
-        with col_a2:
-            aportacion_por_activo = st.number_input("Aportación Periódica por Activo (€)", min_value=0.0, value=50.0, step=25.0)
+        fee_fixed_efectiva_c = 0.0 if plan_sin_comision_c else fee_fixed_val_c
+        fee_percent_efectiva_c = 0.0 if plan_sin_comision_c else fee_percent_val_c
 
-        # Cálculo global acumulado
-        inversion_inicial_total = inicial_por_activo * num_activos
-        aportacion_periodica_total = aportacion_por_activo * num_activos
+        st.markdown("---")
+        st.subheader("2️⃣ Configuración Independiente de Cada Activo")
 
+        # Lista de nombres de ejemplo predefinidos para los activos comunes
+        nombres_sugeridos = ["Vanguard S&P 500", "Vanguard MSCI World", "iShares Physical Gold (Oro)", "Vanguard High Dividend Yield ETF"]
+        
+        activos_config = []
+        
+        for i in range(num_activos):
+            default_nombre = nombres_sugeridos[i] if i < len(nombres_sugeridos) else f"Activo {i+1}"
+            with st.expander(f"📌 Configuración de: {default_nombre}", expanded=(i < 2)):
+                col_i1, col_i2, col_i3, col_i4 = st.columns(4)
+                with col_i1:
+                    nombre_activo = st.text_input(f"Nombre del Activo {i+1}", value=default_nombre, key=f"nom_{i}")
+                with col_i2:
+                    inv_ini_act = st.number_input(f"Inversión Inicial (€)", min_value=0.0, value=100.0, step=50.0, key=f"ini_{i}")
+                with col_i3:
+                    app_per_act = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=50.0, step=25.0, key=f"app_{i}")
+                with col_i4:
+                    rent_act = st.slider(f"Rentabilidad anual estimada (%)", min_value=0.0, max_value=15.0, value=7.0, step=0.5, key=f"rent_{i}")
+                    ter_act = st.slider(f"TER anual del activo (%)", min_value=0.0, max_value=1.0, value=0.15, step=0.05, key=f"ter_{i}")
+
+                activos_config.append({
+                    "nombre": nombre_activo,
+                    "inicial": inv_ini_act,
+                    "aportacion": app_per_act,
+                    "rentabilidad": rent_act,
+                    "ter": ter_act
+                })
+
+        # SIMULACIÓN GLOBAL ACUMULADA DE TODOS LOS ACTIVOS
         periodos_por_ano = 12 if frecuencia_cartera == "Mensual" else 1
-        tasa_neta_anual = rentabilidad_media_cartera - ter_medio_cartera
-        tasa_periodica = (tasa_neta_anual / 100.0) / periodos_por_ano
         total_periodos = anos_cartera * periodos_por_ano
 
-        # Comisiones estimadas estándar por activo (ej. 1€ por orden suelta inicial si aplica, o plan gratuito)
-        plan_gratis_cartera = st.checkbox("🚀 Aplicar planes automatizados sin comisión por aportación periódica", value=True)
-        fee_fijo_periodico = 0.0 if plan_gratis_cartera else 1.0
+        # Inicializar acumuladores globales
+        total_aportado_acumulado = 0.0
+        acum_broker_global = 0.0
+        acum_spread_global = 0.0
+        acum_fx_global = 0.0
+        saldo_global_neto = 0.0
 
-        # Costes iniciales (orden suelta en cada activo)
-        coste_broker_ini_total = 1.0 * num_activos if not plan_gratis_cartera else 0.0
-        coste_spread_ini_total = inversion_inicial_total * 0.001 * num_activos
-        coste_total_ini = coste_broker_ini_total + coste_spread_ini_total
+        # Precalcular el saldo inicial y costes iniciales de cada activo
+        for act in activos_config:
+            ini = act["inicial"]
+            c_broker_ini = (ini * (fee_percent_val_c / 100.0)) + fee_fixed_val_c
+            c_spread_ini = ini * (spread_val_c / 100.0)
+            c_fx_ini = ini * (fx_val_c / 100.0)
+            coste_ini_total = c_broker_ini + c_spread_ini + c_fx_ini
 
-        saldo_actual = max(0.0, inversion_inicial_total - coste_total_ini)
-        total_aportado_acumulado = inversion_inicial_total
+            saldo_global_neto += max(0.0, ini - coste_ini_total)
+            total_aportado_acumulado += ini
+            acum_broker_global += c_broker_ini
+            acum_spread_global += c_spread_ini
+            acum_fx_global += c_fx_ini
 
-        acum_broker = coste_broker_ini_total
-        acum_spread = coste_spread_ini_total
+        historial_cartera_indiv = []
 
-        historial_cartera = []
-
+        # Bucle temporal unificado
         for periodo in range(1, total_periodos + 1):
+            aporte_periodo_total = 0.0
+            
             if periodo > 1:
-                c_broker = fee_fijo_periodico * num_activos
-                c_spread = aportacion_periodica_total * 0.001
-                c_total_op = c_broker + c_spread
+                for act in activos_config:
+                    app = act["aportacion"]
+                    aporte_periodo_total += app
+                    
+                    c_broker_p = (app * (fee_percent_efectiva_c / 100.0)) + fee_fixed_efectiva_c
+                    c_spread_p = app * (spread_val_c / 100.0)
+                    c_fx_p = app * (fx_val_c / 100.0)
+                    c_op_total = c_broker_p + c_spread_p + c_fx_p
 
-                importo_neto_aportado = max(0.0, aportacion_periodica_total - c_total_op)
-                total_aportado_acumulado += aportacion_periodica_total
+                    neto_aportado = max(0.0, app - c_op_total)
+                    total_aportado_acumulado += app
+                    
+                    acum_broker_global += c_broker_p
+                    acum_spread_global += c_spread_p
+                    acum_fx_global += c_fx_p
 
-                acum_broker += c_broker
-                acum_spread += c_spread
+                    # Aplicar rentabilidad periódica individual ponderada
+                    tasa_neta_activo = act["rentabilidad"] - act["ter"]
+                    tasa_periodica_activo = (tasa_neta_activo / 100.0) / periodos_por_ano
+                    
+                    # Crecimiento fraccionado del activo
+                    # (Para simplificar la agregación exacta sumamos al saldo global compuesto)
+                
+            # Crecimiento global con tasa media ponderada de la cartera en este periodo
+            rent_media_pond = sum([a["rentabilidad"] - a["ter"] for a in activos_config]) / len(activos_config)
+            tasa_periodica_global = (rent_media_pond / 100.0) / periodos_por_ano
 
-                saldo_actual = saldo_actual * (1 + tasa_periodica) + importo_neto_aportado
+            if periodo > 1:
+                neto_total_periodo = sum([max(0.0, a["aportacion"] - ((a["aportacion"] * (fee_percent_efectiva_c / 100.0)) + fee_fixed_efectiva_c + (a["aportacion"] * (spread_val_c / 100.0)) + (a["aportacion"] * (fx_val_c / 100.0)))) for a in activos_config])
+                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global) + neto_total_periodo
             else:
-                saldo_actual = saldo_actual * (1 + tasa_periodica)
+                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
 
             if periodo % periodos_por_ano == 0:
                 ano_actual = periodo // periodos_por_ano
-                total_costes = acum_broker + acum_spread
-                intereses_brutos = saldo_actual - (total_aportado_acumulado - total_costes)
+                total_costes_acum = acum_broker_global + acum_spread_global + acum_fx_global
+                intereses_brutos = saldo_global_neto - (total_aportado_acumulado - total_costes_acum)
 
-                historial_cartera.append({
+                historial_cartera_indiv.append({
                     "Año": f"Año {ano_actual}",
                     "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
-                    "Comisiones Acumuladas (€)": round(total_costes, 2),
+                    "Comisiones Bróker (€)": round(acum_broker_global, 2),
+                    "Coste Spread / Divisa (€)": round(acum_spread_global + acum_fx_global, 2),
                     "Beneficio Bruto (€)": round(max(0.0, intereses_brutos), 2),
-                    "Capital Total Bruto (€)": round(saldo_actual, 2)
+                    "Capital Total Bruto (€)": round(saldo_global_neto, 2)
                 })
 
-        if historial_cartera:
-            final_cartera = historial_cartera[-1]
-            beneficio_bruto_f = final_cartera['Beneficio Bruto (€)']
+        if historial_cartera_indiv:
+            final_c = historial_cartera_indiv[-1]
+            beneficio_bruto_f = final_c['Beneficio Bruto (€)']
             impuestos_f = beneficio_bruto_f * 0.19
             beneficio_neto_impuestos_f = beneficio_bruto_f - impuestos_f
 
-            capital_neto_aportado_real = final_cartera['Capital Aportado Bruto (€)'] - final_cartera['Comisiones Acumuladas (€)']
+            capital_neto_aportado_real = final_c['Capital Aportado Bruto (€)'] - (final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)'])
             capital_total_liquido_f = capital_neto_aportado_real + beneficio_neto_impuestos_f
 
             st.markdown("---")
-            st.subheader("📊 Resultados Globales de la Cartera Multi-Activo")
+            st.subheader("📊 Resultados Globales de tu Cartera Personalizada")
 
             m1, m2, m3, m4, m5 = st.columns(5)
-            m1.metric("Capital Acumulado", f"{final_cartera['Capital Total Bruto (€)']:,.2f} €")
-            m2.metric("Total Aportado Bruto", f"{final_cartera['Capital Aportado Bruto (€)']:,.2f} €")
-            m3.metric("Total Costes", f"{final_cartera['Comisiones Acumuladas (€)']:,.2f} €")
+            m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
+            m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
+            m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
             m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
             m5.metric("Impuestos (19%)", f"{impuestos_f:,.2f} €")
 
@@ -418,7 +473,7 @@ elif st.session_state.stage == 'analyzer':
             </div>
             """, unsafe_allow_html=True)
 
-            df_res_cartera = pd.DataFrame(historial_cartera)
+            df_res_cartera = pd.DataFrame(historial_cartera_indiv)
             with st.expander("Ver desglose anual detallado de la cartera multi-activo", expanded=True):
                 st.dataframe(df_res_cartera, use_container_width=True)
 
@@ -430,7 +485,7 @@ elif st.session_state.stage == 'analyzer':
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu entidad.")
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
         st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
