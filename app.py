@@ -134,7 +134,14 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-ETF_BROKER_PROFILES = {
+# Perfiles unificados de Bróker (Fondos + ETFs)
+ALL_BROKER_PROFILES = {
+    "MyInvestor (Fondos Indexados / Sin custodia)": {
+        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
+    },
+    "Indexa Capital (Cartera / Gestor automatizado)": {
+        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
+    },
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
     },
@@ -289,10 +296,10 @@ elif st.session_state.stage == 'analyzer':
         reset_navigation()
         st.rerun()
 
-    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON DESPLEGABLES DE ACTIVOS Y BRÓKER INDEPENDIENTE
+    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON FONDOS, ETFS Y BRÓKERS INDEPENDIENTES
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
-        st.markdown("Configura tu cartera seleccionando los activos desde los desplegables, asigna su bróker independiente y calcula el ahorro real a largo plazo descontando comisiones e impuestos.")
+        st.markdown("Configura tu cartera seleccionando Fondos Indexados o ETFs en cada activo, asigna su bróker correspondiente (incluyendo MyInvestor o Indexa) y calcula el ahorro real a largo plazo.")
         
         st.markdown("---")
         st.subheader("1️⃣ Plazo General de la Cartera")
@@ -305,19 +312,19 @@ elif st.session_state.stage == 'analyzer':
             num_activos = st.slider("Número de activos diferentes en tu cartera", min_value=1, max_value=6, value=4, step=1, key="num_act")
 
         st.markdown("---")
-        st.subheader("2️⃣ Configuración Independiente de Cada Activo y su Bróker")
+        st.subheader("2️⃣ Configuración Independiente de Cada Activo (Fondos y ETFs)")
 
-        # Lista combinada de opciones para el desplegable de activos
+        # Lista combinada de Fondos Indexados y ETFs disponibles en la BD
         lista_opciones_activos = [
-            "Vanguard S&P 500 Stock Index Fund EUR Acc",
-            "Vanguard Global Stock Index Fund EUR Acc (MSCI World)",
-            "Vanguard FTSE All-World UCITS ETF (Acc)",
-            "Vanguard FTSE All-World High Dividend Yield ETF",
-            "iShares Physical Gold ETC",
-            "iShares Core MSCI Emerging Markets IMI ETF",
-            "iShares S&P 500 Information Technology Sector ETF",
-            "Amundi Index MSCI World AE-C",
-            "Personalizado / Otro activo"
+            "📁 [Fondo] Vanguard S&P 500 Stock Index Fund EUR Acc",
+            "📁 [Fondo] Vanguard Global Stock Index Fund EUR Acc (MSCI World)",
+            "📁 [Fondo] Amundi Index MSCI World AE-C",
+            "🌐 [ETF] Vanguard FTSE All-World UCITS ETF (Acc)",
+            "🌐 [ETF] Vanguard FTSE All-World High Dividend Yield ETF",
+            "🌐 [ETF] iShares Physical Gold ETC",
+            "🌐 [ETF] iShares Core MSCI Emerging Markets IMI ETF",
+            "🌐 [ETF] iShares S&P 500 Information Technology Sector ETF",
+            "✍️ Personalizado / Otro activo"
         ]
         
         activos_config = []
@@ -327,17 +334,18 @@ elif st.session_state.stage == 'analyzer':
             with st.expander(f"📌 Activo {i+1}", expanded=(i < 2)):
                 selected_asset_option = st.selectbox(f"Selecciona el Activo {i+1}", options=lista_opciones_activos, index=default_idx, key=f"sel_asset_{i}")
                 
-                # Valores por defecto según el activo seleccionado
-                default_ter = 0.15
-                default_rent = 7.0
+                # Valores por defecto inteligentes según el activo
+                default_ter, default_rent = 0.15, 7.0
                 if "S&P 500" in selected_asset_option:
-                    default_ter, default_rent = 0.07, 8.0
+                    default_ter, default_rent = 0.10, 8.0
                 elif "World" in selected_asset_option or "All-World" in selected_asset_option:
-                    default_ter, default_rent = 0.20, 7.0
+                    default_ter, default_rent = 0.18, 7.0
                 elif "Gold" in selected_asset_option:
                     default_ter, default_rent = 0.15, 5.5
                 elif "Dividend" in selected_asset_option:
                     default_ter, default_rent = 0.29, 6.5
+                elif "Fondo" in selected_asset_option:
+                    default_ter = 0.18
 
                 col_i1, col_i2 = st.columns(2)
                 with col_i1:
@@ -347,11 +355,11 @@ elif st.session_state.stage == 'analyzer':
                     rent_act = st.slider(f"Rentabilidad anual estimada (%) - {i+1}", min_value=0.0, max_value=15.0, value=default_rent, step=0.5, key=f"rent_{i}")
                     ter_act = st.slider(f"TER anual del activo (%) - {i+1}", min_value=0.0, max_value=1.0, value=default_ter, step=0.05, key=f"ter_{i}")
                 
-                st.markdown(f"**Bróker para este activo:**")
-                broker_choice_i = st.selectbox(f"Bróker {i+1}", options=list(ETF_BROKER_PROFILES.keys()), key=f"broker_{i}", label_visibility="collapsed")
-                broker_data_i = ETF_BROKER_PROFILES[broker_choice_i]
+                st.markdown(f"**Bróker o Gestora para este activo:**")
+                broker_choice_i = st.selectbox(f"Bróker {i+1}", options=list(ALL_BROKER_PROFILES.keys()), key=f"broker_{i}", label_visibility="collapsed")
+                broker_data_i = ALL_BROKER_PROFILES[broker_choice_i]
                 
-                plan_gratis_i = st.checkbox(f"🚀 Plan de aportación periódica a 0 € (sin comisión de compra recurrente)", value=broker_data_i["supports_free_plans"], key=f"plan_sc_{i}")
+                plan_gratis_i = st.checkbox(f"🚀 Plan de aportación periódica a 0 € (sin comisión por compra recurrente)", value=broker_data_i["supports_free_plans"], key=f"plan_sc_{i}")
 
                 activos_config.append({
                     "nombre": selected_asset_option,
@@ -363,7 +371,7 @@ elif st.session_state.stage == 'analyzer':
                     "plan_gratis": plan_gratis_i
                 })
 
-        # SIMULACIÓN GLOBAL ACUMULADA CON BRÓKERS INDEPENDIENTES
+        # SIMULACIÓN GLOBAL ACUMULADA CON BRÓKERS Y FONDOS/ETFS INDEPENDIENTES
         periodos_por_ano = 12 if frecuencia_cartera == "Mensual" else 1
         total_periodos = anos_cartera * periodos_por_ano
 
