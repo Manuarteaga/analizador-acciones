@@ -514,19 +514,20 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
+                    # Las aportaciones periódicas respetan el plan a 0€, pero la inversión inicial mantiene su comisión estándar
                     fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
                     fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
-                    fx_fee_efectiva = 0.0 if plan_sin_comision_f else fx_fee_percent_val
-                    fee_fixed_ini_e_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
+                    fx_fee_efectiva = fx_fee_percent_val
 
                     periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
                     tasa_neta_anual = rentabilidad_anual_f - ter_val
                     tasa_periodica_f = (tasa_neta_anual / 100.0) / periodos_por_ano_f
                     total_periodos_f = anos_f * periodos_por_ano_f
 
-                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_ini_e_efectiva
+                    # Inversión inicial con su tarifa de bróker normal
+                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val
                     coste_spread_ini = inversion_inicial_f * (spread_percent_val / 100.0)
-                    coste_fx_ini = inversion_inicial_f * (fx_fee_efectiva / 100.0)
+                    coste_fx_ini = inversion_inicial_f * (fx_fee_percent_val / 100.0)
                     coste_total_ini = coste_broker_ini + coste_spread_ini + coste_fx_ini
 
                     saldo_actual_f = max(0.0, inversion_inicial_f - coste_total_ini)
@@ -700,19 +701,20 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
+                    # Las aportaciones periódicas van a 0€ si el plan está activo, pero la inversión inicial mantiene la tarifa normal del bróker
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
-                    fx_fee_e_efectiva = 0.0 if plan_sin_comision_e else fx_fee_percent_val_e
-                    fee_fixed_ini_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
+                    fx_fee_e_efectiva = fx_fee_percent_val_e
 
                     periodos_por_ano = 12 if frecuencia == "Mensual" else 1
                     tasa_neta_anual_e = rentabilidad_anual - ter_etf
                     tasa_periodica = (tasa_neta_anual_e / 100.0) / periodos_por_ano
                     total_periodos = anos * periodos_por_ano
 
-                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_ini_e_efectiva
+                    # Inversión inicial con la comisión fija normal del bróker (ej. 1€ en Trade Republic)
+                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e
                     coste_spread_ini_e = inversion_inicial * (spread_percent_val_e / 100.0)
-                    coste_fx_ini_e = inversion_inicial * (fx_fee_e_efectiva / 100.0)
+                    coste_fx_ini_e = inversion_inicial * (fx_fee_percent_val_e / 100.0)
                     coste_total_ini_e = coste_broker_ini_e + coste_spread_ini_e + coste_fx_ini_e
 
                     saldo_actual = max(0.0, inversion_inicial - coste_total_ini_e)
@@ -726,7 +728,6 @@ elif st.session_state.stage == 'analyzer':
 
                     for periodo in range(1, total_periodos + 1):
                         if periodo > 1:
-                            # Aportaciones periódicas subsiguientes
                             c_broker_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva
                             c_spread_e = aportacion_periodica * (spread_percent_val_e / 100.0)
                             c_fx_e = aportacion_periodica * (fx_fee_e_efectiva / 100.0)
@@ -735,7 +736,7 @@ elif st.session_state.stage == 'analyzer':
                             import_neto_aportado_e = max(0.0, aportacion_periodica - c_total_op_e)
                             total_aportado_acumulado_e += aportacion_periodica
                             
-                            acum_broker_e += c_broker_e  # <- Aquí acumulamos correctamente solo las comisiones nuevas del periodo
+                            acum_broker_e += c_broker_e
                             acum_spread_e += c_spread_e
                             acum_fx_e += c_fx_e
                             
