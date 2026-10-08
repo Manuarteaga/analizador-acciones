@@ -61,6 +61,29 @@ st.markdown("""
         0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
+    .final-net-card {
+        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        border: 2px solid #34d399;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 8px 20px rgba(4, 120, 87, 0.3);
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .final-net-title {
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #a7f3d0;
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    .final-net-value {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -443,7 +466,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (SIN GRÁFICO, CON IMPUESTOS)
+            # CASO B: FONDOS INDEXADOS (CON CAPITAL LÍQUIDO FINAL)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
@@ -479,7 +502,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente aos gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
@@ -577,6 +600,10 @@ elif st.session_state.stage == 'analyzer':
                         beneficio_bruto_final = final_res_f['Beneficio Neto (€)']
                         impuestos_finales = beneficio_bruto_final * 0.19
                         beneficio_neto_impuestos = beneficio_bruto_final - impuestos_finales
+                        
+                        # Capital total líquido tras impuestos (Capital aportado neto de costes + beneficio neto fiscal)
+                        capital_neto_aportado_real = final_res_f['Capital Aportado Bruto (€)'] - (final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)'])
+                        capital_total_liquido = capital_neto_aportado_real + beneficio_neto_impuestos
 
                         st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones e Impuestos)")
                         st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op:,.2f} €** en cada aportación.")
@@ -586,14 +613,22 @@ elif st.session_state.stage == 'analyzer':
                         fm2.metric("Total Aportado Bruto", f"{final_res_f['Capital Aportado Bruto (€)']:,.2f} €")
                         fm3.metric("Total Costes Acumulados", f"{(final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)']):,.2f} €")
                         fm4.metric("Beneficio Neto", f"{beneficio_bruto_final:,.2f} €")
-                        fm5.metric("Beneficio Neto - Impuestos (España 19%)", f"{beneficio_neto_impuestos:,.2f} €")
+                        fm5.metric("Beneficio Neto - Impuestos (19%)", f"{beneficio_neto_impuestos:,.2f} €")
+
+                        # Tarjeta destacada con el Capital Acumulado Final limpio de impuestos
+                        st.markdown(f"""
+                        <div class="final-net-card">
+                            <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Tras Pagar a Hacienda)</div>
+                            <div class="final-net-value">{capital_total_liquido:,.2f} €</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
                         df_sim_f = pd.DataFrame(historial_crecimiento_f)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
                             st.dataframe(df_sim_f, use_container_width=True)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (SIN GRÁFICO, CON IMPUESTOS)
+            # CASO C: ETFS (CON CAPITAL LÍQUIDO FINAL)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
@@ -764,6 +799,9 @@ elif st.session_state.stage == 'analyzer':
                         beneficio_bruto_final_e = final_result['Beneficio Neto (€)']
                         impuestos_finales_e = beneficio_bruto_final_e * 0.19
                         beneficio_neto_impuestos_e = beneficio_bruto_final_e - impuestos_finales_e
+                        
+                        capital_neto_aportado_real_e = final_result['Capital Aportado Bruto (€)'] - (final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)'])
+                        capital_total_liquido_e = capital_neto_aportado_real_e + beneficio_neto_impuestos_e
 
                         st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones e Impuestos)")
                         st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op_e:,.2f} €** en cada aportación.")
@@ -773,7 +811,14 @@ elif st.session_state.stage == 'analyzer':
                         m2.metric("Total Aportado Bruto", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
                         m3.metric("Total Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Neto", f"{beneficio_bruto_final_e:,.2f} €")
-                        m5.metric("Beneficio Neto - Impuestos (España 19%)", f"{beneficio_neto_impuestos_e:,.2f} €")
+                        m5.metric("Beneficio Neto - Impuestos (19%)", f"{beneficio_neto_impuestos_e:,.2f} €")
+
+                        st.markdown(f"""
+                        <div class="final-net-card">
+                            <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Tras Pagar a Hacienda)</div>
+                            <div class="final-net-value">{capital_total_liquido_e:,.2f} €</div>
+                        </div>
+                        """, unsafe_allow_html=True)
 
                         df_simulacion = pd.DataFrame(historial_crecimiento)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
