@@ -111,7 +111,6 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Brókers específicos para FONDOS INDEXADOS (incluye MyInvestor)
 FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
@@ -127,7 +126,6 @@ FUND_BROKER_PROFILES = {
     }
 }
 
-# Brókers específicos para ETFS (sin MyInvestor)
 ETF_BROKER_PROFILES = {
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
@@ -516,7 +514,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Exención de comisiones si está activo el plan periódico gratuito
+                    # Aplicar exención estricta a 0 si el plan periódico está activo
                     fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
                     fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
 
@@ -701,7 +699,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Exención de comisiones periódicas si está activo el plan automatizado
+                    # Aplicar exención estricta a 0 en las aportaciones periódicas si está activo el plan automatizado
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
 
@@ -726,6 +724,7 @@ elif st.session_state.stage == 'analyzer':
 
                     for periodo in range(1, total_periodos + 1):
                         if periodo > 1:
+                            # Aquí se garantiza que se use fee_fixed_e_efectiva (0 si plan_sin_comision_e es True)
                             c_broker_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva
                             c_spread_e = aportacion_periodica * (spread_percent_val_e / 100.0)
                             c_fx_e = aportacion_periodica * (fx_fee_percent_val_e / 100.0)
