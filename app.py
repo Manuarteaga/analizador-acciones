@@ -111,14 +111,24 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Lista de Brókers y Neobancos con costes reales de operativa y cambio de divisa (FX fee)
-BROKER_PROFILES = {
+# Brókers específicos para FONDOS INDEXADOS (incluye MyInvestor)
+FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
     "Indexa Capital (Cartera / Gestor automatizado)": {
         "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
     },
+    "Renta 4 (Banco tradicional / Tarifas altas)": {
+        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
+    },
+    "Personalizado (Ajustar manualmente las comisiones)": {
+        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
+    }
+}
+
+# Brókers específicos para ETFS (sin MyInvestor, enfocado en brókers de bolsa)
+ETF_BROKER_PROFILES = {
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
     },
@@ -147,6 +157,7 @@ BROKER_PROFILES = {
         "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
     }
 }
+
 # Sidebar común para historial
 with st.sidebar:
     st.header("📊 Historial de Sesión")
@@ -434,7 +445,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON CALCULADORA DE INTERÉS COMPUESTO Y PLAN PERIÓDICO GRATUITO)
+            # CASO B: FONDOS INDEXADOS (CON BRÓKERS DE FONDOS)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
@@ -470,25 +481,19 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia o intermediación de tu bróker habitual.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente al gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
-                # ----------------------------------------------------
-                # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS (CON BRÓKER Y PLAN AUTOMATIZADO)
-                # ----------------------------------------------------
+                # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones de Bróker: {fund_name}")
+                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones: {fund_name}")
                 
                 activar_calc_fondo = st.toggle("Activar calculadora de interés compuesto con comisiones para este fondo", value=False, key="toggle_fondo")
 
                 if activar_calc_fondo:
-                    st.markdown("Configura tu simulación, selecciona tu entidad o bróker y especifica si realizas aportaciones periódicas automatizadas sin comisión:")
-                    
-                    # Selector de Bróker
-                    selected_broker = st.selectbox("Selecciona tu Bróker o Entidad Financiera", options=list(BROKER_PROFILES.keys()), key="broker_fondo")
-                    broker_data = BROKER_PROFILES[selected_broker]
+                    selected_broker = st.selectbox("Selecciona tu Entidad o Comercializador de Fondos", options=list(FUND_BROKER_PROFILES.keys()), key="broker_fondo")
+                    broker_data = FUND_BROKER_PROFILES[selected_broker]
 
-                    # Opción para aportación periódica automatizada sin comisión
-                    plan_sin_comision_f = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=True, key="plan_sc_f")
+                    plan_sin_comision_f = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=broker_data["supports_free_plans"], key="plan_sc_f")
 
                     col_fb1, col_fb2 = st.columns(2)
                     with col_fb1:
@@ -500,51 +505,52 @@ elif st.session_state.stage == 'analyzer':
                         anos_f = st.slider("Plazo temporal (Años)", min_value=1, max_value=40, value=15, key="anos_f")
                         rentabilidad_anual_f = st.slider("Rentabilidad anual estimada del fondo (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
 
-                    # Ajustes manuales si selecciona "Personalizado"
-                    if selected_broker == "Personalizado (Ajustar manualmente)":
-                        st.markdown("🛠️ **Ajustes manuales de comisiones:**")
-                        c_m1, c_m2, c_m3 = st.columns(3)
-                        fee_percent_val = c_m1.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="f_perc")
-                        fee_fixed_val = c_m2.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=0.0, step=0.5, key="f_fix")
-                        spread_percent_val = c_m3.number_input("Spread / Cambio divisa (%)", min_value=0.0, max_value=1.0, value=0.05, step=0.05, key="f_spr")
+                    if selected_broker.startswith("Personalizado"):
+                        fee_percent_val = st.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="f_perc")
+                        fee_fixed_val = st.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=0.0, step=0.5, key="f_fix")
+                        spread_percent_val = st.number_input("Spread (%)", min_value=0.0, max_value=1.0, value=0.05, step=0.05, key="f_spr")
+                        fx_fee_percent_val = st.number_input("Comisión cambio divisa / FX (%)", min_value=0.0, max_value=1.0, value=0.30, step=0.05, key="f_fx")
                     else:
                         fee_percent_val = broker_data["fee_percent"]
                         fee_fixed_val = broker_data["fee_fixed"]
                         spread_percent_val = broker_data["spread_percent"]
+                        fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Si está activo el plan sin comisión, anulamos los costes de ejecución periódica
-                    if plan_sin_comision_f:
-                        fee_percent_val_periodica = 0.0
-                        fee_fixed_val_periodica = 0.0
-                        spread_percent_val_periodica = 0.0
-                    else:
-                        fee_percent_val_periodica = fee_percent_val
-                        fee_fixed_val_periodica = fee_fixed_val
-                        spread_percent_val_periodica = spread_percent_val
+                    fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
+                    fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
 
-                    # Cálculo matemático contando TER del fondo + comisiones de bróker
                     periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
                     tasa_neta_anual = rentabilidad_anual_f - ter_val
                     tasa_periodica_f = (tasa_neta_anual / 100.0) / periodos_por_ano_f
                     total_periodos_f = anos_f * periodos_por_ano_f
 
-                    # Aplicar comisión inicial al saldo inicial (la inversión inicial sí suele llevar comisión de entrada si aplica el bróker)
-                    coste_inicial = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val + (inversion_inicial_f * (spread_percent_val / 100.0))
-                    saldo_actual_f = max(0.0, inversion_inicial_f - coste_inicial)
-                    
+                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val
+                    coste_spread_ini = inversion_inicial_f * (spread_percent_val / 100.0)
+                    coste_fx_ini = inversion_inicial_f * (fx_fee_percent_val / 100.0)
+                    coste_total_ini = coste_broker_ini + coste_spread_ini + coste_fx_ini
+
+                    saldo_actual_f = max(0.0, inversion_inicial_f - coste_total_ini)
                     total_aportado_acumulado = inversion_inicial_f
-                    total_comisiones_pagadas = coste_inicial
+                    
+                    acum_broker = coste_broker_ini
+                    acum_spread = coste_spread_ini
+                    acum_fx = coste_fx_ini
                     
                     historial_crecimiento_f = []
 
                     for periodo in range(1, total_periodos_f + 1):
                         if periodo > 1:
-                            # Costes de la aportación periódica (afectados por si tiene plan gratuito o no)
-                            coste_operacion = (aportacion_periodica_f * (fee_percent_val_periodica / 100.0)) + fee_fixed_val_periodica + (aportacion_periodica_f * (spread_percent_val_periodica / 100.0))
-                            import_neto_aportado = max(0.0, aportacion_periodica_f - coste_operacion)
+                            c_broker = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva
+                            c_spread = aportacion_periodica_f * (spread_percent_val / 100.0)
+                            c_fx = aportacion_periodica_f * (fx_fee_percent_val / 100.0)
+                            c_total_op = c_broker + c_spread + c_fx
                             
+                            import_neto_aportado = max(0.0, aportacion_periodica_f - c_total_op)
                             total_aportado_acumulado += aportacion_periodica_f
-                            total_comisiones_pagadas += coste_operacion
+                            
+                            acum_broker += c_broker
+                            acum_spread += c_spread
+                            acum_fx += c_fx
                             
                             saldo_actual_f = saldo_actual_f * (1 + tasa_periodica_f) + import_neto_aportado
                         else:
@@ -552,35 +558,41 @@ elif st.session_state.stage == 'analyzer':
 
                         if periodo % periodos_por_ano_f == 0:
                             ano_actual = periodo // periodos_por_ano_f
-                            intereses_generados_f = saldo_actual_f - (total_aportado_acumulado - total_comisiones_pagadas)
+                            total_costes_acumulados = acum_broker + acum_spread + acum_fx
+                            intereses_generados_f = saldo_actual_f - (total_aportado_acumulado - total_costes_acumulados)
                             
                             historial_crecimiento_f.append({
                                 "Año": f"Año {ano_actual}",
                                 "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
-                                "Comisiones y Spreads (€)": round(total_comisiones_pagadas, 2),
+                                "Comisiones Bróker (€)": round(acum_broker, 2),
+                                "Coste Spread (€)": round(acum_spread, 2),
+                                "Coste Cambio Divisa (€)": round(acum_fx, 2),
                                 "Intereses Netos (€)": round(max(0.0, intereses_generados_f), 2),
                                 "Capital Total Neto (€)": round(saldo_actual_f, 2)
                             })
 
                     if historial_crecimiento_f:
                         final_res_f = historial_crecimiento_f[-1]
-                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
+                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_percent_val / 100.0))
                         
+                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
+                        st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op:,.2f} €** en cada aportación.")
+
                         fm1, fm2, fm3, fm4 = st.columns(4)
                         fm1.metric("Capital Neto Acumulado", f"{final_res_f['Capital Total Neto (€)']:,.2f} €")
                         fm2.metric("Total Aportado Bruto", f"{final_res_f['Capital Aportado Bruto (€)']:,.2f} €")
-                        fm3.metric("Costes Bróker + TER", f"{final_res_f['Comisiones y Spreads (€)']:,.2f} €")
+                        fm3.metric("Total Costes Acumulados", f"{(final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)']):,.2f} €")
                         fm4.metric("Beneficio Neto", f"{final_res_f['Intereses Netos (€)']:,.2f} €")
 
                         df_sim_f = pd.DataFrame(historial_crecimiento_f)
                         df_chart_f = df_sim_f.set_index("Año")[["Capital Aportado Bruto (€)", "Capital Total Neto (€)"]]
                         st.line_chart(df_chart_f)
 
-                        with st.expander("Ver desglose anual detallado con comisiones"):
+                        with st.expander("Ver desglose anual detallado con comisiones y spreads separados"):
                             st.dataframe(df_sim_f, use_container_width=True)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (CON CALCULADORA DE INTERÉS COMPUESTO Y PLAN PERIÓDICO GRATUITO)
+            # CASO C: ETFS (CON BRÓKERS DE BOLSA - SIN MYINVESTOR)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
@@ -644,7 +656,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [etf_cat, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides tener en cuenta las comisiones de compraventa de tu bróker y posibles diferenciales de cambio de divisa (spreads).")
+                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
@@ -654,23 +666,17 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes elevados o el escaso patrimonio penalizan la eficiencia de este fondo sectorial.")
 
-                # ----------------------------------------------------
-                # CALCULADORA DE INTERÉS COMPUESTO PARA ETFS (CON BRÓKER Y PLAN PERIÓDICO GRATUITO)
-                # ----------------------------------------------------
+                # CALCULADORA DE INTERÉS COMPUESTO PARA ETFS
                 st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones de Bróker: {etf_name}")
+                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones: {etf_name}")
                 
                 activar_calculadora = st.toggle("Activar calculadora de interés compuesto con comisiones para este ETF", value=False, key="toggle_etf")
 
                 if activar_calculadora:
-                    st.markdown(f"Configura tu simulación, selecciona tu bróker y especifica si realizas aportaciones periódicas automatizadas sin comisión en **{etf_name}**:")
-                    
-                    # Selector de Bróker para ETF
-                    selected_broker_etf = st.selectbox("Selecciona tu Bróker", options=list(BROKER_PROFILES.keys()), key="broker_etf")
-                    broker_data_etf = BROKER_PROFILES[selected_broker_etf]
+                    selected_broker_etf = st.selectbox("Selecciona tu Bróker de la lista", options=list(ETF_BROKER_PROFILES.keys()), key="broker_etf")
+                    broker_data_etf = ETF_BROKER_PROFILES[selected_broker_etf]
 
-                    # Opción para plan periódico gratuito en ETFs
-                    plan_sin_comision_e = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=False, key="plan_sc_e")
+                    plan_sin_comision_e = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=broker_data_etf["supports_free_plans"], key="plan_sc_e")
 
                     col_c1, col_c2 = st.columns(2)
                     with col_c1:
@@ -683,49 +689,52 @@ elif st.session_state.stage == 'analyzer':
                         default_rentabilidad = 7.0 if "Global" in etf_cat or "S&P" in etf_cat else (5.0 if "Materias" in etf_cat or "Utilities" in etf_cat else 8.5)
                         rentabilidad_anual = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=default_rentabilidad, step=0.5, key="rent_e")
 
-                    # Ajustes manuales si selecciona "Personalizado"
-                    if selected_broker_etf == "Personalizado (Ajustar manualmente)":
-                        st.markdown("🛠️ **Ajustes manuales de comisiones:**")
-                        c_em1, c_em2, c_em3 = st.columns(3)
-                        fee_percent_val_e = c_em1.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="e_perc")
-                        fee_fixed_val_e = c_em2.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=1.0, step=0.5, key="e_fix")
-                        spread_percent_val_e = c_em3.number_input("Spread / Cambio divisa (%)", min_value=0.0, max_value=1.0, value=0.10, step=0.05, key="e_spr")
+                    if selected_broker_etf.startswith("Personalizado"):
+                        fee_percent_val_e = st.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="e_perc")
+                        fee_fixed_val_e = st.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=1.0, step=0.5, key="e_fix")
+                        spread_percent_val_e = st.number_input("Spread (%)", min_value=0.0, max_value=1.0, value=0.10, step=0.05, key="e_spr")
+                        fx_fee_percent_val_e = st.number_input("Comisión cambio divisa / FX (%)", min_value=0.0, max_value=1.0, value=0.25, step=0.05, key="e_fx")
                     else:
                         fee_percent_val_e = broker_data_etf["fee_percent"]
                         fee_fixed_val_e = broker_data_etf["fee_fixed"]
                         spread_percent_val_e = broker_data_etf["spread_percent"]
+                        fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Aplicar exención si el plan periódico no tiene comisión
-                    if plan_sin_comision_e:
-                        fee_percent_val_e_per = 0.0
-                        fee_fixed_val_e_per = 0.0
-                        spread_percent_val_e_per = 0.0
-                    else:
-                        fee_percent_val_e_per = fee_percent_val_e
-                        fee_fixed_val_e_per = fee_fixed_val_e
-                        spread_percent_val_e_per = spread_percent_val_e
+                    fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
+                    fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
 
-                    # Cálculo matemático
                     periodos_por_ano = 12 if frecuencia == "Mensual" else 1
                     tasa_neta_anual_e = rentabilidad_anual - ter_etf
                     tasa_periodica = (tasa_neta_anual_e / 100.0) / periodos_por_ano
                     total_periodos = anos * periodos_por_ano
 
-                    coste_inicial_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e + (inversion_inicial * (spread_percent_val_e / 100.0))
-                    saldo_actual = max(0.0, inversion_inicial - coste_inicial_e)
-                    
+                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e
+                    coste_spread_ini_e = inversion_inicial * (spread_percent_val_e / 100.0)
+                    coste_fx_ini_e = inversion_inicial * (fx_fee_percent_val_e / 100.0)
+                    coste_total_ini_e = coste_broker_ini_e + coste_spread_ini_e + coste_fx_ini_e
+
+                    saldo_actual = max(0.0, inversion_inicial - coste_total_ini_e)
                     total_aportado_acumulado_e = inversion_inicial
-                    total_comisiones_pagadas_e = coste_inicial_e
+                    
+                    acum_broker_e = coste_broker_ini_e
+                    acum_spread_e = coste_spread_ini_e
+                    acum_fx_e = coste_fx_ini_e
                     
                     historial_crecimiento = []
 
                     for periodo in range(1, total_periodos + 1):
                         if periodo > 1:
-                            coste_operacion_e = (aportacion_periodica * (fee_percent_val_e_per / 100.0)) + fee_fixed_val_e_per + (aportacion_periodica * (spread_percent_val_e_per / 100.0))
-                            import_neto_aportado_e = max(0.0, aportacion_periodica - coste_operacion_e)
+                            c_broker_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva
+                            c_spread_e = aportacion_periodica * (spread_percent_val_e / 100.0)
+                            c_fx_e = aportacion_periodica * (fx_fee_percent_val_e / 100.0)
+                            c_total_op_e = c_broker_e + c_spread_e + c_fx_e
                             
+                            import_neto_aportado_e = max(0.0, aportacion_periodica - c_total_op_e)
                             total_aportado_acumulado_e += aportacion_periodica
-                            total_comisiones_pagadas_e += coste_operacion_e
+                            
+                            acum_broker_e += c_broker_e
+                            acum_spread_e += c_spread_e
+                            acum_fx_e += c_fx_e
                             
                             saldo_actual = saldo_actual * (1 + tasa_periodica) + import_neto_aportado_e
                         else:
@@ -733,29 +742,35 @@ elif st.session_state.stage == 'analyzer':
 
                         if periodo % periodos_por_ano == 0:
                             ano_actual = periodo // periodos_por_ano
-                            intereses_generados = saldo_actual - (total_aportado_acumulado_e - total_comisiones_pagadas_e)
+                            total_costes_acumulados_e = acum_broker_e + acum_spread_e + acum_fx_e
+                            intereses_generados = saldo_actual - (total_aportado_acumulado_e - total_costes_acumulados_e)
                             
                             historial_crecimiento.append({
                                 "Año": f"Año {ano_actual}",
                                 "Capital Aportado Bruto (€)": round(total_aportado_acumulado_e, 2),
-                                "Comisiones y Spreads (€)": round(total_comisiones_pagadas_e, 2),
+                                "Comisiones Bróker (€)": round(acum_broker_e, 2),
+                                "Coste Spread (€)": round(acum_spread_e, 2),
+                                "Coste Cambio Divisa (€)": round(acum_fx_e, 2),
                                 "Intereses Netos (€)": round(max(0.0, intereses_generados), 2),
                                 "Capital Total Neto (€)": round(saldo_actual, 2)
                             })
 
                     if historial_crecimiento:
                         final_result = historial_crecimiento[-1]
-                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
+                        coste_unitario_op_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva + (aportacion_periodica * (spread_percent_val_e / 100.0)) + (aportacion_periodica * (fx_fee_percent_val_e / 100.0))
                         
+                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
+                        st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op_e:,.2f} €** en cada aportación.")
+
                         m1, m2, m3, m4 = st.columns(4)
                         m1.metric("Capital Neto Acumulado", f"{final_result['Capital Total Neto (€)']:,.2f} €")
                         m2.metric("Total Aportado Bruto", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
-                        m3.metric("Costes Bróker + TER", f"{final_result['Comisiones y Spreads (€)']:,.2f} €")
+                        m3.metric("Total Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Neto", f"{final_result['Intereses Netos (€)']:,.2f} €")
 
                         df_simulacion = pd.DataFrame(historial_crecimiento)
                         df_chart = df_simulacion.set_index("Año")[["Capital Aportado Bruto (€)", "Capital Total Neto (€)"]]
                         st.line_chart(df_chart)
 
-                        with st.expander("Ver desglose anual detallado con comisiones"):
+                        with st.expander("Ver desglose anual detallado con comisiones y spreads separados"):
                             st.dataframe(df_simulacion, use_container_width=True)
