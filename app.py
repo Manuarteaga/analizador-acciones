@@ -111,14 +111,19 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
+# Lista ampliada y organizada de Brókers y Neobancos para el desplegable
 BROKER_PROFILES = {
-    "MyInvestor (Fondo indexado / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05},
+    "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05},
     "Indexa Capital (Cartera / Gestor automatizado)": {"fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05},
-    "Degiro (ETFs de la lista principal / 1€ por operación)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10},
-    "Interactive Brokers (Bajas comisiones / Global)": {"fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02},
-    "XTB (Sin comisiones hasta 100k€ / Spread variable)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20},
-    "Renta 4 / Banco Tradicional (Comisiones altas)": {"fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30},
-    "Personalizado (Ajustar manualmente)": {"fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10}
+    "Trade Republic (Neobanco / Planes de inversión / 1€ por orden suelta)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10},
+    "Lightyear (Bajas comisiones / Intereses en efectivo / Muy intuitivo)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.05},
+    "DEGIRO (Bajas comisiones / ETFs de selección principal)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10},
+    "Interactive Brokers (Muy bajo coste / Global / Profesional)": {"fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02},
+    "XTB (Sin comisiones de compraventa hasta 100k€ / Muy visual)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20},
+    "Trading 212 (Planes de ahorro / Fracciones de acciones y ETFs)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15},
+    "eToro (Social Trading / Acciones y ETFs)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50},
+    "Renta 4 (Banco tradicional español / Tarifas altas)": {"fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30},
+    "Personalizado (Ajustar manualmente las comisiones)": {"fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10}
 }
 
 # Sidebar común para historial
