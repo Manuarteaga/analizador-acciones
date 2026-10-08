@@ -514,9 +514,9 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Aplicar exención estricta a 0 si el plan periódico está activo
                     fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
                     fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
+                    fx_fee_efectiva = 0.0 if plan_sin_comision_f else fx_fee_percent_val
 
                     periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
                     tasa_neta_anual = rentabilidad_anual_f - ter_val
@@ -541,7 +541,7 @@ elif st.session_state.stage == 'analyzer':
                         if periodo > 1:
                             c_broker = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva
                             c_spread = aportacion_periodica_f * (spread_percent_val / 100.0)
-                            c_fx = aportacion_periodica_f * (fx_fee_percent_val / 100.0)
+                            c_fx = aportacion_periodica_f * (fx_fee_efectiva / 100.0)
                             c_total_op = c_broker + c_spread + c_fx
                             
                             import_neto_aportado = max(0.0, aportacion_periodica_f - c_total_op)
@@ -572,7 +572,7 @@ elif st.session_state.stage == 'analyzer':
 
                     if historial_crecimiento_f:
                         final_res_f = historial_crecimiento_f[-1]
-                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_percent_val / 100.0))
+                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_efectiva / 100.0))
                         
                         st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
                         st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op:,.2f} €** en cada aportación.")
@@ -699,9 +699,10 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Aplicar exención estricta a 0 en las aportaciones periódicas si está activo el plan automatizado
+                    # Exención estricta a 0 tanto de bróker como de FX fee en aportaciones periódicas si el plan automatizado está activo
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
+                    fx_fee_e_efectiva = 0.0 if plan_sin_comision_e else fx_fee_percent_val_e
 
                     periodos_por_ano = 12 if frecuencia == "Mensual" else 1
                     tasa_neta_anual_e = rentabilidad_anual - ter_etf
@@ -724,10 +725,9 @@ elif st.session_state.stage == 'analyzer':
 
                     for periodo in range(1, total_periodos + 1):
                         if periodo > 1:
-                            # Aquí se garantiza que se use fee_fixed_e_efectiva (0 si plan_sin_comision_e es True)
                             c_broker_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva
                             c_spread_e = aportacion_periodica * (spread_percent_val_e / 100.0)
-                            c_fx_e = aportacion_periodica * (fx_fee_percent_val_e / 100.0)
+                            c_fx_e = aportacion_periodica * (fx_fee_e_efectiva / 100.0)
                             c_total_op_e = c_broker_e + c_spread_e + c_fx_e
                             
                             import_neto_aportado_e = max(0.0, aportacion_periodica - c_total_op_e)
@@ -758,7 +758,7 @@ elif st.session_state.stage == 'analyzer':
 
                     if historial_crecimiento:
                         final_result = historial_crecimiento[-1]
-                        coste_unitario_op_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva + (aportacion_periodica * (spread_percent_val_e / 100.0)) + (aportacion_periodica * (fx_fee_percent_val_e / 100.0))
+                        coste_unitario_op_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva + (aportacion_periodica * (spread_percent_val_e / 100.0)) + (aportacion_periodica * (fx_fee_e_efectiva / 100.0))
                         
                         st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones)")
                         st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op_e:,.2f} €** en cada aportación.")
