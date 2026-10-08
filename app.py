@@ -127,7 +127,7 @@ FUND_BROKER_PROFILES = {
     }
 }
 
-# Brókers específicos para ETFS (sin MyInvestor, enfocado en brókers de bolsa)
+# Brókers específicos para ETFS (sin MyInvestor)
 ETF_BROKER_PROFILES = {
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
         "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
@@ -289,7 +289,7 @@ elif st.session_state.stage == 'analyzer':
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu bróker.")
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu entidad.")
         if st.button("← Volver al menú de fondos"):
             st.session_state.sub_type = None
             st.rerun()
@@ -445,7 +445,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON BRÓKERS DE FONDOS)
+            # CASO B: FONDOS INDEXADOS (CON DESGLOSE SEPARADO DE COMISIONES)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
@@ -481,7 +481,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente al gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
@@ -516,6 +516,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
+                    # Exención de comisiones si está activo el plan periódico gratuito
                     fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
                     fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
 
@@ -700,6 +701,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
+                    # Exención de comisiones periódicas si está activo el plan automatizado
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
 
