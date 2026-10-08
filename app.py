@@ -134,7 +134,6 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Perfiles unificados de Bróker (Fondos + ETFs)
 ALL_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
@@ -296,10 +295,10 @@ elif st.session_state.stage == 'analyzer':
         reset_navigation()
         st.rerun()
 
-    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON FONDOS, ETFS Y BRÓKERS INDEPENDIENTES
+    # NUEVO APARTADO: CARTERA MULTI-ACTIVO CON CÁLCULO DE COMISIONES CORREGIDO
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
-        st.markdown("Configura tu cartera seleccionando Fondos Indexados o ETFs en cada activo, asigna su bróker correspondiente (incluyendo MyInvestor o Indexa) y calcula el ahorro real a largo plazo.")
+        st.markdown("Configura tu cartera seleccionando Fondos Indexados o ETFs en cada activo, asigna su bróker correspondiente y calcula el ahorro real a largo plazo.")
         
         st.markdown("---")
         st.subheader("1️⃣ Plazo General de la Cartera")
@@ -314,7 +313,6 @@ elif st.session_state.stage == 'analyzer':
         st.markdown("---")
         st.subheader("2️⃣ Configuración Independiente de Cada Activo (Fondos y ETFs)")
 
-        # Lista combinada de Fondos Indexados y ETFs disponibles en la BD
         lista_opciones_activos = [
             "📁 [Fondo] Vanguard S&P 500 Stock Index Fund EUR Acc",
             "📁 [Fondo] Vanguard Global Stock Index Fund EUR Acc (MSCI World)",
@@ -334,7 +332,6 @@ elif st.session_state.stage == 'analyzer':
             with st.expander(f"📌 Activo {i+1}", expanded=(i < 2)):
                 selected_asset_option = st.selectbox(f"Selecciona el Activo {i+1}", options=lista_opciones_activos, index=default_idx, key=f"sel_asset_{i}")
                 
-                # Valores por defecto inteligentes según el activo
                 default_ter, default_rent = 0.15, 7.0
                 if "S&P 500" in selected_asset_option:
                     default_ter, default_rent = 0.10, 8.0
@@ -371,7 +368,7 @@ elif st.session_state.stage == 'analyzer':
                     "plan_gratis": plan_gratis_i
                 })
 
-        # SIMULACIÓN GLOBAL ACUMULADA CON BRÓKERS Y FONDOS/ETFS INDEPENDIENTES
+        # SIMULACIÓN GLOBAL ACUMULADA (CORREGIDA: COMISIÓN PERIÓDICA CERO SI PLAN ACTIVO)
         periodos_por_ano = 12 if frecuencia_cartera == "Mensual" else 1
         total_periodos = anos_cartera * periodos_por_ano
 
@@ -381,6 +378,7 @@ elif st.session_state.stage == 'analyzer':
         acum_fx_global = 0.0
         saldo_global_neto = 0.0
 
+        # Costes y saldo de la inversión inicial (mes 0)
         for act in activos_config:
             ini = act["inicial"]
             b_data = act["broker_data"]
@@ -407,6 +405,7 @@ elif st.session_state.stage == 'analyzer':
                     b_data = act["broker_data"]
                     is_free = act["plan_gratis"]
                     
+                    # Si el plan gratuito está activado, la comisión fija y porcentual periódica es 0 €
                     f_fix = 0.0 if is_free else b_data["fee_fixed"]
                     f_perc = 0.0 if is_free else b_data["fee_percent"]
                     
