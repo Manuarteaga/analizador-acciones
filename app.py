@@ -111,8 +111,8 @@ ETF_DB = {
     "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
 }
 
-# Lista de Brókers y Neobancos con comisión de compraventa y recargo por cambio de divisa (FX fee)
-BROKER_PROFILES = 
+# Lista ampliada y organizada de Brókers y Neobancos con comisiones y cambio de divisa (FX fee)
+BROKER_PROFILES = {
     "MyInvestor (Fondos / Sin custodia / Ideal Indexados)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30
     },
@@ -146,6 +146,7 @@ BROKER_PROFILES =
     "Personalizado (Ajustar manualmente las comisiones)": {
         "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25
     }
+}
 
 # Sidebar común para historial
 with st.sidebar:
