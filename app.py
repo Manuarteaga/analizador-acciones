@@ -557,10 +557,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Comisión fija y porcentual independientes para la entrada inicial (año 0) y las cuotas periódicas (con plan a 0 si está activo)
-                    fee_fixed_ini_efectiva = fee_fixed_val
-                    fee_percent_ini_efectiva = fee_percent_val
-
+                    # Comisión fija y porcentual para las aportaciones periódicas a 0 si el plan está activo
                     fee_fixed_per_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
                     fee_percent_per_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
                     fx_fee_efectiva = fx_fee_percent_val
@@ -570,7 +567,7 @@ elif st.session_state.stage == 'analyzer':
                     tasa_periodica_f = (tasa_neta_anual / 100.0) / periodos_por_ano_f
                     total_periodos_f = anos_f * periodos_por_ano_f
 
-                    coste_broker_ini = (inversion_inicial_f * (fee_percent_ini_efectiva / 100.0)) + fee_fixed_ini_efectiva
+                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val
                     coste_spread_ini = inversion_inicial_f * (spread_percent_val / 100.0)
                     coste_fx_ini = inversion_inicial_f * (fx_fee_percent_val / 100.0)
                     coste_total_ini = coste_broker_ini + coste_spread_ini + coste_fx_ini
@@ -648,6 +645,7 @@ elif st.session_state.stage == 'analyzer':
                         df_sim_f = pd.DataFrame(historial_crecimiento_f)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
                             st.dataframe(df_sim_f, use_container_width=True)
+                            st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas mensuales van a 0 € gracias al plan automatizado.*")
 
             # ----------------------------------------------------
             # CASO C: ETFS
@@ -758,10 +756,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Comisión fija y porcentual independientes para la entrada inicial (año 0) y las cuotas periódicas (con plan a 0 si está activo)
-                    fee_fixed_ini_e_efectiva = fee_fixed_val_e
-                    fee_percent_ini_e_efectiva = fee_percent_val_e
-
+                    # Comisión fija y porcentual para las aportaciones periódicas a 0 si el plan está activo
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
                     fx_fee_e_efectiva = fx_fee_percent_val_e
@@ -771,7 +766,7 @@ elif st.session_state.stage == 'analyzer':
                     tasa_periodica = (tasa_neta_anual_e / 100.0) / periodos_por_ano
                     total_periodos = anos * periodos_por_ano
 
-                    coste_broker_ini_e = (inversion_inicial * (fee_percent_ini_e_efectiva / 100.0)) + fee_fixed_ini_e_efectiva
+                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e
                     coste_spread_ini_e = inversion_inicial * (spread_percent_val_e / 100.0)
                     coste_fx_ini_e = inversion_inicial * (fx_fee_percent_val_e / 100.0)
                     coste_total_ini_e = coste_broker_ini_e + coste_spread_ini_e + coste_fx_ini_e
@@ -834,7 +829,7 @@ elif st.session_state.stage == 'analyzer':
 
                         m1, m2, m3, m4, m5 = st.columns(5)
                         m1.metric("Capital Neto Acumulado", f"{final_result['Capital Total Neto (€)']:,.2f} €")
-                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Total Neto (€)']:,.2f} €")
+                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
                         m3.metric("Total Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Neto", f"{beneficio_bruto_final_e:,.2f} €")
                         m5.metric("Beneficio Neto - Impuestos (19%)", f"{beneficio_neto_impuestos_e:,.2f} €")
@@ -849,3 +844,4 @@ elif st.session_state.stage == 'analyzer':
                         df_simulacion = pd.DataFrame(historial_crecimiento)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
                             st.dataframe(df_simulacion, use_container_width=True)
+                            st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas mensuales van a 0 € gracias al plan automatizado.*")
