@@ -159,7 +159,6 @@ ALL_BROKER_PROFILES = {
 }
 
 def main():
-    # Sidebar común para historial
     with st.sidebar:
         st.header("📊 Historial de Sesión")
         st.markdown(f"Activos analizados: **{len(st.session_state.history)}**")
@@ -290,6 +289,9 @@ def main():
             reset_navigation()
             st.rerun()
 
+        # ----------------------------------------------------
+        # OPCIÓN A: CARTERA MULTI-ACTIVO
+        # ----------------------------------------------------
         if st.session_state.asset_type == "Cartera Multi-Activo":
             st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
             st.markdown("Configura tu cartera, asigna bróker y calcula el ahorro real a largo plazo.")
@@ -423,78 +425,77 @@ def main():
                         
                         neto_total_periodo += neto_aportado
 
-            rent_media_pond = sum([a["rentabilidad"] - a["ter"] for a in activos_config]) / len(activos_config)
-            tasa_periodica_global = (rent_media_pond / 100.0) / periodos_por_ano
+                rent_media_pond = sum([a["rentabilidad"] - a["ter"] for a in activos_config]) / len(activos_config)
+                tasa_periodica_global = (rent_media_pond / 100.0) / periodos_por_ano
 
-            if periodo > 1:
-                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global) + neto_total_periodo
-            else:
-                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
+                if periodo > 1:
+                    saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global) + neto_total_periodo
+                else:
+                    saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
 
-            if hay_activo_distribucion and periodo % periodos_por_ano == 0:
-                pesos_dist = sum([1 for a in activos_config if a["es_distribucion"]]) / len(activos_config)
-                dividendo_periodo_bruto = (saldo_global_neto * pesos_dist) * 0.03
-                acum_dividendos_brutos += dividendo_periodo_bruto
+                if hay_activo_distribucion and periodo % periodos_por_ano == 0:
+                    pesos_dist = sum([1 for a in activos_config if a["es_distribucion"]]) / len(activos_config)
+                    dividendo_periodo_bruto = (saldo_global_neto * pesos_dist) * 0.03
+                    acum_dividendos_brutos += dividendo_periodo_bruto
 
-            if periodo % periodos_por_ano == 0:
-                ano_actual = periodo // periodos_por_ano
-                total_costes_acum = acum_broker_global + acum_spread_global + acum_fx_global
-                intereses_brutos = saldo_global_neto - (total_aportado_acumulado - total_costes_acum)
+                if periodo % periodos_por_ano == 0:
+                    ano_actual = periodo // periodos_por_ano
+                    total_costes_acum = acum_broker_global + acum_spread_global + acum_fx_global
+                    intereses_brutos = saldo_global_neto - (total_aportado_acumulado - total_costes_acum)
 
-                fila_historial = {
-                    "Año": f"Año {ano_actual}",
-                    "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
-                    "Comisiones Bróker (€)": round(acum_broker_global, 2),
-                    "Coste Spread / Divisa (€)": round(acum_spread_global + acum_fx_global, 2),
-                    "Beneficio Bruto (€)": round(max(0.0, intereses_brutos), 2),
-                    "Capital Total Bruto (€)": round(saldo_global_neto, 2)
-                }
-                if hay_activo_distribucion:
-                    fila_historial["Dividendos Brutos Acumulados (€)"] = round(acum_dividendos_brutos, 2)
+                    fila_historial = {
+                        "Año": f"Año {ano_actual}",
+                        "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
+                        "Comisiones Bróker (€)": round(acum_broker_global, 2),
+                        "Coste Spread / Divisa (€)": round(acum_spread_global + acum_fx_global, 2),
+                        "Beneficio Bruto (€)": round(max(0.0, intereses_brutos), 2),
+                        "Capital Total Bruto (€)": round(saldo_global_neto, 2)
+                    }
+                    if hay_activo_distribucion:
+                        fila_historial["Dividendos Brutos Acumulados (€)"] = round(acum_dividendos_brutos, 2)
+                    
+                    historial_cartera_indiv.append(fila_historial)
+
+            if historial_cartera_indiv:
+                final_c = historial_cartera_indiv[-1]
+                beneficio_bruto_f = final_c['Beneficio Bruto (€)']
                 
-                historial_cartera_indiv.append(fila_historial)
+                impuestos_plusvalia = beneficio_bruto_f * 0.19
+                impuestos_dividendos = acum_dividendos_brutos * 0.19 if hay_activo_distribucion else 0.0
+                dividendos_netos = acum_dividendos_brutos - impuestos_dividendos
 
-        if historial_cartera_indiv:
-            final_c = historial_cartera_indiv[-1]
-            beneficio_bruto_f = final_c['Beneficio Bruto (€)']
-            
-            impuestos_plusvalia = beneficio_bruto_f * 0.19
-            
-            impuestos_dividendos = acum_dividendos_brutos * 0.19 if hay_activo_distribucion else 0.0
-            dividendos_netos = acum_dividendos_brutos - impuestos_dividendos
+                capital_neto_aportado_real = final_c['Capital Aportado Bruto (€)'] - (final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)'])
+                capital_total_liquido_f = capital_neto_aportado_real + (beneficio_bruto_f - impuestos_plusvalia) + dividendos_netos
 
-            capital_neto_aportado_real = final_c['Capital Aportado Bruto (€)'] - (final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)'])
-            capital_total_liquido_f = capital_neto_aportado_real + (beneficio_bruto_f - impuestos_plusvalia) + dividendos_netos
+                st.markdown("---")
+                st.subheader("📊 Resultados Globales de tu Cartera Personalizada")
 
-            st.markdown("---")
-            st.subheader("📊 Resultados Globales de tu Cartera Personalizada")
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
+                m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
+                m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
+                m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
+                m5.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
 
-            m1, m2, m3, m4, m5 = st.columns(5)
-            m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
-            m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
-            m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
-            m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
-            m5.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
+                if hay_activo_distribucion:
+                    st.info("ℹ️ Se ha detectado al menos un activo de **Distribución** en tu selección. Los dividendos netos cobrados se han sumado al ahorro total líquido.")
+                    dm1, dm2 = st.columns(2)
+                    dm1.metric("💰 Dividendos Brutos Obtenidos", f"{acum_dividendos_brutos:,.2f} €")
+                    dm2.metric("💵 Dividendos Netos (Tras Impuestos 19%)", f"{dividendos_netos:,.2f} €")
 
-            if hay_activo_distribucion:
-                st.info("ℹ️ Se ha detectado al menos un activo de **Distribución** en tu selección. Los dividendos netos cobrados se han sumado al ahorro total líquido.")
-                dm1, dm2 = st.columns(2)
-                dm1.metric("💰 Dividendos Brutos Obtenidos", f"{acum_dividendos_brutos:,.2f} €")
-                dm2.metric("💵 Dividendos Netos (Tras Impuestos 19%)", f"{dividendos_netos:,.2f} €")
+                st.markdown(f"""
+                <div class="final-net-card">
+                    <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Incluyendo Dividendos Netos)</div>
+                    <div class="final-net-value">{capital_total_liquido_f:,.2f} €</div>
+                </div>
+                """, unsafe_allow_html=True)
 
-            st.markdown(f"""
-            <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Incluyendo Dividendos Netos)</div>
-                <div class="final-net-value">{capital_total_liquido_f:,.2f} €</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-            df_res_cartera = pd.DataFrame(historial_cartera_indiv)
-            with st.expander("Ver desglose anual detallado de la cartera multi-activo", expanded=True):
-                st.dataframe(df_res_cartera, use_container_width=True)
+                df_res_cartera = pd.DataFrame(historial_cartera_indiv)
+                with st.expander("Ver desglose anual detallado de la cartera multi-activo", expanded=True):
+                    st.dataframe(df_res_cartera, use_container_width=True)
 
         # ----------------------------------------------------
-        # RESTO DE APARTADOS (ACCIONES, FONDOS, ETFS)
+        # OPCIÓN B: ACCIONES INDIVIDUALES
         # ----------------------------------------------------
         elif st.session_state.asset_type == "Acciones":
             st.title(f"📊 Evaluación de Acciones ({st.session_state.sub_type})")
@@ -542,7 +543,6 @@ def main():
                                 "Capital Acumulado (€)": round(saldo, 2)
                             })
                     
-                    # Puntuación simulada y nota alfabética al estilo sello
                     score = int(min(100, max(40, rentabilidad_est * 5 + 30)))
                     grade = "A" if score >= 80 else ("B" if score >= 70 else ("C" if score >= 60 else "D"))
                     color_grade = "#10b981" if grade == "A" else ("#3b82f6" if grade == "B" else ("#f59e0b" if grade == "C" else "#ef4444"))
@@ -572,67 +572,96 @@ def main():
             else:
                 st.warning("No se ha encontrado esa empresa exacta en la base de datos interna. Prueba con: Inditex, Iberdrola, Microsoft, Telefónica, etc.")
 
-        elif st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
-            st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
-            ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
-            df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
-            st.dataframe(df_ranking, use_container_width=True)
-            st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
-
-        elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
-            st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
-            ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "TER (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Réplica": data["replication"]} for data in ETF_DB.values()]
-            df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
-            st.dataframe(df_etf_ranking, use_container_width=True)
-            st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu bróker.")
-
-        elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
-            st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-            st.markdown("Selecciona una categoría para entender su objetivo, nivel de riesgo y ver ejemplos destacados:")
-            
-            tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
-            
-            with tab1:
-                st.subheader("Renta Variable Global (Ej: MSCI World / FTSE All-World)")
-                st.markdown("- **Objetivo:** Invertir de forma diversificada en miles de empresas de países desarrollados o de todo el mundo.")
-                st.markdown("- **Perfil de riesgo:** Moderado-Alto (renta variable a largo plazo).")
-                st.markdown("- **Ideal para:** La columna vertebral o núcleo (*core*) de cualquier cartera de inversión a largo plazo.")
-                st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World UCITS ETF (Acc)`")
+        # ----------------------------------------------------
+        # OPCIÓN C: FONDOS INDEXADOS
+        # ----------------------------------------------------
+        elif st.session_state.asset_type == "Fondos indexados":
+            if st.session_state.sub_type == "Ranking TER":
+                st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
+                ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
+                df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
+                st.dataframe(df_ranking, use_container_width=True)
+                st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
+            else:
+                st.title("✍️ Evaluador de Fondos Indexados")
+                fund_name = st.selectbox("Selecciona un fondo indexado:", options=[f["name"] for f in FUND_DB.values()])
+                inv_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=100.0)
+                app_f = st.number_input("Aportación Mensual (€)", min_value=0.0, value=150.0, step=50.0)
+                anos_f = st.slider("Plazo (Años)", 1, 35, 15)
                 
-            with tab2:
-                st.subheader("Empresas de Alto Dividendo (High Dividend Yield)")
-                st.markdown("- **Objetivo:** Seleccionar empresas maduras con flujos de caja estables que reparten una parte importante de sus beneficios en dividendos.")
-                st.markdown("- **Perfil de riesgo:** Moderado (empresas menos volátiles y más defensivas).")
-                st.markdown("- **Ideal para:** Inversores que buscan generar ingresos periódicos o rentas complementarias.")
-                st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World High Dividend Yield ETF`")
+                if st.button("🚀 Calcular Fondo", type="primary"):
+                    saldo_f = inv_f
+                    aportado_f = inv_f
+                    t_m = (7.0 / 100.0) / 12
+                    for m in range(1, anos_f * 12 + 1):
+                        if m > 1:
+                            saldo_f += app_f
+                            aportado_f += app_f
+                        saldo_f *= (1 + t_m)
+                    st.metric("Capital Final Estimado", f"{saldo_f:,.2f} €")
+                    st.metric("Total Aportado", f"{aportado_f:,.2f} €")
 
-            with tab3:
-                st.subheader("Materias Primas (Commodities / ETCs)")
-                st.markdown("- **Objetivo:** Exposición directa a activos físicos como oro, plata, energía o metales industriales.")
-                st.markdown("- **Perfil de riesgo:** Medio-Alto (actúan como refugio ante la inflación, pero con altibajos cíclicos).")
-                st.markdown("- **Ideal para:** Descorrelacionar la cartera y proteger el poder adquisitivo frente a crisis o inflación.")
-                st.markdown("- *Ejemplo en BD:* `iShares Physical Gold ETC`")
+        # ----------------------------------------------------
+        # OPCIÓN D: ETFS
+        # ----------------------------------------------------
+        elif st.session_state.asset_type == "ETFs":
+            if st.session_state.sub_type == "Ranking ETFs":
+                st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
+                ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "TER (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Réplica": data["replication"]} for data in ETF_DB.values()]
+                df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
+                st.dataframe(df_etf_ranking, use_container_width=True)
+                st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora.")
+            elif st.session_state.sub_type == "Explorador ETFs":
+                st.title("🗺️ Guía y Tipos de ETFs Disponibles")
+                st.markdown("Selecciona una categoría para entender su objetivo, nivel de riesgo y ver ejemplos destacados:")
+                
+                tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
+                
+                with tab1:
+                    st.subheader("Renta Variable Global (Ej: MSCI World / FTSE All-World)")
+                    st.markdown("- **Objetivo:** Invertir de forma diversificada en miles de empresas de países desarrollados o de todo el mundo.")
+                    st.markdown("- **Perfil de riesgo:** Moderado-Alto (renta variable a largo plazo).")
+                    st.markdown("- **Ideal para:** La columna vertebral o núcleo (*core*) de cualquier cartera de inversión a largo plazo.")
+                    st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World UCITS ETF (Acc)`")
+                    
+                with tab2:
+                    st.subheader("Empresas de Alto Dividendo (High Dividend Yield)")
+                    st.markdown("- **Objetivo:** Seleccionar empresas maduras con flujos de caja estables que reparten una parte importante de sus beneficios en dividendos.")
+                    st.markdown("- **Perfil de riesgo:** Moderado (empresas menos volátiles y más defensivas).")
+                    st.markdown("- **Ideal para:** Inversores que buscan generar ingresos periódicos o rentas complementarias.")
+                    st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World High Dividend Yield ETF`")
 
-            with tab4:
-                st.subheader("Sector Tecnológico")
-                st.markdown("- **Objetivo:** Invertir en los gigantes de la innovación, software, semiconductores e inteligencia artificial.")
-                st.markdown("- **Perfil de riesgo:** Alto (gran potencial de revalorización pero también mayor volatilidad y caídas puntuales).")
-                st.markdown("- **Ideal para:** Dar un sesgo de crecimiento (*growth*) a una parte de la cartera.")
-                st.markdown("- *Ejemplo en BD:* `iShares S&P 500 Information Technology Sector ETF`")
+                with tab3:
+                    st.subheader("Materias Primas (Commodities / ETCs)")
+                    st.markdown("- **Objetivo:** Exposición directa a activos físicos como oro, plata, energía o metales industriales.")
+                    st.markdown("- **Perfil de riesgo:** Medio-Alto (actúan como refugio ante la inflación, pero con altibajos cíclicos).")
+                    st.markdown("- **Ideal para:** Descorrelacionar la cartera y proteger el poder adquisitivo frente a crisis o inflación.")
+                    st.markdown("- *Ejemplo en BD:* `iShares Physical Gold ETC`")
 
-            with tab5:
-                st.subheader("Energías Renovables y Eléctricas (Utilities)")
-                st.markdown("- **Objetivo:** Empresas dedicadas a la transición energética (solar, eólica) o compañías eléctricas tradicionales reguladas.")
-                st.markdown("- **Perfil de riesgo:** Variable (las eléctricas son muy defensivas y estables; las renovables puras son muy cíclicas y sensibles a los tipos de interés).")
-                st.markdown("- **Ideal para:** Apostar por macrotendencias de sostenibilidad o buscar flujos defensivos estables.")
-                st.markdown("- *Ejemplos en BD:* `iShares Global Clean Energy` / `iShares STOXX Europe 600 Utilities`")
+                with tab4:
+                    st.subheader("Sector Tecnológico")
+                    st.markdown("- **Objetivo:** Invertir en los gigantes de la innovación, software, semiconductores e inteligencia artificial.")
+                    st.markdown("- **Perfil de riesgo:** Alto (gran potencial de revalorización pero también mayor volatilidad y caídas puntuales).")
+                    st.markdown("- **Ideal para:** Dar un sesgo de crecimiento (*growth*) a una parte de la cartera.")
+                    st.markdown("- *Ejemplo en BD:* `iShares S&P 500 Information Technology Sector ETF`")
 
-            with tab6:
-                st.subheader("Empresas Emergentes (Emerging Markets)")
-                st.markdown("- **Objetivo:** Exposición a economías en rápido desarrollo como Asia (China, India), Latinoamérica o Europa del Este.")
-                st.markdown("- **Perfil de riesgo:** Alto (mayor exposición a riesgos geopolíticos, divisas volátiles y ciclos económicos diferentes a Occidente).")
-                st.markdown("- **Ideal para:** Complementar la cartera global buscando mayor diversificación geográfica y crecimiento demográfico.")
-                st.markdown("- *Ejemplo en BD:* `iShares Core MSCI Emerging Markets IMI ETF`")
+                with tab5:
+                    st.subheader("Energías Renovables y Eléctricas (Utilities)")
+                    st.markdown("- **Objetivo:** Empresas dedicadas a la transición energética (solar, eólica) o compañías eléctricas tradicionales reguladas.")
+                    st.markdown("- **Perfil de riesgo:** Variable (las eléctricas son muy defensivas y estables; las renovables puras son muy cíclicas y sensibles a los tipos de interés).")
+                    st.markdown("- **Ideal para:** Apostar por macrotendencias de sostenibilidad o buscar flujos defensivos estables.")
+                    st.markdown("- *Ejemplos en BD:* `iShares Global Clean Energy` / `iShares STOXX Europe 600 Utilities`")
+
+                with tab6:
+                    st.subheader("Empresas Emergentes (Emerging Markets)")
+                    st.markdown("- **Objetivo:** Exposición a economías en rápido desarrollo como Asia (China, India), Latinoamérica o Europa del Este.")
+                    st.markdown("- **Perfil de riesgo:** Alto (mayor exposición a riesgos geopolíticos, divisas volátiles y ciclos económicos diferentes a Occidente).")
+                    st.markdown("- **Ideal para:** Complementar la cartera global buscando mayor diversificación geográfica y crecimiento demográfico.")
+                    st.markdown("- *Ejemplo en BD:* `iShares Core MSCI Emerging Markets IMI ETF`")
+            else:
+                st.title("🔍 Evaluación de ETF Específico")
+                etf_name = st.selectbox("Selecciona un ETF:", options=[e["name"] for e in ETF_DB.values()])
+                st.info(f"Has seleccionado: **{etf_name}**. Configura tus parámetros en la cartera multi-activo para un desglose completo de costes y bróker.")
 
 if __name__ == '__main__':
     main()
