@@ -61,6 +61,46 @@ st.markdown("""
         0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
+    @keyframes pulseTrend {
+        0% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }
+        100% { transform: scale(1); opacity: 0.9; }
+    }
+    .trend-badge-bull {
+        display: inline-block;
+        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        color: #34d399;
+        border: 1px solid #34d399;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        animation: pulseTrend 2s infinite ease-in-out;
+        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);
+    }
+    .trend-badge-bear {
+        display: inline-block;
+        background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+        color: #fca5a5;
+        border: 1px solid #fca5a5;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        animation: pulseTrend 2s infinite ease-in-out;
+        box-shadow: 0 4px 12px rgba(153, 27, 27, 0.4);
+    }
+    .trend-badge-side {
+        display: inline-block;
+        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+        color: #fde68a;
+        border: 1px solid #fde68a;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(146, 64, 14, 0.4);
+    }
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
         border: 2px solid #34d399;
@@ -305,6 +345,19 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
+    def get_trend_badge(hist_df):
+        if hist_df is None or len(hist_df) < 5:
+            return '<span class="trend-badge-side">↔️ Lateral / Sin datos</span>'
+        first_p = hist_df['Close'].iloc[0]
+        last_p = hist_df['Close'].iloc[-1]
+        pct_change = ((last_p - first_p) / first_p) * 100
+        if pct_change >= 2.0:
+            return f'<span class="trend-badge-bull">📈 Tendencia Alcista (+{pct_change:.1f}%)</span>'
+        elif pct_change <= -2.0:
+            return f'<span class="trend-badge-bear">📉 Tendencia Bajista ({pct_change:.1f}%)</span>'
+        else:
+            return f'<span class="trend-badge-side">↔️ Mercado Lateral ({pct_change:+.1f}%)</span>'
+
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
@@ -448,6 +501,8 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
+                    
+                    trend_html = get_trend_badge(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -460,18 +515,12 @@ elif st.session_state.stage == 'analyzer':
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
 
-                    # Sistema de puntuación flexible y equilibrado (máx 5.0)
                     total_score = 0
                     if st.session_state.sub_type == "Con dividendos":
-                        # 1. PER: Muy flexible (premio si <= 25, aceptable si <= 35)
                         total_score += (1.0 if per_y <= 20 else (0.75 if per_y <= 30 else 0.5))
-                        # 2. Beta: Flexibilizada (premio si <= 1.2)
                         total_score += (1.0 if beta_val <= 1.1 else 0.5)
-                        # 3. Dividendo: Amplio margen (premio entre 1% y 8%)
                         total_score += (1.0 if (0.5 <= div_y_val <= 8.0) else 0.5)
-                        # 4. Payout: Margen razonable (hasta 85%)
                         total_score += (1.0 if (20.0 <= payout_val <= 85.0) else 0.5)
-                        # 5. Crecimiento dividendo / histórico
                         total_score += (1.0 if est_div_growth >= 2.0 else 0.5)
                     else:
                         total_score += (1.0 if per_y <= 30 else 0.5)
@@ -489,7 +538,7 @@ elif st.session_state.stage == 'analyzer':
                     <div class="score-container">
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Actual</div><div style="margin-top: 15px;">{trend_html}</div><div style="font-size: 1.5rem; font-weight: bold; color: #f8fafc; margin-top: 15px;">{price_display}</div></div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -744,6 +793,7 @@ elif st.session_state.stage == 'analyzer':
                 etf_price = None
                 last_volume = None
                 avg_monthly_volume = None
+                etf_hist = None
                 try:
                     etf_stock = yf.Ticker(etf_ticker)
                     etf_hist = etf_stock.history(period="3mo")
@@ -757,6 +807,8 @@ elif st.session_state.stage == 'analyzer':
                 price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
+                
+                trend_html_etf = get_trend_badge(etf_hist)
 
                 score_etf = 0
                 max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
@@ -776,7 +828,7 @@ elif st.session_state.stage == 'analyzer':
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Actual</div><div style="margin-top: 15px;">{trend_html_etf}</div><div style="font-size: 1.5rem; font-weight: bold; color: #f8fafc; margin-top: 15px;">{price_display_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
