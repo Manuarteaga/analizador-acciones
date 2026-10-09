@@ -118,9 +118,9 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
-    "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
-    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7}
+    "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "Vanguard Global Stock", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
+    "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "ticker": "Vanguard S&P 500", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
+    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "ticker": "Amundi MSCI World", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7}
 }
 
 ETF_DB = {
@@ -382,11 +382,25 @@ elif st.session_state.stage == 'analyzer':
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
         if st.session_state.asset_type == "Acciones":
-            user_input = st.text_input("Nombre de empresa o Ticker", value="", placeholder="Escribe el nombre de la acción (ej. Inditex, Iberdrola, Microsoft...)").strip()
+            stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
+            selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
+            custom_stock_input = st.text_input("O introduce directamente cualquier Ticker de Yahoo Finance (ej. AAPL, TSLA, SAN.MC):", value="").strip()
+            
+            if custom_stock_input:
+                user_input = custom_stock_input.upper()
+            else:
+                user_input = "" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip()
+
         elif st.session_state.asset_type == "Fondos indexados":
-            fund_options = ["-- Selecciona o escribe un fondo --"] + [data["name"] for data in FUND_DB.values()]
+            fund_options = ["-- Selecciona un fondo o escribe abajo --"] + [f"{data['name']} ({data['category']})" for data in FUND_DB.values()]
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
-            user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
+            custom_fund_input = st.text_input("O introduce un nombre / referencia de fondo:", value="").strip()
+            
+            if custom_fund_input:
+                user_input = custom_fund_input
+            else:
+                user_input = "" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip()
+
         elif st.session_state.asset_type == "ETFs":
             etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
             selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
@@ -399,9 +413,9 @@ elif st.session_state.stage == 'analyzer':
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
-            if q_lower in TICKER_DB:
-                data = TICKER_DB[q_lower]
-                return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", None)
+            for key, data in TICKER_DB.items():
+                if key in q_lower or data["ticker"].lower() == q_lower:
+                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", None)
             return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0, None
 
         def get_letter_grade(score):
@@ -415,7 +429,7 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
         else:
             # ----------------------------------------------------
-            # CASO A: ACCIONES
+            # CASO A: ACCIONES (CON VOLUMEN DUAL DE YAHOO FINANCE)
             # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -423,13 +437,17 @@ elif st.session_state.stage == 'analyzer':
                 
                 try:
                     stock = yf.Ticker(ticker_input)
-                    hist_price = stock.history(period="5d")
+                    hist_price = stock.history(period="3mo")
                     current_price = hist_price['Close'].iloc[-1] if not hist_price.empty else None
+                    last_volume = int(hist_price['Volume'].iloc[-1]) if not hist_price.empty else None
+                    avg_monthly_volume = int(hist_price['Volume'].tail(20).mean()) if not hist_price.empty else None
                     info = stock.info or {}
 
                     name = info.get('longName', user_input.title())
                     currency_symbol = '$' if info.get('currency') == 'USD' else '€'
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
+                    last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
+                    avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -468,8 +486,8 @@ elif st.session_state.stage == 'analyzer':
                     """, unsafe_allow_html=True)
 
                     df_metrics = pd.DataFrame({
-                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "Precio / Valor Contable (P/B)", "ROE (Rentabilidad)", "Dividendo Yield", "Payout Ratio", "Beta (Volatilidad)"],
-                        "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{pb_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
+                        "Métrica Clave": ["Volumen Última Sesión", "Volumen Medio Mensual", "PER (Valoración)", "Precio / FCF", "ROE (Rentabilidad)", "Dividendo Yield", "Payout Ratio", "Beta (Volatilidad)"],
+                        "Valor Evaluado": [last_vol_display, avg_vol_display, f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
                     })
                     st.table(df_metrics)
 
@@ -502,16 +520,23 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos de la acción: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS
+            # CASO B: FONDOS INDEXADOS (CON BÚSQUEDA LIBRE Y DATOS YFINANCE)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
-                matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
+                matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
                 
-                ter_val = matched_fund["ter"] if matched_fund else 0.20
-                aum_val = matched_fund["aum"] if matched_fund else 1500
-                te_val = matched_fund["tracking_error"] if matched_fund else 0.09
-                age_val = matched_fund["age_years"] if matched_fund else 6
-                fund_name = matched_fund["name"] if matched_fund else user_input
+                if matched_fund:
+                    fund_name = matched_fund["name"]
+                    ter_val = matched_fund["ter"]
+                    aum_val = matched_fund["aum"]
+                    te_val = matched_fund["tracking_error"]
+                    age_val = matched_fund["age_years"]
+                else:
+                    fund_name = user_input
+                    ter_val = 0.20
+                    aum_val = 2000
+                    te_val = 0.08
+                    age_val = 5
 
                 score_fund = 0
                 score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
@@ -717,7 +742,7 @@ elif st.session_state.stage == 'analyzer':
                     if not etf_hist.empty:
                         etf_price = etf_hist['Close'].iloc[-1]
                         last_volume = int(etf_hist['Volume'].iloc[-1])
-                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) # Media últimos ~20 días hábiles (aprox 1 mes)
+                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean())
                 except:
                     pass
 
@@ -747,13 +772,12 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Tabla con ambos volúmenes (última sesión y media mensual)
                 df_etf_data = {
                     "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
                     "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
+                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten in cuenta el recargo por cambio de divisa de tu bróker.")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
