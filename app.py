@@ -5,88 +5,6 @@ import io
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
-st.markdown("""
-<style>
-    .score-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 50px;
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        margin-bottom: 20px;
-        border: 1px solid #334155;
-        flex-wrap: wrap;
-    }
-    .circular-progress {
-        position: relative;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        background: conic-gradient(var(--progress-color) var(--deg), #334155 0deg);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
-    }
-    .circular-progress::before {
-        content: "";
-        position: absolute;
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        background-color: #0f172a;
-    }
-    .progress-value {
-        position: relative;
-        font-size: 1.8rem;
-        font-weight: bold;
-        color: #f8fafc;
-    }
-    .pure-stamp-grade {
-        font-family: 'Courier New', Courier, monospace;
-        font-size: 5.5rem;
-        font-weight: 900;
-        line-height: 1;
-        color: var(--stamp-color);
-        text-transform: uppercase;
-        transform: rotate(-8deg);
-        display: inline-block;
-        text-shadow: 3px 3px 0px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.5);
-        animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-    }
-    @keyframes stampPop {
-        0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
-        100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
-    }
-    .final-net-card {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        border: 2px solid #34d399;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(4, 120, 87, 0.3);
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-    .final-net-title {
-        font-size: 0.95rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        color: #a7f3d0;
-        margin-bottom: 5px;
-        font-weight: 600;
-    }
-    .final-net-value {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #ffffff;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # Control de Estados de Navegación
 if 'stage' not in st.session_state:
     st.session_state.stage = 'home'
@@ -471,7 +389,6 @@ elif st.session_state.stage == 'analyzer':
 
             m1, m2, m3, m4, m5 = st.columns(5)
             m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
-            # CORREGIDO AQUÍ: Se pasa la variable correcta del total aportado bruto en lugar del acumulado
             m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
             m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
             m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
@@ -484,9 +401,9 @@ elif st.session_state.stage == 'analyzer':
                 dm2.metric("💵 Dividendos Netos (Tras Impuestos 19%)", f"{dividendos_netos:,.2f} €")
 
             st.markdown(f"""
-            <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Incluyendo Dividendos Netos)</div>
-                <div class="final-net-value">{capital_total_liquido_f:,.2f} €</div>
+            <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); border: 2px solid #34d399; padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 8px 20px rgba(4, 120, 87, 0.3); margin-top: 20px; margin-bottom: 20px;">
+                <div style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; margin-bottom: 5px; font-weight: 600;">💰 Capital Total Líquido (Ahorro Real Incluyendo Dividendos Netos)</div>
+                <div style="font-size: 2.2rem; font-weight: 800; color: #ffffff;">{capital_total_liquido_f:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
 
