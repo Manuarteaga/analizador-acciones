@@ -573,7 +573,7 @@ def main():
                 st.warning("No se ha encontrado esa empresa exacta en la base de datos interna. Prueba con: Inditex, Iberdrola, Microsoft, Telefónica, etc.")
 
         # ----------------------------------------------------
-        # OPCIÓN C: FONDOS INDEXADOS
+        # OPCIÓN C: FONDOS INDEXADOS (CON BUSCADOR Y RANKING)
         # ----------------------------------------------------
         elif st.session_state.asset_type == "Fondos indexados":
             if st.session_state.sub_type == "Ranking TER":
@@ -581,25 +581,78 @@ def main():
                 ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
                 df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
                 st.dataframe(df_ranking, use_container_width=True)
-                st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora.")
             else:
-                st.title("✍️ Evaluador de Fondos Indexados")
-                fund_name = st.selectbox("Selecciona un fondo indexado:", options=[f["name"] for f in FUND_DB.values()])
-                inv_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=100.0)
-                app_f = st.number_input("Aportación Mensual (€)", min_value=0.0, value=150.0, step=50.0)
-                anos_f = st.slider("Plazo (Años)", 1, 35, 15)
+                st.title("✍️ Evaluador de Fondos Indexados con Buscador Predictivo")
                 
-                if st.button("🚀 Calcular Fondo", type="primary"):
-                    saldo_f = inv_f
-                    aportado_f = inv_f
-                    t_m = (7.0 / 100.0) / 12
-                    for m in range(1, anos_f * 12 + 1):
-                        if m > 1:
-                            saldo_f += app_f
-                            aportado_f += app_f
-                        saldo_f *= (1 + t_m)
-                    st.metric("Capital Final Estimado", f"{saldo_f:,.2f} €")
-                    st.metric("Total Aportado", f"{aportado_f:,.2f} €")
+                search_fund = st.text_input("🔍 Escribe el nombre o categoría del fondo (Ej. Vanguard S&P 500, MSCI World, Amundi):", value="Vanguard")
+                query_f_key = search_fund.strip().lower()
+                
+                matched_fund = None
+                for key, val in FUND_DB.items():
+                    if key in query_f_key or query_f_key in key or val["name"].lower().find(query_f_key) != -1:
+                        matched_fund = val
+                        break
+                
+                if matched_fund:
+                    st.success(f"Fondo localizado: **{matched_fund['name']}** (Categoría: *{matched_fund['category']}* | TER: `{matched_fund['ter']}%`)")
+                    
+                    col_f1, col_f2 = st.columns(2)
+                    with col_f1:
+                        inv_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=100.0, key="inv_f_input")
+                        app_f = st.number_input("Aportación Periódica Mensual (€)", min_value=0.0, value=150.0, step=50.0, key="app_f_input")
+                    with col_f2:
+                        anos_f = st.slider("Plazo temporal (Años)", 1, 40, 15, key="anos_f_slider")
+                        rent_f = st.slider("Rentabilidad anual estimada (%)", 0.0, 15.0, 7.5, 0.5, key="rent_f_slider")
+                    
+                    if st.button("🚀 Calcular Proyección del Fondo", type="primary", key="btn_calc_fondo"):
+                        meses_f = anos_f * 12
+                        saldo_f = inv_f
+                        aportado_f = inv_f
+                        t_m = ((rent_f - matched_fund['ter']) / 100.0) / 12
+                        
+                        historial_f = []
+                        for m in range(1, meses_f + 1):
+                            if m > 1:
+                                saldo_f += app_f
+                                aportado_f += app_f
+                            saldo_f *= (1 + t_m)
+                            
+                            if m % 12 == 0:
+                                historial_f.append({
+                                    "Año": f"Año {m // 12}",
+                                    "Total Aportado (€)": round(aportado_f, 2),
+                                    "Capital Acumulado (€)": round(saldo_f, 2)
+                                })
+                        
+                        score_f = int(min(100, max(50, rent_f * 6 + (1 - matched_fund['ter']) * 20)))
+                        grade_f = "A" if score_f >= 85 else ("B" if score_f >= 70 else "C")
+                        color_f = "#10b981" if grade_f == "A" else "#3b82f6"
+                        
+                        st.markdown("---")
+                        st.markdown("### 🏆 Evaluación de Calidad y Resultados del Fondo")
+                        st.markdown(f"""
+                        <div class="score-container">
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">Índice de Eficiencia</div>
+                                <div class="circular-progress" style="--progress-color: {color_f}; --deg: {score_f * 3.6}deg;">
+                                    <div class="progress-value">{score_f}/100</div>
+                                </div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 0.9rem; color: #94a3b8; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">Calificación</div>
+                                <div class="pure-stamp-grade" style="--stamp-color: {color_f};">{grade_f}</div>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        st.metric("Capital Final Acumulado", f"{saldo_f:,.2f} €")
+                        st.metric("Total Aportado", f"{aportado_f:,.2f} €")
+                        
+                        df_fondo_res = pd.DataFrame(historial_f)
+                        st.dataframe(df_fondo_res, use_container_width=True)
+                else:
+                    st.warning("No se ha encontrado ningún fondo con ese criterio exacto. Prueba escribiendo 'Vanguard', 'S&P 500' o 'World'.")
 
         # ----------------------------------------------------
         # OPCIÓN D: ETFS
