@@ -11,7 +11,7 @@ st.markdown("""
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 50px;
+        gap: 40px;
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         padding: 30px;
         border-radius: 16px;
@@ -22,8 +22,8 @@ st.markdown("""
     }
     .circular-progress {
         position: relative;
-        width: 120px;
-        height: 120px;
+        width: 110px;
+        height: 110px;
         border-radius: 50%;
         background: conic-gradient(var(--progress-color) var(--deg), #334155 0deg);
         display: flex;
@@ -34,20 +34,20 @@ st.markdown("""
     .circular-progress::before {
         content: "";
         position: absolute;
-        width: 96px;
-        height: 96px;
+        width: 88px;
+        height: 88px;
         border-radius: 50%;
         background-color: #0f172a;
     }
     .progress-value {
         position: relative;
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: bold;
         color: #f8fafc;
     }
     .pure-stamp-grade {
         font-family: 'Courier New', Courier, monospace;
-        font-size: 5.5rem;
+        font-size: 5rem;
         font-weight: 900;
         line-height: 1;
         color: var(--stamp-color);
@@ -61,45 +61,38 @@ st.markdown("""
         0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
-    @keyframes pulseTrend {
-        0% { transform: scale(1); opacity: 0.9; }
-        50% { transform: scale(1.05); opacity: 1; text-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }
-        100% { transform: scale(1); opacity: 0.9; }
+    @keyframes bounceUp {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-8px); }
     }
-    .trend-badge-bull {
-        display: inline-block;
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        color: #34d399;
-        border: 1px solid #34d399;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        animation: pulseTrend 2s infinite ease-in-out;
-        box-shadow: 0 4px 12px rgba(4, 120, 87, 0.4);
+    @keyframes bounceDown {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(8px); }
     }
-    .trend-badge-bear {
-        display: inline-block;
-        background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
-        color: #fca5a5;
-        border: 1px solid #fca5a5;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        animation: pulseTrend 2s infinite ease-in-out;
-        box-shadow: 0 4px 12px rgba(153, 27, 27, 0.4);
+    @keyframes pulseSide {
+        0%, 100% { transform: scale(1); opacity: 0.8; }
+        50% { transform: scale(1.1); opacity: 1; }
     }
-    .trend-badge-side {
+    .trend-arrow-bull {
+        font-size: 2.2rem;
+        color: #22c55e;
         display: inline-block;
-        background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
-        color: #fde68a;
-        border: 1px solid #fde68a;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 1.1rem;
-        box-shadow: 0 4px 12px rgba(146, 64, 14, 0.4);
+        animation: bounceUp 1s infinite ease-in-out;
+        text-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+    }
+    .trend-arrow-bear {
+        font-size: 2.2rem;
+        color: #ef4444;
+        display: inline-block;
+        animation: bounceDown 1s infinite ease-in-out;
+        text-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+    }
+    .trend-arrow-side {
+        font-size: 2.2rem;
+        color: #eab308;
+        display: inline-block;
+        animation: pulseSide 1.5s infinite ease-in-out;
+        text-shadow: 0 0 12px rgba(234, 179, 8, 0.6);
     }
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -345,18 +338,18 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
-    def get_trend_badge(hist_df):
+    def get_trend_arrows(hist_df):
         if hist_df is None or len(hist_df) < 5:
-            return '<span class="trend-badge-side">↔️ Lateral / Sin datos</span>'
+            return '<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
         first_p = hist_df['Close'].iloc[0]
         last_p = hist_df['Close'].iloc[-1]
         pct_change = ((last_p - first_p) / first_p) * 100
         if pct_change >= 2.0:
-            return f'<span class="trend-badge-bull">📈 Tendencia Alcista (+{pct_change:.1f}%)</span>'
+            return f'<div class="trend-arrow-bull">▲▲▲</div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -2.0:
-            return f'<span class="trend-badge-bear">📉 Tendencia Bajista ({pct_change:.1f}%)</span>'
+            return f'<div class="trend-arrow-bear">▼▼▼</div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
-            return f'<span class="trend-badge-side">↔️ Mercado Lateral ({pct_change:+.1f}%)</span>'
+            return f'<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
@@ -502,7 +495,7 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                     
-                    trend_html = get_trend_badge(hist_price)
+                    trend_html = get_trend_arrows(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -537,8 +530,9 @@ elif st.session_state.stage == 'analyzer':
                     st.markdown(f"""
                     <div class="score-container">
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Actual</div><div style="margin-top: 15px;">{trend_html}</div><div style="font-size: 1.5rem; font-weight: bold; color: #f8fafc; margin-top: 15px;">{price_display}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -605,11 +599,13 @@ elif st.session_state.stage == 'analyzer':
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
+                trend_html_fund = '<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
                 </div>
@@ -808,7 +804,7 @@ elif st.session_state.stage == 'analyzer':
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                 
-                trend_html_etf = get_trend_badge(etf_hist)
+                trend_html_etf = get_trend_arrows(etf_hist)
 
                 score_etf = 0
                 max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
@@ -827,8 +823,9 @@ elif st.session_state.stage == 'analyzer':
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Actual</div><div style="margin-top: 15px;">{trend_html_etf}</div><div style="font-size: 1.5rem; font-weight: bold; color: #f8fafc; margin-top: 15px;">{price_display_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
