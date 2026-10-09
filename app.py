@@ -557,9 +557,10 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Comisión fija y porcentual para las aportaciones periódicas a 0 si el plan está activo
-                    fee_fixed_per_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
-                    fee_percent_per_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
+                    # Lógica de comisiones periódicas a 0 solo si el bróker soporta planes y el checkbox está activo
+                    can_have_free_plan_f = broker_data["supports_free_plans"] and plan_sin_comision_f
+                    fee_fixed_per_efectiva = 0.0 if can_have_free_plan_f else fee_fixed_val
+                    fee_percent_per_efectiva = 0.0 if can_have_free_plan_f else fee_percent_val
                     fx_fee_efectiva = fx_fee_percent_val
 
                     periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
@@ -645,7 +646,8 @@ elif st.session_state.stage == 'analyzer':
                         df_sim_f = pd.DataFrame(historial_crecimiento_f)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
                             st.dataframe(df_sim_f, use_container_width=True)
-                            st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas mensuales van a 0 € gracias al plan automatizado.*")
+                            if can_have_free_plan_f:
+                                st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
 
             # ----------------------------------------------------
             # CASO C: ETFS
@@ -756,9 +758,10 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Comisión fija y porcentual para las aportaciones periódicas a 0 si el plan está activo
-                    fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
-                    fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
+                    # Lógica inteligente: Si el bróker soporta planes gratuitos y se marca el check, cuotas a 0€. Si no (ej. IBKR), se aplican las tarifas normales del bróker.
+                    can_have_free_plan_e = broker_data_etf["supports_free_plans"] and plan_sin_comision_e
+                    fee_fixed_e_efectiva = 0.0 if can_have_free_plan_e else fee_fixed_val_e
+                    fee_percent_e_efectiva = 0.0 if can_have_free_plan_e else fee_percent_val_e
                     fx_fee_e_efectiva = fx_fee_percent_val_e
 
                     periodos_por_ano = 12 if frecuencia == "Mensual" else 1
@@ -844,4 +847,5 @@ elif st.session_state.stage == 'analyzer':
                         df_simulacion = pd.DataFrame(historial_crecimiento)
                         with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
                             st.dataframe(df_simulacion, use_container_width=True)
-                            st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas mensuales van a 0 € gracias al plan automatizado.*")
+                            if can_have_free_plan_e:
+                                st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
