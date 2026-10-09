@@ -7,80 +7,39 @@ st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="�
 
 st.markdown("""
 <style>
-    /* Estilos Generales y Tipografía de Vanguardia */
+    /* Estilos Globales Dark Mode Fintech */
     .stApp {
         background-color: #0b0f19;
         color: #f3f4f6;
     }
     
-    h1, h2, h3 {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        letter-spacing: -0.025em;
-        color: #ffffff;
-    }
-
-    /* Tarjetas de Métricas Corporativas (KPIs) */
-    .metric-card {
+    /* Contenedores personalizados para métricas */
+    div.metric-box {
         background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
         border: 1px solid #374151;
-        padding: 20px;
+        padding: 16px;
         border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
         text-align: center;
-        margin-bottom: 15px;
-    }
-    .metric-title {
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #9ca3af;
-        margin-bottom: 8px;
-        font-weight: 600;
-    }
-    .metric-value {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #f9fafb;
-    }
-
-    /* Tarjeta Principal de Ahorro Neto Líquido */
-    .final-net-card {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        border: 1px solid #34d399;
-        padding: 24px;
-        border-radius: 14px;
-        text-align: center;
-        box-shadow: 0 10px 25px rgba(4, 120, 87, 0.3);
-        margin-top: 25px;
-        margin-bottom: 25px;
-    }
-    .final-net-title {
-        font-size: 1rem;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        color: #a7f3d0;
-        margin-bottom: 8px;
-        font-weight: 700;
-    }
-    .final-net-value {
-        font-size: 2.6rem;
-        font-weight: 900;
-        color: #ffffff;
-    }
-
-    /* Estilo de los Expander de Activos */
-    .streamlit-expanderHeader {
-        background-color: #111827 !important;
-        border-radius: 8px;
-        border: 1px solid #374151 !important;
-        font-weight: 600;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
     }
     
-    /* Botones principales personalizados */
-    .stButton > button {
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.2s ease-in-out;
+    /* Tarjeta Destacada de Ahorro Líquido Real */
+    .final-net-container {
+        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+        border: 2px solid #34d399;
+        padding: 24px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 10px 25px rgba(4, 120, 87, 0.4);
+        margin: 25px 0px;
+    }
+    
+    /* Expander con diseño corporativo */
+    .streamlit-expanderHeader {
+        background-color: #111827 !important;
+        border: 1px solid #374151 !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -467,33 +426,58 @@ elif st.session_state.stage == 'analyzer':
             st.markdown("---")
             st.subheader("📊 Resultados Globales")
 
-            # Estilo profesional para tarjetas de métricas en grid
+            # Tarjetas de Métricas con Contenedor Profesional
             col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
             
             with col_m1:
-                st.markdown(f'<div class="metric-card"><div class="metric-title">Capital Acumulado</div><div class="metric-value">{final_c["Capital Total Bruto (€)"]:,.0f} €</div></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                    st.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.0f} €")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with col_m2:
-                st.markdown(f'<div class="metric-card"><div class="metric-title">Aportado Bruto</div><div class="metric-value">{final_c["Capital Aportado Bruto (€)"]:,.0f} €</div></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                    st.metric("Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.0f} €")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with col_m3:
-                st.markdown(f'<div class="metric-card"><div class="metric-title">Total Costes</div><div class="metric-value">{(final_c["Comisiones Bróker (€)"] + final_c["Coste Spread / Divisa (€)"]):,.2f} €</div></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                    st.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with col_m4:
-                st.markdown(f'<div class="metric-card"><div class="metric-title">Beneficio Bruto</div><div class="metric-value">{beneficio_bruto_f:,.0f} €</div></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                    st.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.0f} €")
+                    st.markdown('</div>', unsafe_allow_html=True)
             with col_m5:
-                st.markdown(f'<div class="metric-card"><div class="metric-title">Impuestos (19%)</div><div class="metric-value">{(impuestos_plusvalia + impuestos_dividendos):,.2f} €</div></div>', unsafe_allow_html=True)
+                with st.container():
+                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                    st.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
+                    st.markdown('</div>', unsafe_allow_html=True)
 
             if hay_activo_distribucion:
                 st.info("ℹ️ Activo de **Distribución** detectado: Los dividendos netos cobrados se han integrado al saldo líquido total.")
                 dm1, dm2 = st.columns(2)
                 with dm1:
-                    st.markdown(f'<div class="metric-card"><div class="metric-title">💰 Dividendos Brutos</div><div class="metric-value">{acum_dividendos_brutos:,.2f} €</div></div>', unsafe_allow_html=True)
+                    with st.container():
+                        st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                        st.metric("💰 Dividendos Brutos", f"{acum_dividendos_brutos:,.2f} €")
+                        st.markdown('</div>', unsafe_allow_html=True)
                 with dm2:
-                    st.markdown(f'<div class="metric-card"><div class="metric-title">💵 Dividendos Netos (19%)</div><div class="metric-value">{dividendos_netos:,.2f} €</div></div>', unsafe_allow_html=True)
+                    with st.container():
+                        st.markdown('<div class="metric-box">', unsafe_allow_html=True)
+                        st.metric("💵 Dividendos Netos (19%)", f"{dividendos_netos:,.2f} €")
+                        st.markdown('</div>', unsafe_allow_html=True)
 
-            # Tarjeta Destacada Final
+            # Contenedor Destacado Principal para el Ahorro Líquido
             st.markdown(f"""
-            <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Neto Tras Impuestos y Costes)</div>
-                <div class="final-net-value">{capital_total_liquido_f:,.2f} €</div>
+            <div class="final-net-container">
+                <div style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1.5px; color: #a7f3d0; margin-bottom: 6px; font-weight: 700;">
+                    💰 Capital Total Líquido (Ahorro Real Neto Tras Impuestos y Costes)
+                </div>
+                <div style="font-size: 2.4rem; font-weight: 900; color: #ffffff;">
+                    {capital_total_liquido_f:,.2f} €
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
