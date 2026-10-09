@@ -291,7 +291,7 @@ elif st.session_state.stage == 'analyzer':
 
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
-        st.markdown("Configura tu cartera, asigna bróker y calcula el ahorro real a largo plazo.")
+        st.markdown("Configura tu cartera, asigna bróker y calcula el ahorro real a largo plazo (incluyendo la suma de dividendos netos en efectivo al capital total si procede).")
         
         st.markdown("---")
         st.subheader("1️⃣ Plazo General de la Cartera")
@@ -326,7 +326,6 @@ elif st.session_state.stage == 'analyzer':
             with st.expander(f"📌 Activo {i+1}", expanded=(i < 2)):
                 selected_asset_option = st.selectbox(f"Selecciona el Activo {i+1}", options=lista_opciones_activos, index=default_idx, key=f"sel_asset_{i}")
                 
-                # Detectar automáticamente si este activo es de distribución (pago de dividendos en efectivo)
                 es_distribucion = "Distribución" in selected_asset_option or "Dividend" in selected_asset_option
                 if es_distribucion:
                     hay_activo_distribucion = True
@@ -431,9 +430,7 @@ elif st.session_state.stage == 'analyzer':
             else:
                 saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
 
-            # Si hay algún activo de distribución, calculamos el dividendo en efectivo generado por esos activos específicos (~3% anual)
             if hay_activo_distribucion and periodo % periodos_por_ano == 0:
-                # Filtrar proporción de activos de distribución
                 pesos_dist = sum([1 for a in activos_config if a["es_distribucion"]]) / len(activos_config)
                 dividendo_periodo_bruto = (saldo_global_neto * pesos_dist) * 0.03
                 acum_dividendos_brutos += dividendo_periodo_bruto
@@ -466,28 +463,29 @@ elif st.session_state.stage == 'analyzer':
             dividendos_netos = acum_dividendos_brutos - impuestos_dividendos
 
             capital_neto_aportado_real = final_c['Capital Aportado Bruto (€)'] - (final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)'])
-            capital_total_liquido_f = capital_neto_aportado_real + (beneficio_bruto_f - impuestos_plusvalia)
+            
+            # CAPITAL TOTAL LÍQUIDO: Suma el valor de venta neto de los fondos + los dividendos netos cobrados en efectivo
+            capital_total_liquido_f = capital_neto_aportado_real + (beneficio_bruto_f - impuestos_plusvalia) + dividendos_netos
 
             st.markdown("---")
             st.subheader("📊 Resultados Globales de tu Cartera Personalizada")
 
             m1, m2, m3, m4, m5 = st.columns(5)
             m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
-            m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
+            m2.metric("Total Aportado Bruto", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
             m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
             m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
             m5.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
 
-            # Mostrar las líneas de dividendos solo si se ha seleccionado algún ETF/Fondo de distribución
             if hay_activo_distribucion:
-                st.info("ℹ️ Se ha detectado al menos un activo de **Distribución** en tu selección. A continuación se muestran los dividendos en efectivo cobrados y desglosados:")
+                st.info("ℹ️ Se ha detectado al menos un activo de **Distribución** en tu selección. Los dividendos netos cobrados se han sumado al ahorro total líquido.")
                 dm1, dm2 = st.columns(2)
                 dm1.metric("💰 Dividendos Brutos Obtenidos", f"{acum_dividendos_brutos:,.2f} €")
                 dm2.metric("💵 Dividendos Netos (Tras Impuestos 19%)", f"{dividendos_netos:,.2f} €")
 
             st.markdown(f"""
             <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Tras Pagar a Hacienda)</div>
+                <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Incluyendo Dividendos Netos)</div>
                 <div class="final-net-value">{capital_total_liquido_f:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
