@@ -460,19 +460,25 @@ elif st.session_state.stage == 'analyzer':
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
 
+                    # Sistema de puntuación flexible y equilibrado (máx 5.0)
                     total_score = 0
                     if st.session_state.sub_type == "Con dividendos":
-                        total_score += (1.0 if per_y <= 15 else (0.5 if per_y <= 25 else 0.0))
-                        total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                        total_score += (1.0 if (0 <= div_y_val <= 7.0) else (0.5 if (7.0 < div_y_val <= 9.0) else 0.0))
-                        total_score += (1.0 if (35.0 <= payout_val <= 80.0) else 0.0)
-                        total_score += (1.0 if est_div_growth >= 3.0 else 0.5)
+                        # 1. PER: Muy flexible (premio si <= 25, aceptable si <= 35)
+                        total_score += (1.0 if per_y <= 20 else (0.75 if per_y <= 30 else 0.5))
+                        # 2. Beta: Flexibilizada (premio si <= 1.2)
+                        total_score += (1.0 if beta_val <= 1.1 else 0.5)
+                        # 3. Dividendo: Amplio margen (premio entre 1% y 8%)
+                        total_score += (1.0 if (0.5 <= div_y_val <= 8.0) else 0.5)
+                        # 4. Payout: Margen razonable (hasta 85%)
+                        total_score += (1.0 if (20.0 <= payout_val <= 85.0) else 0.5)
+                        # 5. Crecimiento dividendo / histórico
+                        total_score += (1.0 if est_div_growth >= 2.0 else 0.5)
                     else:
-                        total_score += (1.0 if per_y <= 25 else 0.5)
-                        total_score += (1.0 if pfcf_y <= 20 else 0.5)
-                        total_score += (1.0 if pb_y <= 4.0 else 0.5)
-                        total_score += (1.0 if roe_val >= 15.0 else 0.5)
-                        total_score += (1.0 if bpa_y > 0 else 0.0)
+                        total_score += (1.0 if per_y <= 30 else 0.5)
+                        total_score += (1.0 if pfcf_y <= 25 else 0.5)
+                        total_score += (1.0 if pb_y <= 5.0 else 0.5)
+                        total_score += (1.0 if roe_val >= 10.0 else 0.5)
+                        total_score += (1.0 if bpa_y > -1.0 else 0.5)
 
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
@@ -541,11 +547,11 @@ elif st.session_state.stage == 'analyzer':
                     age_val = 5
 
                 score_fund = 0
-                score_fund += (1.0 if ter_val <= 0.20 else (0.5 if ter_val <= 0.50 else 0.0))
-                score_fund += (1.0 if aum_val > 500 else 0.5)
-                score_fund += (1.0 if te_val <= 0.10 else 0.5)
+                score_fund += (1.0 if ter_val <= 0.25 else 0.5)
+                score_fund += (1.0 if aum_val > 200 else 0.5)
+                score_fund += (1.0 if te_val <= 0.15 else 0.5)
                 score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
-                score_fund += (1.0 if age_val > 5 else 0.5)
+                score_fund += (1.0 if age_val >= 3 else 0.5)
 
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
@@ -565,7 +571,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
@@ -753,12 +759,12 @@ elif st.session_state.stage == 'analyzer':
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
 
                 score_etf = 0
-                max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.15
-                score_etf += (1.0 if ter_etf <= max_ter_threshold else (0.5 if ter_etf <= 0.70 else 0.0))
-                score_etf += (1.0 if aum_etf > 1000 else (0.5 if aum_etf >= 200 else 0.0))
-                score_etf += (1.0 if "Física" in repl_etf and te_etf <= 0.10 else 0.5)
+                max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
+                score_etf += (1.0 if ter_etf <= max_ter_threshold else 0.5)
+                score_etf += (1.0 if aum_etf >= 200 else 0.5)
+                score_etf += (1.0 if "Física" in repl_etf else 0.5)
                 score_etf += (1.0 if curr_etf == "EUR" else 0.5)
-                score_etf += (1.0 if age_etf > 5 else (0.5 if age_etf >= 2 else 0.0))
+                score_etf += (1.0 if age_etf >= 2 else 0.5)
 
                 grade_etf = get_letter_grade(score_etf)
                 deg_etf = int((score_etf / 5.0) * 360)
