@@ -634,7 +634,7 @@ elif st.session_state.stage == 'analyzer':
                         fm2.metric("Total Aportado", f"{final_res_f['Capital Aportado Bruto (€)']:,.2f} €")
                         fm3.metric("Total de Costes Acumulados", f"{(final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)']):,.2f} €")
                         fm4.metric("Beneficio Bruto", f"{beneficio_bruto_final:,.2f} €")
-                        fm5.metric("Beneficio Neto", f"{beneficio_neto_impuestos:,.2f} €")
+                        fm5.metric("Beneficio Neto (tras pagar impuestos)", f"{beneficio_neto_impuestos:,.2f} €")
 
                         st.markdown(f"""
                         <div class="final-net-card">
@@ -835,7 +835,7 @@ elif st.session_state.stage == 'analyzer':
                         m2.metric("Total Aportado", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
                         m3.metric("Total de Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Bruto", f"{beneficio_bruto_final_e:,.2f} €")
-                        m5.metric("Beneficio Neto", f"{beneficio_neto_impuestos_e:,.2f} €")
+                        m5.metric("Beneficio Neto (tras pagar impuestos)", f"{beneficio_neto_impuestos_e:,.2f} €")
 
                         st.markdown(f"""
                         <div class="final-net-card">
