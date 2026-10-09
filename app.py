@@ -179,10 +179,10 @@ ETF_BROKER_PROFILES = {
     }
 }
 
-# Sidebar común para historial
+# Sidebar común para historial y número de entradas actualizado
 with st.sidebar:
     st.header("📊 Historial de Sesión")
-    st.markdown(f"Activos analizados: **{len(st.session_state.history)}**")
+    st.markdown(f"Activos / Entradas analizadas: **{len(st.session_state.history)}**")
     
     if st.session_state.history:
         df_history = pd.DataFrame(st.session_state.history)
@@ -388,9 +388,15 @@ elif st.session_state.stage == 'analyzer':
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
             user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
         elif st.session_state.asset_type == "ETFs":
-            etf_options = ["-- Selecciona un ETF (Global, Tecnología, Renovables, Materias Primas, Dividendos...) --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
+            # Permite tanto seleccionar de la lista como introducir un ticker libre por teclado
+            etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
             selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
-            user_input = "" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip()
+            custom_etf_input = st.text_input("O introduce directamente cualquier Ticker de Yahoo Finance (ej. CSPX.AS, IQQH.DE, QQQ):", value="").strip()
+            
+            if custom_etf_input:
+                user_input = custom_etf_input.upper()
+            else:
+                user_input = "" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -482,6 +488,18 @@ elif st.session_state.stage == 'analyzer':
                     else:
                         st.error(f"🔴 **VEREDICTO DESFAVORABLE:** Métricas actuales poco atractivas bajo los criterios de selección.")
 
+                    # Guardar entrada en el historial de sesión
+                    entry_record = {
+                        "Tipo": "Acción",
+                        "Activo": name,
+                        "Ticker": ticker_input,
+                        "Calificación": grade,
+                        "Puntuación": total_score,
+                        "Precio": current_price
+                    }
+                    if entry_record not in st.session_state.history:
+                        st.session_state.history.append(entry_record)
+
                 except Exception as e:
                     st.error(f"Error al procesar los datos de la acción: {e}")
 
@@ -557,7 +575,6 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Lógica inteligente por bróker: solo 0€ si el bróker soporta planes gratuitos Y el usuario activa la casilla
                     can_have_free_plan_f = broker_data["supports_free_plans"] and plan_sin_comision_f
                     fee_fixed_per_efectiva = 0.0 if can_have_free_plan_f else fee_fixed_val
                     fee_percent_per_efectiva = 0.0 if can_have_free_plan_f else fee_percent_val
@@ -634,7 +651,7 @@ elif st.session_state.stage == 'analyzer':
                         fm2.metric("Total Aportado", f"{final_res_f['Capital Aportado Bruto (€)']:,.2f} €")
                         fm3.metric("Total de Costes Acumulados", f"{(final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)']):,.2f} €")
                         fm4.metric("Beneficio Bruto", f"{beneficio_bruto_final:,.2f} €")
-                        fm5.metric("Beneficio Neto (tras pagar impuestos)", f"{beneficio_neto_impuestos:,.2f} €")
+                        fm5.metric("Beneficio Neto", f"{beneficio_neto_impuestos:,.2f} €")
 
                         st.markdown(f"""
                         <div class="final-net-card">
@@ -649,11 +666,22 @@ elif st.session_state.stage == 'analyzer':
                             if can_have_free_plan_f:
                                 st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
 
+                        # Guardar simulación de fondo en historial
+                        entry_record_f = {
+                            "Tipo": "Fondo Indexado",
+                            "Activo": fund_name,
+                            "Plazo (Años)": anos_f,
+                            "Capital Líquido Final": capital_total_liquido,
+                            "Beneficio Neto": beneficio_neto_impuestos
+                        }
+                        if entry_record_f not in st.session_state.history:
+                            st.session_state.history.append(entry_record_f)
+
             # ----------------------------------------------------
-            # CASO C: ETFS
+            # CASO C: ETFS (BÚSQUEDA Y FIABILIDAD YAHOO FINANCE)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
-                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
+                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
                 
                 if matched_etf:
                     etf_name = matched_etf["name"]
@@ -666,15 +694,23 @@ elif st.session_state.stage == 'analyzer':
                     curr_etf = matched_etf["currency"]
                     age_etf = matched_etf["age_years"]
                 else:
-                    etf_name = user_input.upper()
+                    # Búsqueda dinámica en Yahoo Finance si es un ticker personalizado
                     etf_ticker = user_input.upper()
-                    etf_cat = "Sectorial / Especializado"
-                    ter_etf = 0.35
-                    aum_etf = 800
-                    repl_etf = "Física (Completa)"
-                    te_etf = 0.10
-                    curr_etf = "EUR"
-                    age_etf = 4
+                    try:
+                        live_ticker = yf.Ticker(etf_ticker)
+                        info_live = live_ticker.info or {}
+                        etf_name = info_live.get('longName', etf_ticker)
+                        curr_etf = info_live.get('currency', 'EUR')
+                    except:
+                        etf_name = etf_ticker
+                        curr_etf = 'EUR'
+                    
+                    etf_cat = "Personalizado / Externo"
+                    ter_etf = 0.20
+                    aum_etf = 1000
+                    repl_etf = "Física"
+                    te_etf = 0.05
+                    age_etf = 5
 
                 etf_price = None
                 try:
@@ -685,7 +721,7 @@ elif st.session_state.stage == 'analyzer':
                 except:
                     pass
 
-                price_display_etf = f"{etf_price:,.2f} €" if etf_price is not None else "—"
+                price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
 
                 score_etf = 0
                 max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.15
@@ -705,7 +741,7 @@ elif st.session_state.stage == 'analyzer':
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -758,7 +794,6 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Lógica inteligente por bróker: solo 0€ si el bróker soporta planes gratuitos Y el usuario activa la casilla
                     can_have_free_plan_e = broker_data_etf["supports_free_plans"] and plan_sin_comision_e
                     fee_fixed_e_efectiva = 0.0 if can_have_free_plan_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if can_have_free_plan_e else fee_percent_val_e
@@ -835,7 +870,7 @@ elif st.session_state.stage == 'analyzer':
                         m2.metric("Total Aportado", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
                         m3.metric("Total de Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Bruto", f"{beneficio_bruto_final_e:,.2f} €")
-                        m5.metric("Beneficio Neto (tras pagar impuestos)", f"{beneficio_neto_impuestos_e:,.2f} €")
+                        m5.metric("Beneficio Neto", f"{beneficio_neto_impuestos_e:,.2f} €")
 
                         st.markdown(f"""
                         <div class="final-net-card">
@@ -849,3 +884,15 @@ elif st.session_state.stage == 'analyzer':
                             st.dataframe(df_simulacion, use_container_width=True)
                             if can_have_free_plan_e:
                                 st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
+
+                        # Guardar simulación de ETF en historial
+                        entry_record_e = {
+                            "Tipo": "ETF",
+                            "Activo": etf_name,
+                            "Ticker": etf_ticker,
+                            "Plazo (Años)": anos,
+                            "Capital Líquido Final": capital_total_liquido_e,
+                            "Beneficio Neto": beneficio_neto_impuestos_e
+                        }
+                        if entry_record_e not in st.session_state.history:
+                            st.session_state.history.append(entry_record_e)
