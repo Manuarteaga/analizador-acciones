@@ -182,7 +182,8 @@ ETF_BROKER_PROFILES = {
 # Sidebar común para historial y número de entradas actualizado
 with st.sidebar:
     st.header("📊 Historial de Sesión")
-    st.markdown(f"Activos / Entradas analizadas: **{len(st.session_state.history)}**")
+    num_entries = len(st.session_state.history)
+    st.markdown(f"Activos / Entradas analizadas: **{num_entries}**")
     
     if st.session_state.history:
         df_history = pd.DataFrame(st.session_state.history)
@@ -388,7 +389,6 @@ elif st.session_state.stage == 'analyzer':
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
             user_input = "" if selected_fund_option == "-- Selecciona o escribe un fondo --" else selected_fund_option
         elif st.session_state.asset_type == "ETFs":
-            # Permite tanto seleccionar de la lista como introducir un ticker libre por teclado
             etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
             selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
             custom_etf_input = st.text_input("O introduce directamente cualquier Ticker de Yahoo Finance (ej. CSPX.AS, IQQH.DE, QQQ):", value="").strip()
@@ -488,7 +488,6 @@ elif st.session_state.stage == 'analyzer':
                     else:
                         st.error(f"🔴 **VEREDICTO DESFAVORABLE:** Métricas actuales poco atractivas bajo los criterios de selección.")
 
-                    # Guardar entrada en el historial de sesión
                     entry_record = {
                         "Tipo": "Acción",
                         "Activo": name,
@@ -666,7 +665,6 @@ elif st.session_state.stage == 'analyzer':
                             if can_have_free_plan_f:
                                 st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
 
-                        # Guardar simulación de fondo en historial
                         entry_record_f = {
                             "Tipo": "Fondo Indexado",
                             "Activo": fund_name,
@@ -694,7 +692,6 @@ elif st.session_state.stage == 'analyzer':
                     curr_etf = matched_etf["currency"]
                     age_etf = matched_etf["age_years"]
                 else:
-                    # Búsqueda dinámica en Yahoo Finance si es un ticker personalizado
                     etf_ticker = user_input.upper()
                     try:
                         live_ticker = yf.Ticker(etf_ticker)
@@ -745,9 +742,12 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
+                # Número de entradas actualizado para la tabla de métricas del ETF
+                current_entries_count = len(st.session_state.history) + 1
+
                 df_etf_data = {
-                    "Métrica del ETF": ["Categoría Temática", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [etf_cat, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica del ETF": ["Número de Entradas", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
+                    "Valor Actual": [str(current_entries_count), f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
                 st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
@@ -885,7 +885,6 @@ elif st.session_state.stage == 'analyzer':
                             if can_have_free_plan_e:
                                 st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
 
-                        # Guardar simulación de ETF en historial
                         entry_record_e = {
                             "Tipo": "ETF",
                             "Activo": etf_name,
