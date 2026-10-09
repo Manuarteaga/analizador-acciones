@@ -471,7 +471,6 @@ elif st.session_state.stage == 'analyzer':
 
             m1, m2, m3, m4, m5 = st.columns(5)
             m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
-            # CORREGIDO AQUÍ: Se pasa la variable correcta del total aportado bruto en lugar del acumulado
             m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
             m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
             m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
@@ -495,14 +494,88 @@ elif st.session_state.stage == 'analyzer':
                 st.dataframe(df_res_cartera, use_container_width=True)
 
     # ----------------------------------------------------
-    # RESTO DE APARTADOS (ACCIONES, FONDOS, ETFS)
+    # RESTO DE APARTADOS DE EVALUACIÓN INDIVIDUAL
     # ----------------------------------------------------
+    elif st.session_state.asset_type == "Acciones":
+        st.title(f"📊 Evaluación de Acciones: {st.session_state.sub_type}")
+        
+        busqueda_accion = st.text_input("Introduce el nombre de la empresa (ej. Inditex, Iberdrola, Telefónica, Santander...):", "Inditex")
+        clave_busqueda = busqueda_accion.strip().lower()
+        
+        if clave_busqueda in TICKER_DB:
+            info_empresa = TICKER_DB[clave_busqueda]
+            ticker_symbol = info_empresa["ticker"]
+            
+            st.success(f"Empresa encontrada en base de datos: **{busqueda_accion.title()}** (Ticker: `{ticker_symbol}`)")
+            
+            try:
+                stock_data = yf.Ticker(ticker_symbol)
+                hist = stock_data.history(period="1y")
+                
+                if not hist.empty:
+                    precio_actual = hist['Close'].iloc[-1]
+                    st.metric("Precio Actual de Cotización", f"{precio_actual:.2f} €")
+                    
+                    st.markdown("### 📈 Evolución Reciente (Último Año)")
+                    st.line_chart(hist['Close'])
+                else:
+                    st.warning("No se han podido descargar los datos históricos de cotización en tiempo real.")
+            except Exception as e:
+                st.error(f"Error al conectar con la fuente de datos bursátiles: {e}")
+                
+            st.markdown("### 📋 Análisis Fundamental y Dividendos")
+            col_a1, col_a2 = st.columns(2)
+            with col_a1:
+                st.markdown(f"**Historial y Racha de Dividendos:**\n{info_empresa['racha']}")
+                st.markdown(f"**Crecimiento estimado del dividendo:** {info_empresa['div_growth']}% anual")
+            with col_a2:
+                st.markdown(f"**Rentabilidad por dividendo actual (Yield):** {info_empresa['div_yield']}%")
+                
+            if st.button("💾 Guardar Evaluación en Historial"):
+                st.session_state.history.append({
+                    "Tipo": "Acción",
+                    "Nombre": busqueda_accion.title(),
+                    "Ticker": ticker_symbol,
+                    "Modalidad": st.session_state.sub_type,
+                    "Div Yield (%)": info_empresa["div_yield"]
+                })
+                st.success("¡Evaluación guardada correctamente en el historial de la barra lateral!")
+        else:
+            st.warning("Empresa no encontrada en la base de datos interna. Prueba con: Inditex, Iberdrola, Telefónica, Santander, Microsoft, Procter & Gamble, etc.")
+
     elif st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
         st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de custodia de tu entidad.")
+
+    elif st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Acumulación":
+        st.title("✍️ Evaluador de Fondo Indexado con Buscador Predictivo")
+        fondo_sel = st.selectbox("Selecciona un fondo disponible:", options=list(FUND_DB.keys()))
+        datos_f = FUND_DB[fondo_sel]
+        
+        st.markdown(f"### {datos_f['name']}")
+        col_f1, col_f2, col_f3 = st.columns(3)
+        col_f1.metric("TER Anual", f"{datos_f['ter']}%")
+        col_f2.metric("Patrimonio Gestora", f"{datos_f['aum']} M€")
+        col_f3.metric("Antigüedad", f"{datos_f['age_years']} años")
+        
+        st.markdown(f"**Categoría:** {datos_f['category']}")
+        st.markdown(f"**Tracking Error estimado:** {datos_f['tracking_error']}%")
+        
+        aportacion_f = st.number_input("Aportación mensual prevista (€):", min_value=0.0, value=150.0, step=50.0)
+        plazo_f = st.slider("Plazo de inversión (Años):", min_value=1, max_value=35, value=15)
+        
+        if st.button("🚀 Calcular Proyección del Fondo"):
+            rentabilidad_est = 7.5
+            total_invertido = aportacion_f * 12 * plazo_f
+            # Interés compuesto básico simplificado para simulación
+            tasa_mes = (rentabilidad_est - datos_f['ter']) / 100.0 / 12.0
+            meses = plazo_f * 12
+            saldo_final = aportacion_f * (((1 + tasa_mes)**meses - 1) / tasa_mes) * (1 + tasa_mes)
+            
+            st.success(f"Proyección estimada a {plazo_f} años: **{saldo_final:,.2f} €** (Total aportado: {total_invertido:,.2f} €)")
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
         st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
@@ -558,3 +631,28 @@ elif st.session_state.stage == 'analyzer':
             st.markdown("- **Perfil de riesgo:** Alto (mayor exposición a riesgos geopolíticos, divisas volátiles y ciclos económicos diferentes a Occidente).")
             st.markdown("- **Ideal para:** Complementar la cartera global buscando mayor diversificación geográfica y crecimiento demográfico.")
             st.markdown("- *Ejemplo en BD:* `iShares Core MSCI Emerging Markets IMI ETF`")
+
+    elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Evaluación ETF":
+        st.title("🔍 Evaluación de ETF Específico")
+        etf_key = st.selectbox("Selecciona un ETF de la base de datos:", options=list(ETF_DB.keys()))
+        etf_info = ETF_DB[etf_key]
+        
+        st.markdown(f"### {etf_info['name']}")
+        col_e1, col_e2, col_e3 = st.columns(3)
+        col_e1.metric("Ticker", etf_info["ticker"])
+        col_e2.metric("TER", f"{etf_info['ter']}%")
+        col_e3.metric("Patrimonio", f"{etf_info['aum']} M€")
+        
+        st.markdown(f"**Categoría:** {etf_info['category']}")
+        st.markdown(f"**Tipo de Réplica:** {etf_info['replication']}")
+        st.markdown(f"**Moneda:** {etf_info['currency']}")
+        
+        inv_etf = st.number_input("Inversión periódica mensual (€):", min_value=0.0, value=200.0, step=50.0)
+        anos_etf = st.slider("Plazo de inversión (Años):", min_value=1, max_value=40, value=20)
+        
+        if st.button("🚀 Calcular Proyección del ETF"):
+            tasa_efectiva = (7.0 - etf_info['ter']) / 100.0 / 12.0
+            meses_e = anos_etf * 12
+            total_inv_e = inv_etf * 12 * anos_etf
+            val_final_e = inv_etf * (((1 + tasa_efectiva)**meses_e - 1) / tasa_efectiva) * (1 + tasa_efectiva)
+            st.success(f"Valor acumulado estimado tras {anos_etf} años: **{val_final_e:,.2f} €** (Aportado: {total_inv_e:,.2f} €)")
