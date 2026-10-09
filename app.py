@@ -151,7 +151,7 @@ FUND_BROKER_PROFILES = {
 
 ETF_BROKER_PROFILES = {
     "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
-        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
+        "fee_percent": 0.0, "fee_fixed": 0.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
     },
     "Lightyear (ETFs sin comisión de ejecución / Muy transparente)": {
         "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.35, "supports_free_plans": True
