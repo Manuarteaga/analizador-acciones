@@ -61,38 +61,38 @@ st.markdown("""
         0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
-    @keyframes bounceUp {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-8px); }
+    @keyframes neonFlowUp {
+        0% { transform: translateY(6px); opacity: 0.2; text-shadow: 0 0 2px #22c55e; }
+        50% { transform: translateY(0px); opacity: 1; text-shadow: 0 0 15px #22c55e, 0 0 25px #22c55e; }
+        100% { transform: translateY(-6px); opacity: 0.2; text-shadow: 0 0 2px #22c55e; }
     }
-    @keyframes bounceDown {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(8px); }
+    @keyframes neonFlowDown {
+        0% { transform: translateY(-6px); opacity: 0.2; text-shadow: 0 0 2px #ef4444; }
+        50% { transform: translateY(0px); opacity: 1; text-shadow: 0 0 15px #ef4444, 0 0 25px #ef4444; }
+        100% { transform: translateY(6px); opacity: 0.2; text-shadow: 0 0 2px #ef4444; }
     }
-    @keyframes pulseSide {
-        0%, 100% { transform: scale(1); opacity: 0.8; }
-        50% { transform: scale(1.1); opacity: 1; }
+    @keyframes neonFlowSide {
+        0% { transform: translateX(-4px); opacity: 0.3; text-shadow: 0 0 2px #eab308; }
+        50% { transform: translateX(0px); opacity: 1; text-shadow: 0 0 15px #eab308, 0 0 25px #eab308; }
+        100% { transform: translateX(4px); opacity: 0.3; text-shadow: 0 0 2px #eab308; }
     }
-    .trend-arrow-bull {
-        font-size: 2.2rem;
+    .trend-neon-bull {
+        font-size: 2rem;
         color: #22c55e;
         display: inline-block;
-        animation: bounceUp 1s infinite ease-in-out;
-        text-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+        animation: neonFlowUp 1.2s infinite ease-in-out;
     }
-    .trend-arrow-bear {
-        font-size: 2.2rem;
+    .trend-neon-bear {
+        font-size: 2rem;
         color: #ef4444;
         display: inline-block;
-        animation: bounceDown 1s infinite ease-in-out;
-        text-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
+        animation: neonFlowDown 1.2s infinite ease-in-out;
     }
-    .trend-arrow-side {
-        font-size: 2.2rem;
+    .trend-neon-side {
+        font-size: 2rem;
         color: #eab308;
         display: inline-block;
-        animation: pulseSide 1.5s infinite ease-in-out;
-        text-shadow: 0 0 12px rgba(234, 179, 8, 0.6);
+        animation: neonFlowSide 1.5s infinite ease-in-out;
     }
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -338,18 +338,18 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
-    def get_trend_arrows(hist_df):
+    def get_trend_neon_arrows(hist_df):
         if hist_df is None or len(hist_df) < 5:
-            return '<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+            return '<div class="trend-neon-side">◄ ▲ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
         first_p = hist_df['Close'].iloc[0]
         last_p = hist_df['Close'].iloc[-1]
         pct_change = ((last_p - first_p) / first_p) * 100
         if pct_change >= 2.0:
-            return f'<div class="trend-arrow-bull">▲▲▲</div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
+            return f'<div class="trend-neon-bull">▲ ▲ ▲</div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -2.0:
-            return f'<div class="trend-arrow-bear">▼▼▼</div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="trend-neon-bear">▼ ▼ ▼</div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
-            return f'<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
+            return f'<div class="trend-neon-side">◄ ▲ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
@@ -495,7 +495,7 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                     
-                    trend_html = get_trend_arrows(hist_price)
+                    trend_html = get_trend_neon_arrows(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -530,7 +530,7 @@ elif st.session_state.stage == 'analyzer':
                     st.markdown(f"""
                     <div class="score-container">
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                     </div>
@@ -599,13 +599,13 @@ elif st.session_state.stage == 'analyzer':
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
-                trend_html_fund = '<div class="trend-arrow-side">◄►◄</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
+                trend_html_fund = '<div class="trend-neon-side">◄ ▲ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
                 </div>
@@ -804,7 +804,7 @@ elif st.session_state.stage == 'analyzer':
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                 
-                trend_html_etf = get_trend_arrows(etf_hist)
+                trend_html_etf = get_trend_neon_arrows(etf_hist)
 
                 score_etf = 0
                 max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
@@ -823,7 +823,7 @@ elif st.session_state.stage == 'analyzer':
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
