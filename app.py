@@ -291,7 +291,7 @@ elif st.session_state.stage == 'analyzer':
 
     if st.session_state.asset_type == "Cartera Multi-Activo":
         st.title("💼 Simulador de Cartera Multi-Activo Personalizada")
-        st.markdown("Configura tu cartera, asigna bróker y calcula el ahorro real a largo plazo.")
+        st.markdown("Configura tu cartera, asigna bróker y calcula el ahorro real a largo plazo (incluyendo la suma de dividendos netos en efectivo al capital total si procede).")
         
         st.markdown("---")
         st.subheader("1️⃣ Plazo General de la Cartera")
@@ -464,6 +464,7 @@ elif st.session_state.stage == 'analyzer':
 
             capital_neto_aportado_real = final_c['Capital Aportado Bruto (€)'] - (final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)'])
             
+            # CAPITAL TOTAL LÍQUIDO: Suma el valor de venta neto de los fondos + los dividendos netos cobrados en efectivo
             capital_total_liquido_f = capital_neto_aportado_real + (beneficio_bruto_f - impuestos_plusvalia) + dividendos_netos
 
             st.markdown("---")
@@ -471,8 +472,7 @@ elif st.session_state.stage == 'analyzer':
 
             m1, m2, m3, m4, m5 = st.columns(5)
             m1.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
-            # CORREGIDO AQUÍ: Se pasa la variable correcta del total aportado bruto en lugar del acumulado
-            m2.metric("Total Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.2f} €")
+            m2.metric("Total Aportado Bruto", f"{final_c['Capital Total Bruto (€)']:,.2f} €")
             m3.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
             m4.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.2f} €")
             m5.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
