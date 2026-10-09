@@ -410,7 +410,7 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
         else:
             # ----------------------------------------------------
-            # CASO A: ACCIONES (CON SU DESGLOSE Y CONCLUSIONES)
+            # CASO A: ACCIONES
             # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -462,14 +462,12 @@ elif st.session_state.stage == 'analyzer':
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # Tabla de métricas evaluadas
                     df_metrics = pd.DataFrame({
                         "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "Precio / Valor Contable (P/B)", "ROE (Rentabilidad)", "Dividendo Yield", "Payout Ratio", "Beta (Volatilidad)"],
                         "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{pb_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
                     })
                     st.table(df_metrics)
 
-                    # Conclusiones derivadas de la nota
                     st.markdown("### 📝 Conclusiones y Perspectiva Analítica")
                     if st.session_state.sub_type == "Con dividendos":
                         st.markdown(f"- **Historial de Dividendos y Racha:** {racha_info}")
@@ -488,7 +486,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos de la acción: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON CAPITAL LÍQUIDO FINAL)
+            # CASO B: FONDOS INDEXADOS (CON INVERSIÓN INICIAL CON COMISIÓN Y PERIÓDICAS A 0€)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
@@ -559,8 +557,12 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    fee_fixed_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
-                    fee_percent_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
+                    # Comisión fija y porcentual independientes para la entrada inicial (año 0) y las cuotas periódicas (con plan a 0 si está activo)
+                    fee_fixed_ini_efectiva = fee_fixed_val
+                    fee_percent_ini_efectiva = fee_percent_val
+
+                    fee_fixed_per_efectiva = 0.0 if plan_sin_comision_f else fee_fixed_val
+                    fee_percent_per_efectiva = 0.0 if plan_sin_comision_f else fee_percent_val
                     fx_fee_efectiva = fx_fee_percent_val
 
                     periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
@@ -568,7 +570,7 @@ elif st.session_state.stage == 'analyzer':
                     tasa_periodica_f = (tasa_neta_anual / 100.0) / periodos_por_ano_f
                     total_periodos_f = anos_f * periodos_por_ano_f
 
-                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val
+                    coste_broker_ini = (inversion_inicial_f * (fee_percent_ini_efectiva / 100.0)) + fee_fixed_ini_efectiva
                     coste_spread_ini = inversion_inicial_f * (spread_percent_val / 100.0)
                     coste_fx_ini = inversion_inicial_f * (fx_fee_percent_val / 100.0)
                     coste_total_ini = coste_broker_ini + coste_spread_ini + coste_fx_ini
@@ -584,7 +586,7 @@ elif st.session_state.stage == 'analyzer':
 
                     for periodo in range(1, total_periodos_f + 1):
                         if periodo > 1:
-                            c_broker = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva
+                            c_broker = (aportacion_periodica_f * (fee_percent_per_efectiva / 100.0)) + fee_fixed_per_efectiva
                             c_spread = aportacion_periodica_f * (spread_percent_val / 100.0)
                             c_fx = aportacion_periodica_f * (fx_fee_efectiva / 100.0)
                             c_total_op = c_broker + c_spread + c_fx
@@ -617,7 +619,7 @@ elif st.session_state.stage == 'analyzer':
 
                     if historial_crecimiento_f:
                         final_res_f = historial_crecimiento_f[-1]
-                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_efectiva / 100.0)) + fee_fixed_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_efectiva / 100.0))
+                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_per_efectiva / 100.0)) + fee_fixed_per_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_efectiva / 100.0))
                         
                         beneficio_bruto_final = final_res_f['Beneficio Neto (€)']
                         impuestos_finales = beneficio_bruto_final * 0.19
@@ -648,7 +650,7 @@ elif st.session_state.stage == 'analyzer':
                             st.dataframe(df_sim_f, use_container_width=True)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (CON CAPITAL LÍQUIDO FINAL)
+            # CASO C: ETFS (CON INVERSIÓN INICIAL CON COMISIÓN Y PERIÓDICAS A 0€)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
@@ -712,7 +714,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [etf_cat, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
+                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten in cuenta el recargo por cambio de divisa de tu bróker.")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
@@ -756,6 +758,10 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
+                    # Comisión fija y porcentual independientes para la entrada inicial (año 0) y las cuotas periódicas (con plan a 0 si está activo)
+                    fee_fixed_ini_e_efectiva = fee_fixed_val_e
+                    fee_percent_ini_e_efectiva = fee_percent_val_e
+
                     fee_fixed_e_efectiva = 0.0 if plan_sin_comision_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if plan_sin_comision_e else fee_percent_val_e
                     fx_fee_e_efectiva = fx_fee_percent_val_e
@@ -765,7 +771,7 @@ elif st.session_state.stage == 'analyzer':
                     tasa_periodica = (tasa_neta_anual_e / 100.0) / periodos_por_ano
                     total_periodos = anos * periodos_por_ano
 
-                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e
+                    coste_broker_ini_e = (inversion_inicial * (fee_percent_ini_e_efectiva / 100.0)) + fee_fixed_ini_e_efectiva
                     coste_spread_ini_e = inversion_inicial * (spread_percent_val_e / 100.0)
                     coste_fx_ini_e = inversion_inicial * (fx_fee_percent_val_e / 100.0)
                     coste_total_ini_e = coste_broker_ini_e + coste_spread_ini_e + coste_fx_ini_e
@@ -828,7 +834,7 @@ elif st.session_state.stage == 'analyzer':
 
                         m1, m2, m3, m4, m5 = st.columns(5)
                         m1.metric("Capital Neto Acumulado", f"{final_result['Capital Total Neto (€)']:,.2f} €")
-                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Total Neto (€)']:,.2f} €")
+                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
                         m3.metric("Total Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Neto", f"{beneficio_bruto_final_e:,.2f} €")
                         m5.metric("Beneficio Neto - Impuestos (19%)", f"{beneficio_neto_impuestos_e:,.2f} €")
