@@ -557,7 +557,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val = broker_data["spread_percent"]
                         fx_fee_percent_val = broker_data["fx_fee_percent"]
 
-                    # Lógica de comisiones periódicas a 0 solo si el bróker soporta planes y el checkbox está activo
+                    # Lógica inteligente por bróker: solo 0€ si el bróker soporta planes gratuitos Y el usuario activa la casilla
                     can_have_free_plan_f = broker_data["supports_free_plans"] and plan_sin_comision_f
                     fee_fixed_per_efectiva = 0.0 if can_have_free_plan_f else fee_fixed_val
                     fee_percent_per_efectiva = 0.0 if can_have_free_plan_f else fee_percent_val
@@ -758,7 +758,7 @@ elif st.session_state.stage == 'analyzer':
                         spread_percent_val_e = broker_data_etf["spread_percent"]
                         fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
 
-                    # Lógica inteligente: Si el bróker soporta planes gratuitos y se marca el check, cuotas a 0€. Si no (ej. IBKR), se aplican las tarifas normales del bróker.
+                    # Lógica inteligente por bróker: solo 0€ si el bróker soporta planes gratuitos Y el usuario activa la casilla
                     can_have_free_plan_e = broker_data_etf["supports_free_plans"] and plan_sin_comision_e
                     fee_fixed_e_efectiva = 0.0 if can_have_free_plan_e else fee_fixed_val_e
                     fee_percent_e_efectiva = 0.0 if can_have_free_plan_e else fee_percent_val_e
