@@ -429,7 +429,7 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
         else:
             # ----------------------------------------------------
-            # CASO A: ACCIONES (CON ROBUSTEZ Y FALLBACK ANTE API YFINANCE)
+            # CASO A: ACCIONES
             # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -449,7 +449,6 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
 
-                    # Robustez: si yfinance devuelve None o no trae el dato, usamos los respaldos seguros de TICKER_DB
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
                     pb_y = info.get('priceToBook') or 3.0
@@ -566,7 +565,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
