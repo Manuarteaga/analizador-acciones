@@ -103,18 +103,18 @@ def reset_navigation():
     st.session_state.sub_type = None
 
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8},
-    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5},
-    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0},
-    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5},
-    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5},
-    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7},
-    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4},
-    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2}
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
+    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
+    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
+    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
+    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
+    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0},
+    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0},
+    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
+    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
+    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
 }
 
 FUND_DB = {
@@ -415,8 +415,8 @@ elif st.session_state.stage == 'analyzer':
             q_lower = query.lower().strip()
             for key, data in TICKER_DB.items():
                 if key in q_lower or data["ticker"].lower() == q_lower:
-                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", None)
-            return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0, None
+                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", 4.0), data.get("per", 18.0), data.get("beta", 1.0), data.get("payout", 50.0)
+            return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0, 4.0, 18.0, 1.0, 50.0
 
         def get_letter_grade(score):
             if score >= 4.5: return "A+"
@@ -429,11 +429,11 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
         else:
             # ----------------------------------------------------
-            # CASO A: ACCIONES (CON VOLUMEN DUAL DE YAHOO FINANCE)
+            # CASO A: ACCIONES (CON ROBUSTEZ Y FALLBACK ANTE API YFINANCE)
             # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
-                ticker_input, racha_info, est_div_growth, db_div_yield = stock_result if isinstance(stock_result, tuple) else (user_input.upper(), "Sin datos", 3.0, None)
+                ticker_input, racha_info, est_div_growth, db_div_yield, db_per, db_beta, db_payout = stock_result
                 
                 try:
                     stock = yf.Ticker(ticker_input)
@@ -449,22 +449,25 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
 
-                    per_y = info.get('trailingPE') or info.get('forwardPE') or 20.0
+                    # Robustez: si yfinance devuelve None o no trae el dato, usamos los respaldos seguros de TICKER_DB
+                    per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
                     pb_y = info.get('priceToBook') or 3.0
-                    roe_val = (info.get('returnOnEquity', 0.15) * 100)
-                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else (db_div_yield or 0.0)
+                    roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
+                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
                     bpa_y = info.get('trailingEps') or 2.0
-                    beta_val = info.get('beta') or 1.0
-                    payout_val = (info.get('payoutRatio', 0.5) * 100)
+                    beta_val = info.get('beta') or db_beta
+                    
+                    raw_payout = info.get('payoutRatio')
+                    payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
 
                     total_score = 0
                     if st.session_state.sub_type == "Con dividendos":
-                        total_score += (1.0 if per_y <= 10 else (0.5 if per_y <= 25 else 0.0))
+                        total_score += (1.0 if per_y <= 15 else (0.5 if per_y <= 25 else 0.0))
                         total_score += (1.0 if beta_val < 1.0 else (0.5 if beta_val <= 1.1 else 0.0))
-                        total_score += (1.0 if (0 <= div_y_val <= 6.0) else (0.5 if (6.0 < div_y_val <= 9.0) else 0.0))
-                        total_score += (1.0 if (35.0 <= payout_val <= 75.0) else 0.0)
-                        total_score += (1.0 if est_div_growth > 3.0 else 0.5)
+                        total_score += (1.0 if (0 <= div_y_val <= 7.0) else (0.5 if (7.0 < div_y_val <= 9.0) else 0.0))
+                        total_score += (1.0 if (35.0 <= payout_val <= 80.0) else 0.0)
+                        total_score += (1.0 if est_div_growth >= 3.0 else 0.5)
                     else:
                         total_score += (1.0 if per_y <= 25 else 0.5)
                         total_score += (1.0 if pfcf_y <= 20 else 0.5)
@@ -520,7 +523,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos de la acción: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON BÚSQUEDA LIBRE Y DATOS YFINANCE)
+            # CASO B: FONDOS INDEXADOS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
@@ -777,7 +780,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten in cuenta el recargo por cambio de divisa de tu bróker.")
+                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
