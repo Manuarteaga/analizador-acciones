@@ -1,6 +1,6 @@
 import streamlit as st
 import yfinance as yf
-import pandas m pd
+import pandas as pd
 import io
 
 # ----------------------------------------------------
@@ -359,36 +359,36 @@ def main():
                         
                         neto_total_periodo += neto_aportado
 
-                rent_media_pond = sum([a["rentabilidad"] - a["ter"] for a in activos_config]) / len(activos_config)
-                tasa_periodica_global = (rent_media_pond / 100.0) / periodos_por_ano
+            rent_media_pond = sum([a["rentabilidad"] - a["ter"] for a in activos_config]) / len(activos_config)
+            tasa_periodica_global = (rent_media_pond / 100.0) / periodos_por_ano
 
-                if periodo > 1:
-                    saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global) + neto_total_periodo
-                else:
-                    saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
+            if periodo > 1:
+                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global) + neto_total_periodo
+            else:
+                saldo_global_neto = saldo_global_neto * (1 + tasa_periodica_global)
 
-                if hay_activo_distribucion and periodo % periodos_por_ano == 0:
-                    pesos_dist = sum([1 for a in activos_config if a["es_distribucion"]]) / len(activos_config)
-                    dividendo_periodo_bruto = (saldo_global_neto * pesos_dist) * 0.03
-                    acum_dividendos_brutos += dividendo_periodo_bruto
+            if hay_activo_distribucion and periodo % periodos_por_ano == 0:
+                pesos_dist = sum([1 for a in activos_config if a["es_distribucion"]]) / len(activos_config)
+                dividendo_periodo_bruto = (saldo_global_neto * pesos_dist) * 0.03
+                acum_dividendos_brutos += dividendo_periodo_bruto
 
-                if periodo % periodos_por_ano == 0:
-                    ano_actual = periodo // periodos_por_ano
-                    total_costes_acum = acum_broker_global + acum_spread_global + acum_fx_global
-                    intereses_brutos = saldo_global_neto - (total_aportado_acumulado - total_costes_acum)
+            if periodo % periodos_por_ano == 0:
+                ano_actual = periodo // periodos_por_ano
+                total_costes_acum = acum_broker_global + acum_spread_global + acum_fx_global
+                intereses_brutos = saldo_global_neto - (total_aportado_acumulado - total_costes_acum)
 
-                    fila_historial = {
-                        "Año": f"Año {ano_actual}",
-                        "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
-                        "Comisiones Bróker (€)": round(acum_broker_global, 2),
-                        "Coste Spread / Divisa (€)": round(acum_spread_global + acum_fx_global, 2),
-                        "Beneficio Bruto (€)": round(max(0.0, intereses_brutos), 2),
-                        "Capital Total Bruto (€)": round(saldo_global_neto, 2)
-                    }
-                    if hay_activo_distribucion:
-                        fila_historial["Dividendos Brutos Acumulados (€)"] = round(acum_dividendos_brutos, 2)
-                    
-                    historial_cartera_indiv.append(fila_historial)
+                fila_historial = {
+                    "Año": f"Año {ano_actual}",
+                    "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
+                    "Comisiones Bróker (€)": round(acum_broker_global, 2),
+                    "Coste Spread / Divisa (€)": round(acum_spread_global + acum_fx_global, 2),
+                    "Beneficio Bruto (€)": round(max(0.0, intereses_brutos), 2),
+                    "Capital Total Bruto (€)": round(saldo_global_neto, 2)
+                }
+                if hay_activo_distribucion:
+                    fila_historial["Dividendos Brutos Acumulados (€)"] = round(acum_dividendos_brutos, 2)
+                
+                historial_cartera_indiv.append(fila_historial)
 
             if historial_cartera_indiv:
                 final_c = historial_cartera_indiv[-1]
@@ -541,7 +541,7 @@ def main():
             else:
                 st.title("🔍 Evaluación de ETF Específico")
                 etf_name = st.selectbox("Selecciona un ETF:", options=[e["name"] for e in ETF_DB.values()])
-                st.info(f带宽f"Has seleccionado: **{etf_name}**. Configura tus parámetros en la cartera multi-activo para un desglose completo de costes y bróker.")
+                st.info(f"Has seleccionado: **{etf_name}**. Configura tus parámetros en la cartera multi-activo para un desglose completo de costes y bróker.")
 
 if __name__ == '__main__':
     main()
