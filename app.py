@@ -13,14 +13,28 @@ st.markdown("""
         color: #f3f4f6;
     }
     
-    /* Contenedores personalizados para métricas */
-    div.metric-box {
+    /* Tarjetas de Métricas Corporativas (KPIs) */
+    .metric-card-pro {
         background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
         border: 1px solid #374151;
-        padding: 16px;
+        padding: 18px;
         border-radius: 12px;
         text-align: center;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        margin-bottom: 10px;
+    }
+    .metric-title-pro {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #9ca3af;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
+    .metric-value-pro {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f9fafb;
     }
     
     /* Tarjeta Destacada de Ahorro Líquido Real */
@@ -426,48 +440,62 @@ elif st.session_state.stage == 'analyzer':
             st.markdown("---")
             st.subheader("📊 Resultados Globales")
 
-            # Tarjetas de Métricas con Contenedor Profesional
+            # Tarjetas de Métricas profesionales en formato HTML puro seguro
             col_m1, col_m2, col_m3, col_m4, col_m5 = st.columns(5)
             
             with col_m1:
-                with st.container():
-                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                    st.metric("Capital Acumulado", f"{final_c['Capital Total Bruto (€)']:,.0f} €")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="metric-card-pro">
+                        <div class="metric-title-pro">Capital Acumulado</div>
+                        <div class="metric-value-pro">{final_c['Capital Total Bruto (€)']:,.0f} €</div>
+                    </div>
+                ''', unsafe_allow_html=True)
             with col_m2:
-                with st.container():
-                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                    st.metric("Aportado Bruto", f"{final_c['Capital Aportado Bruto (€)']:,.0f} €")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="metric-card-pro">
+                        <div class="metric-title-pro">Aportado Bruto</div>
+                        <div class="metric-value-pro">{final_c['Capital Aportado Bruto (€)']:,.0f} €</div>
+                    </div>
+                ''', unsafe_allow_html=True)
             with col_m3:
-                with st.container():
-                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                    st.metric("Total Costes", f"{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="metric-card-pro">
+                        <div class="metric-title-pro">Total Costes</div>
+                        <div class="metric-value-pro">{(final_c['Comisiones Bróker (€)'] + final_c['Coste Spread / Divisa (€)']):,.2f} €</div>
+                    </div>
+                ''', unsafe_allow_html=True)
             with col_m4:
-                with st.container():
-                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                    st.metric("Beneficio Bruto", f"{beneficio_bruto_f:,.0f} €")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="metric-card-pro">
+                        <div class="metric-title-pro">Beneficio Bruto</div>
+                        <div class="metric-value-pro">{beneficio_bruto_f:,.0f} €</div>
+                    </div>
+                ''', unsafe_allow_html=True)
             with col_m5:
-                with st.container():
-                    st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                    st.metric("Impuestos (19%)", f"{(impuestos_plusvalia + impuestos_dividendos):,.2f} €")
-                    st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown(f'''
+                    <div class="metric-card-pro">
+                        <div class="metric-title-pro">Impuestos (19%)</div>
+                        <div class="metric-value-pro">{(impuestos_plusvalia + impuestos_dividendos):,.2f} €</div>
+                    </div>
+                ''', unsafe_allow_html=True)
 
             if hay_activo_distribucion:
                 st.info("ℹ️ Activo de **Distribución** detectado: Los dividendos netos cobrados se han integrado al saldo líquido total.")
                 dm1, dm2 = st.columns(2)
                 with dm1:
-                    with st.container():
-                        st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                        st.metric("💰 Dividendos Brutos", f"{acum_dividendos_brutos:,.2f} €")
-                        st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(f'''
+                        <div class="metric-card-pro">
+                            <div class="metric-title-pro">💰 Dividendos Brutos</div>
+                            <div class="metric-value-pro">{acum_dividendos_brutos:,.2f} €</div>
+                        </div>
+                    ''', unsafe_allow_html=True)
                 with dm2:
-                    with st.container():
-                        st.markdown('<div class="metric-box">', unsafe_allow_html=True)
-                        st.metric("💵 Dividendos Netos (19%)", f"{dividendos_netos:,.2f} €")
-                        st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown(f'''
+                        <div class="metric-card-pro">
+                            <div class="metric-title-pro">💵 Dividendos Netos (19%)</div>
+                            <div class="metric-value-pro">{dividendos_netos:,.2f} €</div>
+                        </div>
+                    ''', unsafe_allow_html=True)
 
             # Contenedor Destacado Principal para el Ahorro Líquido
             st.markdown(f"""
