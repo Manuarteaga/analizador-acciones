@@ -486,7 +486,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al procesar los datos de la acción: {e}")
 
             # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON INVERSIÓN INICIAL CON COMISIÓN Y PERIÓDICAS A 0€)
+            # CASO B: FONDOS INDEXADOS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"] == user_input or key in user_input.lower()), None)
@@ -650,7 +650,7 @@ elif st.session_state.stage == 'analyzer':
                             st.dataframe(df_sim_f, use_container_width=True)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (CON INVERSIÓN INICIAL CON COMISIÓN Y PERIÓDICAS A 0€)
+            # CASO C: ETFS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"] == user_input or data["name"] in user_input), None)
@@ -714,7 +714,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [etf_cat, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten in cuenta el recargo por cambio de divisa de tu bróker.")
+                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
 
                 st.markdown("### 📝 Perspectiva Analítica y Veredicto")
                 if score_etf >= 4.0:
@@ -834,7 +834,7 @@ elif st.session_state.stage == 'analyzer':
 
                         m1, m2, m3, m4, m5 = st.columns(5)
                         m1.metric("Capital Neto Acumulado", f"{final_result['Capital Total Neto (€)']:,.2f} €")
-                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
+                        m2.metric("Total Aportado Bruto", f"{final_result['Capital Total Neto (€)']:,.2f} €")
                         m3.metric("Total Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
                         m4.metric("Beneficio Neto", f"{beneficio_bruto_final_e:,.2f} €")
                         m5.metric("Beneficio Neto - Impuestos (19%)", f"{beneficio_neto_impuestos_e:,.2f} €")
