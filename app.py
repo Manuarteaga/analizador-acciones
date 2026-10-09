@@ -675,7 +675,7 @@ elif st.session_state.stage == 'analyzer':
                             st.session_state.history.append(entry_record_f)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (BÚSQUEDA Y VOLUMEN REAL DE YAHOO FINANCE)
+            # CASO C: ETFS (BÚSQUEDA Y VOLUMEN DUAL DE YAHOO FINANCE)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
@@ -709,18 +709,21 @@ elif st.session_state.stage == 'analyzer':
                     age_etf = 5
 
                 etf_price = None
-                etf_volume = None
+                last_volume = None
+                avg_monthly_volume = None
                 try:
                     etf_stock = yf.Ticker(etf_ticker)
-                    etf_hist = etf_stock.history(period="5d")
+                    etf_hist = etf_stock.history(period="3mo")
                     if not etf_hist.empty:
                         etf_price = etf_hist['Close'].iloc[-1]
-                        etf_volume = int(etf_hist['Volume'].iloc[-1])
+                        last_volume = int(etf_hist['Volume'].iloc[-1])
+                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) # Media últimos ~20 días hábiles (aprox 1 mes)
                 except:
                     pass
 
                 price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
-                volume_display_etf = f"{etf_volume:,.0f} títulos/día" if etf_volume is not None and etf_volume > 0 else "No disponible en tiempo real"
+                last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
+                avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
 
                 score_etf = 0
                 max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.15
@@ -744,10 +747,10 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Tabla con el volumen real de Yahoo Finance en sustitución
+                # Tabla con ambos volúmenes (última sesión y media mensual)
                 df_etf_data = {
-                    "Métrica del ETF": ["Volumen Diario (Yahoo Finance)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [volume_display_etf, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
+                    "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
                 st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
