@@ -179,7 +179,7 @@ ETF_BROKER_PROFILES = {
     }
 }
 
-# Sidebar común para historial y número de entradas actualizado
+# Sidebar común para historial
 with st.sidebar:
     st.header("📊 Historial de Sesión")
     num_entries = len(st.session_state.history)
@@ -676,7 +676,7 @@ elif st.session_state.stage == 'analyzer':
                             st.session_state.history.append(entry_record_f)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (BÚSQUEDA Y FIABILIDAD YAHOO FINANCE)
+            # CASO C: ETFS (PUNTUACIÓN BASADA EN LIQUIDEZ Y MERCADO)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
@@ -720,45 +720,59 @@ elif st.session_state.stage == 'analyzer':
 
                 price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
 
+                # Puntuación basada estrictamente en Liquidez de Mercado (AUM, Réplica, Tracking Error)
                 score_etf = 0
-                max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.15
-                score_etf += (1.0 if ter_etf <= max_ter_threshold else (0.5 if ter_etf <= 0.70 else 0.0))
-                score_etf += (1.0 if aum_etf > 1000 else (0.5 if aum_etf >= 200 else 0.0))
-                score_etf += (1.0 if "Física" in repl_etf and te_etf <= 0.10 else 0.5)
-                score_etf += (1.0 if curr_etf == "EUR" else 0.5)
-                score_etf += (1.0 if age_etf > 5 else (0.5 if age_etf >= 2 else 0.0))
+                # 1. Criterio de Tamaño / Liquidez (AUM): Mayor a 5.000M€ otorga máxima puntuación por liquidez institucional
+                if aum_etf >= 5000: score_etf += 1.5
+                elif aum_etf >= 1000: score_etf += 1.0
+                elif aum_etf >= 300: score_etf += 0.5
+                else: score_etf += 0.0
+
+                # 2. Criterio de Eficiencia de Costes (TER)
+                max_ter_threshold = 0.50 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.20
+                if ter_etf <= max_ter_threshold: score_etf += 1.0
+                elif ter_etf <= 0.45: score_etf += 0.5
+
+                # 3. Criterio de Réplica y Tracking Error (Fidelidad y liquidez subyacente)
+                if "Física" in repl_etf and te_etf <= 0.05: score_etf += 1.0
+                elif "Física" in repl_etf: score_etf += 0.75
+                else: score_etf += 0.25
+
+                # 4. Criterio de Estabilidad / Antigüedad en mercado
+                if age_etf >= 5: score_etf += 1.0
+                elif age_etf >= 2: score_etf += 0.5
+
+                # Normalizar la puntuación a un máximo de 5.0
+                score_etf = min(5.0, score_etf)
 
                 grade_etf = get_letter_grade(score_etf)
                 deg_etf = int((score_etf / 5.0) * 360)
                 color_etf = "#22c55e" if score_etf >= 4.0 else ("#eab308" if score_etf >= 3.0 else "#ef4444")
-                verdict_etf = "ETF ALTAMENTE EFICIENTE / ÓPTIMO" if score_etf >= 4.0 else "ETF ADECUADO"
+                verdict_etf = "ETF DE ALTA LIQUIDEZ Y EFICIENCIA ÓPTIMA" if score_etf >= 4.0 else "ETF ADECUADO"
 
                 st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
                 st.markdown(f"""
                 <div class="score-container">
-                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación de Liquidez</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                # Número de entradas actualizado para la tabla de métricas del ETF
-                current_entries_count = len(st.session_state.history) + 1
-
                 df_etf_data = {
-                    "Métrica del ETF": ["Número de Entradas", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [str(current_entries_count), f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica de Liquidez y Mercado": ["Patrimonio (AUM)", "TER (Gastos Anuales)", "Tipo de Réplica", "Tracking Error", "Categoría", "Antigüedad"],
+                    "Valor Actual": [f"{aum_etf:,.0f} M€", f"{ter_etf:.2f}% anual", repl_etf, f"{te_etf:.2f}%", etf_cat, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
                 st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
 
-                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
+                st.markdown("### 📝 Perspectiva Analítica de Liquidez")
                 if score_etf >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Excelente combinación en su categoría temática, adecuada capitalización y sólida estructura de réplica.")
+                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* El fondo cuenta con un gran patrimonio bajo gestión (AUM de {aum_etf:,.0f} M€), lo que asegura estrechos diferenciales de compraventa y solidez a largo plazo.")
                 elif score_etf >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sectorial/temático apto para satélites de cartera, con ligera penalización en costes o volatilidad.")
+                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Activo con niveles de liquidez aceptables en mercado secundario, aunque con menor capitalización o ligeramente mayor tracking error.")
                 else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes elevados o el escaso patrimonio penalizan la eficiencia de este fondo sectorial.")
+                    st.error(f"🔴 **VEREDICTO: LIQUIDEZ BAJA O COSTES ELEVADOS**\n\n*Justificación:* Un AUM reducido o comisiones altas penalizan la eficiencia de contratación de este producto.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA ETFS
                 st.markdown("---")
