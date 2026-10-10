@@ -197,20 +197,20 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "Vanguard Global Stock", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8},
-    "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "ticker": "Vanguard S&P 500", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12},
-    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "ticker": "Amundi MSCI World", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7}
+    "vanguard global stock acc": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "Vanguard Global Stock", "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 4500, "tracking_error": 0.08, "age_years": 8, "currency": "EUR", "is_dist": False},
+    "vanguard s&p 500 acc": {"name": "Vanguard S&P 500 Stock Index Fund EUR Acc", "ticker": "Vanguard S&P 500", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 38000, "tracking_error": 0.03, "age_years": 12, "currency": "EUR", "is_dist": False},
+    "amundi msci world acc": {"name": "Amundi Index MSCI World AE-C", "ticker": "Amundi MSCI World", "category": "Renta Variable Global (MSCI World)", "ter": 0.30, "aum": 3200, "tracking_error": 0.12, "age_years": 7, "currency": "EUR", "is_dist": False}
 }
 
 ETF_DB = {
-    "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF (Acc)", "ticker": "VWCE.DE", "category": "Renta Variable Global", "ter": 0.22, "aum": 12500, "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 6},
-    "spyl.de": {"name": "SPDR S&P 500 UCITS ETF (Acc)", "ticker": "SPYL.DE", "category": "Renta Variable EE.UU.", "ter": 0.03, "aum": 8200, "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 3},
-    "sgld.l": {"name": "iShares Physical Gold ETC", "ticker": "SGLD.L", "category": "Materias Primas (Oro Físico)", "ter": 0.15, "aum": 14500, "replication": "Física (Lingotes)", "te": 0.01, "currency": "USD", "age_years": 11},
-    "IEMG": {"name": "iShares Core MSCI Emerging Markets IMI ETF", "ticker": "IEMG", "category": "Empresas Emergentes", "ter": 0.09, "aum": 78000, "replication": "Física (Muestreo)", "te": 0.06, "currency": "USD", "age_years": 12},
-    "qdve.de": {"name": "iShares S&P 500 Information Technology Sector ETF", "ticker": "QDVE.DE", "category": "Tecnología", "ter": 0.15, "aum": 4200, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 6},
-    "INRG.MI": {"name": "iShares Global Clean Energy UCITS ETF", "ticker": "INRG.MI", "category": "Energías Renovables", "ter": 0.65, "aum": 2800, "replication": "Física (Completa)", "te": 0.18, "currency": "EUR", "age_years": 15},
-    "EXV1.DE": {"name": "iShares STOXX Europe 600 Utilities UCITS ETF", "ticker": "EXV1.DE", "category": "Eléctricas y Utilities", "ter": 0.46, "aum": 1100, "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 20},
-    "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10}
+    "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF (Acc)", "ticker": "VWCE.DE", "category": "Renta Variable Global", "ter": 0.22, "aum": 12500, "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 6, "is_dist": False},
+    "spyl.de": {"name": "SPDR S&P 500 UCITS ETF (Acc)", "ticker": "SPYL.DE", "category": "Renta Variable EE.UU.", "ter": 0.03, "aum": 8200, "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 3, "is_dist": False},
+    "sgld.l": {"name": "iShares Physical Gold ETC", "ticker": "SGLD.L", "category": "Materias Primas (Oro Físico)", "ter": 0.15, "aum": 14500, "replication": "Física (Lingotes)", "te": 0.01, "currency": "USD", "age_years": 11, "is_dist": False},
+    "IEMG": {"name": "iShares Core MSCI Emerging Markets IMI ETF", "ticker": "IEMG", "category": "Empresas Emergentes", "ter": 0.09, "aum": 78000, "replication": "Física (Muestreo)", "te": 0.06, "currency": "USD", "age_years": 12, "is_dist": False},
+    "qdve.de": {"name": "iShares S&P 500 Information Technology Sector ETF", "ticker": "QDVE.DE", "category": "Tecnología", "ter": 0.15, "aum": 4200, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 6, "is_dist": False},
+    "INRG.MI": {"name": "iShares Global Clean Energy UCITS ETF", "ticker": "INRG.MI", "category": "Energías Renovables", "ter": 0.65, "aum": 2800, "replication": "Física (Completa)", "te": 0.18, "currency": "EUR", "age_years": 15, "is_dist": False},
+    "EXV1.DE": {"name": "iShares STOXX Europe 600 Utilities UCITS ETF", "ticker": "EXV1.DE", "category": "Eléctricas y Utilities", "ter": 0.46, "aum": 1100, "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 20, "is_dist": False},
+    "VHYL.DE": {"name": "Vanguard FTSE All-World High Dividend Yield ETF", "ticker": "VHYL.DE", "category": "Dividendos Globales", "ter": 0.29, "aum": 4100, "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True}
 }
 
 FUND_BROKER_PROFILES = {
@@ -358,7 +358,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA) CON TABLAS ANUALES DESGLOSADAS
+# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA) CON DIVIDENDOS CONDICIONALES Y DIVISAS CORREGIDAS
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
@@ -384,10 +384,17 @@ elif st.session_state.stage == 'portfolio_view':
         total_capital_bruto_acum = 0.0
         total_capital_aportado_acum = 0.0
         total_costes_acum = 0.0
+        total_dividendos_brutos_acum = 0.0
+        has_dividend_asset = False
 
         for idx, item in enumerate(st.session_state.portfolio):
             is_etf_or_stock = item['type'] in ["ETF", "Acción"]
             broker_profiles = ETF_BROKER_PROFILES if is_etf_or_stock else FUND_BROKER_PROFILES
+            
+            if item.get('is_dist', False) or item.get('type') == "Acción":
+                has_dividend_asset = True
+
+            currency_act = item.get('currency', 'EUR')
             
             with st.expander(f"{idx+1}. {item['name']} ({item['ticker']}) - [{item['type']}]", expanded=True):
                 col_b1, col_b2 = st.columns(2)
@@ -413,7 +420,9 @@ elif st.session_state.stage == 'portfolio_view':
                 f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
                 f_fix = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_fixed"]
                 f_spr = b_data["spread_percent"]
-                f_fx = b_data["fx_fee_percent"]
+                
+                # Corrección de divisa: si es EUR, la comisión de cambio de divisa (FX) es 0%
+                f_fx = 0.0 if currency_act == "EUR" else b_data["fx_fee_percent"]
 
                 ter_val = item.get('ter', 0.20)
                 periodos_ano = 12 if frecuencia_cartera == "Mensual" else 1
@@ -432,6 +441,7 @@ elif st.session_state.stage == 'portfolio_view':
                 acum_s = c_spread_ini
                 acum_f = c_fx_ini
 
+                div_bruto_activo = 0.0
                 historial_activo = []
 
                 for p in range(1, tot_periodos + 1):
@@ -455,6 +465,11 @@ elif st.session_state.stage == 'portfolio_view':
                         costes_tot_act = acum_b + acum_s + acum_f
                         int_brutos = saldo_act - (total_aport_acum - costes_tot_act)
                         
+                        # Si es activo de distribución o acción, estimamos dividendos anuales (ej. 2.5% del saldo)
+                        if item.get('is_dist', False) or item.get('type') == "Acción":
+                            div_bruto_anual = saldo_act * 0.025
+                            div_bruto_activo += div_bruto_anual
+
                         historial_activo.append({
                             "Año": f"Año {ano_act}",
                             "Capital Aportado Bruto (€)": round(total_aport_acum, 2),
@@ -472,6 +487,7 @@ elif st.session_state.stage == 'portfolio_view':
                 total_capital_bruto_acum += saldo_act
                 total_capital_aportado_acum += total_aport_acum
                 total_costes_acum += (acum_b + acum_s + acum_f)
+                total_dividendos_brutos_acum += div_bruto_activo
 
         if st.session_state.portfolio:
             capital_neto_aportado = total_capital_aportado_acum - total_costes_acum
@@ -483,12 +499,23 @@ elif st.session_state.stage == 'portfolio_view':
             st.markdown("---")
             st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
 
-            m1, m2, m3, m4, m5 = st.columns(5)
-            m1.metric("Capital Invertido Bruto", f"{total_capital_aportado_acum:,.2f} €")
-            m2.metric("Total Costes Bróker", f"{total_costes_acum:,.2f} €")
-            m3.metric("Beneficio Bruto Consolidado", f"{beneficio_bruto_global:,.2f} €")
-            m4.metric("Impuestos Estimados (19%)", f"{impuestos_globales:,.2f} €")
-            m5.metric("Beneficio Neto Libre de Impuestos", f"{beneficio_neto_global:,.2f} €")
+            if has_dividend_asset:
+                div_neto_global = total_dividendos_brutos_acum * (1 - 0.19)
+                m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
+                m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
+                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
+                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
+                m6.metric("Total Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
+                m7.metric("Total Div. Netos", f"{div_neto_global:,.2f} €")
+            else:
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
+                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
+                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
 
             st.markdown(f"""
             <div class="final-net-card">
@@ -635,10 +662,7 @@ elif st.session_state.stage == 'analyzer':
                         if not valid_closes.empty:
                             current_price = float(valid_closes.iloc[-1])
 
-                    last_volume = int(hist_price['Volume'].iloc[-1]) if not hist_price.empty and 'Volume' in hist_price.columns and not pd.isna(hist_price['Volume'].iloc[-1]) else None
-                    avg_monthly_volume = int(hist_price['Volume'].tail(20).mean()) if not hist_price.empty and 'Volume' in hist_price.columns else None
                     info = stock.info or {}
-
                     name = info.get('longName', user_input.title())
                     currency_symbol = '$' if info.get('currency') == 'USD' else '€'
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
@@ -668,7 +692,9 @@ elif st.session_state.stage == 'analyzer':
                                 "name": name,
                                 "ticker": ticker_input,
                                 "est_rent": 8.0,
-                                "ter": 0.0
+                                "ter": 0.0,
+                                "currency": info.get('currency', 'EUR'),
+                                "is_dist": True
                             })
                             st.success(f"¡{name} añadido a tu Cartera!")
 
@@ -702,12 +728,16 @@ elif st.session_state.stage == 'analyzer':
                     aum_val = matched_fund["aum"]
                     te_val = matched_fund["tracking_error"]
                     age_val = matched_fund["age_years"]
+                    curr_fund = matched_fund["currency"]
+                    is_dist_fund = matched_fund["is_dist"]
                 else:
                     fund_name = user_input
                     ter_val = 0.20
                     aum_val = 2000
                     te_val = 0.08
                     age_val = 5
+                    curr_fund = "EUR"
+                    is_dist_fund = False
 
                 score_fund = 4.2
                 grade_fund = get_letter_grade(score_fund)
@@ -725,7 +755,9 @@ elif st.session_state.stage == 'analyzer':
                             "name": fund_name,
                             "ticker": "FONDO",
                             "est_rent": 7.5,
-                            "ter": ter_val
+                            "ter": ter_val,
+                            "currency": curr_fund,
+                            "is_dist": is_dist_fund
                         })
                         st.success(f"¡{fund_name} añadido a tu Cartera!")
 
@@ -739,8 +771,8 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 df_fund_data = {
-                    "Métrica del Fondo": ["TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error"],
-                    "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%"]
+                    "Métrica del Fondo": ["TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
+                    "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
@@ -766,7 +798,7 @@ elif st.session_state.stage == 'analyzer':
                     fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
                     ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
                     fspr = b_f_data["spread_percent"]
-                    ffx = b_f_data["fx_fee_percent"]
+                    ffx = 0.0 if curr_fund == "EUR" else b_f_data["fx_fee_percent"]
 
                     per_ano_f = 12 if freq_f == "Mensual" else 1
                     t_neta_f = rent_f - ter_val
@@ -857,6 +889,7 @@ elif st.session_state.stage == 'analyzer':
                     te_etf = matched_etf["te"]
                     curr_etf = matched_etf["currency"]
                     age_etf = matched_etf["age_years"]
+                    is_dist_etf = matched_etf["is_dist"]
                 else:
                     etf_ticker = user_input.upper()
                     try:
@@ -874,6 +907,7 @@ elif st.session_state.stage == 'analyzer':
                     repl_etf = "Física"
                     te_etf = 0.05
                     age_etf = 5
+                    is_dist_etf = False
 
                 etf_price = None
                 last_volume = None
@@ -911,7 +945,9 @@ elif st.session_state.stage == 'analyzer':
                             "name": etf_name,
                             "ticker": etf_ticker,
                             "est_rent": 7.5,
-                            "ter": ter_etf
+                            "ter": ter_etf,
+                            "currency": curr_etf,
+                            "is_dist": is_dist_etf
                         })
                         st.success(f"¡{etf_name} añadido a tu Cartera!")
 
@@ -952,7 +988,7 @@ elif st.session_state.stage == 'analyzer':
                     epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
                     efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
                     espr = b_e_data["spread_percent"]
-                    efx = b_e_data["fx_fee_percent"]
+                    efx = 0.0 if curr_etf == "EUR" else b_e_data["fx_fee_percent"]
 
                     per_ano_e = 12 if freq_e == "Mensual" else 1
                     t_neta_e = rent_e - ter_etf
