@@ -342,14 +342,23 @@ elif st.session_state.stage == 'analyzer':
         st.rerun()
 
     def get_trend_chain_arrows(hist_df):
-        if hist_df is None or len(hist_df) < 5:
+        if hist_df is None or len(hist_df) < 2:
             return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
-        first_p = hist_df['Close'].iloc[0]
-        last_p = hist_df['Close'].iloc[-1]
+        
+        closes = hist_df['Close'].dropna()
+        if len(closes) < 2:
+            return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+
+        first_p = float(closes.iloc[0])
+        last_p = float(closes.iloc[-1])
         pct_change = ((last_p - first_p) / first_p) * 100
-        if pct_change >= 2.0:
+
+        if pd.isna(pct_change):
+            return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+
+        if pct_change >= 1.0:
             return f'<div class="neon-chain-box"><span class="arrow-chain-up ac-1">▲</span><span class="arrow-chain-up ac-2">▲</span><span class="arrow-chain-up ac-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
-        elif pct_change <= -2.0:
+        elif pct_change <= -1.0:
             return f'<div class="neon-chain-box"><span class="arrow-chain-down ac-1">▼</span><span class="arrow-chain-down ac-2">▼</span><span class="arrow-chain-down ac-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
@@ -487,9 +496,15 @@ elif st.session_state.stage == 'analyzer':
                 try:
                     stock = yf.Ticker(ticker_input)
                     hist_price = stock.history(period="3mo")
-                    current_price = hist_price['Close'].iloc[-1] if not hist_price.empty else None
-                    last_volume = int(hist_price['Volume'].iloc[-1]) if not hist_price.empty else None
-                    avg_monthly_volume = int(hist_price['Volume'].tail(20).mean()) if not hist_price.empty else None
+                    
+                    current_price = None
+                    if not hist_price.empty and 'Close' in hist_price.columns:
+                        valid_closes = hist_price['Close'].dropna()
+                        if not valid_closes.empty:
+                            current_price = float(valid_closes.iloc[-1])
+
+                    last_volume = int(hist_price['Volume'].iloc[-1]) if not hist_price.empty and 'Volume' in hist_price.columns and not pd.isna(hist_price['Volume'].iloc[-1]) else None
+                    avg_monthly_volume = int(hist_price['Volume'].tail(20).mean()) if not hist_price.empty and 'Volume' in hist_price.columns else None
                     info = stock.info or {}
 
                     name = info.get('longName', user_input.title())
@@ -796,10 +811,12 @@ elif st.session_state.stage == 'analyzer':
                 try:
                     etf_stock = yf.Ticker(etf_ticker)
                     etf_hist = etf_stock.history(period="3mo")
-                    if not etf_hist.empty:
-                        etf_price = etf_hist['Close'].iloc[-1]
-                        last_volume = int(etf_hist['Volume'].iloc[-1])
-                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean())
+                    if not etf_hist.empty and 'Close' in etf_hist.columns:
+                        valid_c = etf_hist['Close'].dropna()
+                        if not valid_c.empty:
+                            etf_price = float(valid_c.iloc[-1])
+                        last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
+                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
                 except:
                     pass
 
@@ -834,7 +851,7 @@ elif st.session_state.stage == 'analyzer':
 
                 df_etf_data = {
                     "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% annual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
                 st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
