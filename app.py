@@ -62,7 +62,7 @@ st.markdown("""
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
 
-    /* Animación de Cadena Deslizante en Estela Neón */
+    /* Animación de Cadena Deslizante Suave y Despacio */
     .neon-stream-vertical {
         position: relative;
         width: 40px;
@@ -82,17 +82,17 @@ st.markdown("""
 
     @keyframes slideUpStream {
         0% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
-        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #22c55e, 0 0 22px #22c55e; }
         100% { top: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
     }
     @keyframes slideDownStream {
         0% { top: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
-        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #ef4444, 0 0 22px #ef4444; }
         100% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
     }
     @keyframes slideRightStream {
         0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
-        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #eab308, 0 0 20px #eab308; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #eab308, 0 0 22px #eab308; }
         100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
     }
 
@@ -103,7 +103,7 @@ st.markdown("""
         font-size: 1.6rem;
         font-weight: 900;
         color: #22c55e;
-        animation: slideUpStream 1.2s infinite linear;
+        animation: slideUpStream 2.6s infinite linear;
     }
     .arrow-item-down {
         position: absolute;
@@ -112,7 +112,7 @@ st.markdown("""
         font-size: 1.6rem;
         font-weight: 900;
         color: #ef4444;
-        animation: slideDownStream 1.2s infinite linear;
+        animation: slideDownStream 2.6s infinite linear;
     }
     .arrow-item-side {
         position: absolute;
@@ -121,13 +121,13 @@ st.markdown("""
         font-size: 1.5rem;
         font-weight: 900;
         color: #eab308;
-        animation: slideRightStream 1.4s infinite linear;
+        animation: slideRightStream 2.8s infinite linear;
     }
 
-    /* Retrasos secuenciales para formar la cadena continua */
+    /* Retrasos secuenciales amplios para que se note la estela una detrás de otra */
     .st-1 { animation-delay: 0.0s; }
-    .st-2 { animation-delay: 0.4s; }
-    .st-3 { animation-delay: 0.8s; }
+    .st-2 { animation-delay: 0.8s; }
+    .st-3 { animation-delay: 1.6s; }
 
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
