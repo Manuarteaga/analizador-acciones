@@ -160,6 +160,26 @@ st.markdown("""
         font-weight: 800;
         color: #ffffff;
     }
+
+    /* Estilos para el banner de recomendación del mes */
+    .featured-card {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        border: 1px solid #38bdf8;
+        border-radius: 12px;
+        padding: 18px;
+        margin-bottom: 10px;
+    }
+    .featured-badge {
+        background-color: #0284c7;
+        color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -198,7 +218,6 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    # --- RENTA VARIABLE GLOBAL (MSCI WORLD / ALL WORLD) ---
     "vanguard global stock acc": {
         "name": "Vanguard Global Stock Index Fund EUR Acc",
         "ticker": "IE00B03HD191",
@@ -243,7 +262,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    # --- RENTA VARIABLE ESTADOS UNIDOS (S&P 500 / US) ---
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
         "ticker": "IE0032126645",
@@ -277,7 +295,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    # --- RENTA VARIABLE MERCADOS EMERGENTES ---
     "vanguard emerging markets acc": {
         "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc",
         "ticker": "IE0031786696",
@@ -300,7 +317,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    # --- RENTA VARIABLE EUROPA ---
     "vanguard european stock acc": {
         "name": "Vanguard European Stock Index Fund EUR Acc",
         "ticker": "IE0007987690",
@@ -323,7 +339,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    # --- SMALL CAPS (PEQUEÑA CAPITALIZACIÓN) ---
     "vanguard global small cap acc": {
         "name": "Vanguard Global Small-Cap Index Fund EUR Acc",
         "ticker": "IE00B42W3504",
@@ -335,7 +350,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    # --- RENTA FIJA (BONOS) ---
     "vanguard euro eurobond acc": {
         "name": "Vanguard Euro Investment Grade Bond Index EUR Acc",
         "ticker": "IE0006945038",
@@ -361,7 +375,6 @@ FUND_DB = {
 }
 
 ETF_DB = {
-    # --- RENTA VARIABLE GLOBAL (MSCI WORLD / ALL-WORLD) ---
     "vwce.de": {
         "name": "Vanguard FTSE All-World UCITS ETF (Acc)",
         "ticker": "VWCE.DE",
@@ -398,7 +411,6 @@ ETF_DB = {
         "age_years": 3,
         "is_dist": False,
     },
-    # --- S&P 500 Y EE.UU. ---
     "sxr8.de": {
         "name": "iShares Core S&P 500 UCITS ETF (Acc)",
         "ticker": "SXR8.DE",
@@ -447,7 +459,6 @@ ETF_DB = {
         "age_years": 21,
         "is_dist": True,
     },
-    # --- DIVIDENDOS Y DISTRIBUTION ---
     "vhyl.de": {
         "name": "Vanguard FTSE All-World High Dividend Yield ETF",
         "ticker": "VHYL.DE",
@@ -472,7 +483,6 @@ ETF_DB = {
         "age_years": 18,
         "is_dist": True,
     },
-    # --- EUROPA Y SECTORES ---
     "meud.pa": {
         "name": "Amundi Core STOXX Europe 600 UCITS ETF",
         "ticker": "MEUD.PA",
@@ -497,7 +507,6 @@ ETF_DB = {
         "age_years": 9,
         "is_dist": False,
     },
-    # --- MATERIAS PRIMAS Y ORO ---
     "sgld.l": {
         "name": "iShares Physical Gold ETC",
         "ticker": "SGLD.L",
@@ -522,8 +531,7 @@ ETF_DB = {
         "age_years": 17,
         "is_dist": False,
     },
-    # --- RENTA FIJA / MONETARIOS ---
-    "c40.pa": {
+    "xeon.de": {
         "name": "Amundi Euro Liquidity / Monetario Smart EUR",
         "ticker": "XEON.DE",
         "category": "Mercado Monetario EUR (ESTR)",
@@ -554,7 +562,6 @@ ETF_BROKER_PROFILES = {
     "Personalizado (Ajustar manualmente)": {"fee_percent": 0.10, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False}
 }
 
-# --- BARRA SUPERIOR CON ACCESOS A FAVORITOS Y CARTERA ---
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
@@ -572,7 +579,6 @@ with col_tb3:
 
 st.markdown("---")
 
-# BARRA LATERAL (HISTORIAL)
 with st.sidebar:
     st.header("📊 Historial de Sesión")
     num_entries = len(st.session_state.history)
@@ -606,7 +612,7 @@ with st.sidebar:
             st.rerun()
 
 # ----------------------------------------------------
-# ETAPA 0: LANDING / PANTALLA INICIAL
+# LANDING PAGE
 # ----------------------------------------------------
 if st.session_state.stage == 'home':
     st.markdown("### ¿Qué tipo de activo quieres evaluar?")
@@ -630,8 +636,99 @@ if st.session_state.stage == 'home':
             st.session_state.stage = "sub_options"
             st.rerun()
 
+    st.markdown("---")
+
+    # ----------------------------------------------------
+    # SECCIÓN: RECOMENDADOS Y DESTACADOS DEL MES
+    # ----------------------------------------------------
+    st.markdown("### 🌟 Recomendados del Mes")
+    col_rec1, col_rec2, col_rec3 = st.columns(3)
+
+    with col_rec1:
+        st.markdown("""
+        <div class="featured-card">
+            <span class="featured-badge">Acción del Mes</span>
+            <h4 style="margin: 5px 0; color: #f8fafc;">Inditex S.A. (ITX.MC)</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Líder textil mundial con excelente generación de caja y política de dividendos creciente.</p>
+            <p style="color: #34d399; font-size: 0.9rem; font-weight: bold;">Rendimiento/Yield: ~2.8% + Crecimiento</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("➕ Añadir Inditex a Cartera", key="rec_add_itx", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": "Acción",
+                "name": "Inditex S.A.",
+                "ticker": "ITX.MC",
+                "est_rent": 8.5,
+                "ter": 0.0,
+                "currency": "EUR",
+                "is_dist": True
+            })
+            st.success("¡Inditex añadido a tu Cartera!")
+
+    with col_rec2:
+        st.markdown("""
+        <div class="featured-card">
+            <span class="featured-badge">Fondo Indexado del Mes</span>
+            <h4 style="margin: 5px 0; color: #f8fafc;">Vanguard Global Stock Acc</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Diversificación global instantánea en más de 1.500 empresas desarrolladas con un TER mínimo de 0.18%.</p>
+            <p style="color: #38bdf8; font-size: 0.9rem; font-weight: bold;">ISIN: IE00B03HD191 | TER: 0.18%</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("➕ Añadir Vanguard Global a Cartera", key="rec_add_vg", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": "Fondo Indexado",
+                "name": "Vanguard Global Stock Index Fund EUR Acc",
+                "ticker": "IE00B03HD191",
+                "est_rent": 7.5,
+                "ter": 0.18,
+                "currency": "EUR",
+                "is_dist": False
+            })
+            st.success("¡Vanguard Global añadido a tu Cartera!")
+
+    with col_rec3:
+        st.markdown("""
+        <div class="featured-card">
+            <span class="featured-badge">ETF del Mes</span>
+            <h4 style="margin: 5px 0; color: #f8fafc;">SPDR S&P 500 UCITS ETF</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Réplica directa del índice de las 500 mayores empresas de EE.UU. con uno de los costes más bajos del mercado europeo (0.03%).</p>
+            <p style="color: #a855f7; font-size: 0.9rem; font-weight: bold;">Ticker: SPYL.DE | TER Ultra Bajo: 0.03%</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("➕ Añadir SPDR S&P 500 a Cartera", key="rec_add_spyl", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": "ETF",
+                "name": "SPDR S&P 500 UCITS ETF (Acc)",
+                "ticker": "SPYL.DE",
+                "est_rent": 8.0,
+                "ter": 0.03,
+                "currency": "EUR",
+                "is_dist": False
+            })
+            st.success("¡SPDR S&P 500 añadido a tu Cartera!")
+
+    st.markdown("---")
+
+    # ----------------------------------------------------
+    # SECCIÓN: CARRUSEL / FEED DE NOTICIAS DE LA BOLSA
+    # ----------------------------------------------------
+    st.markdown("### 📰 Noticias del Mercado Bursátil y Financiero")
+    
+    news_items = [
+        {"title": "Las bolsas europeas cierran al alza impulsadas por el sector tecnológico e industrial.", "source": "Mercados", "time": "Hace 2 horas"},
+        {"title": "La Reserva Federal evalúa la evolución de los tipos de interés tras los últimos datos de inflación.", "source": "Macroeconomía", "time": "Hace 4 horas"},
+        {"title": "El sector bancario europeo consolida resultados récord apoyado en el margen neto de intereses.", "source": "Banca", "time": "Hace 6 horas"},
+        {"title": "Los fondos indexados de renta variable global marcan máximos en volumen de entradas netas.", "source": "Inversión Pasiva", "time": "Hace 8 horas"}
+    ]
+
+    col_n1, col_n2 = st.columns(2)
+    for i, item in enumerate(news_items):
+        target_col = col_n1 if i % 2 == 0 else col_n2
+        with target_col:
+            st.info(f"**[{item['source']}]** {item['title']} _({item['time']})_")
+
 # ----------------------------------------------------
-# ETAPA 1: SUBOPCIONES SEGÚN EL ACTIVO SELECCIONADO
+# SECCIÓN SUBOPCIONES
 # ----------------------------------------------------
 elif st.session_state.stage == 'sub_options':
     if st.button("← Volver a selección de activos"):
@@ -688,7 +785,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# SECCIÓN DE FAVORITOS
+# SECCIÓN FAVORITOS (INCLUYE BOTÓN PARA AÑADIR A CARTERA)
 # ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
     if st.button("← Volver al Analizador"):
@@ -702,13 +799,25 @@ elif st.session_state.stage == 'favorites_view':
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
-                col_fav1, col_fav2 = st.columns([3, 1])
+                col_fav1, col_fav2, col_fav3 = st.columns([2, 1, 1])
                 with col_fav1:
                     st.markdown(f"**Categoría / Detalles:** {fav.get('category', 'General')}")
                     st.markdown(f"**TER / Coste anual:** {fav.get('ter', 0.0)}%")
                     st.markdown(f"**Divisa:** {fav.get('currency', 'EUR')}")
                 with col_fav2:
-                    if st.button("🗑️ Quitar de Favoritos", key=f"del_fav_{idx}"):
+                    if st.button("➕ Añadir a mi Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
+                        st.session_state.portfolio.append({
+                            "type": fav['type'],
+                            "name": fav['name'],
+                            "ticker": fav['ticker'],
+                            "est_rent": 7.5,
+                            "ter": fav.get('ter', 0.20),
+                            "currency": fav.get('currency', 'EUR'),
+                            "is_dist": fav.get('is_dist', False)
+                        })
+                        st.success(f"¡{fav['name']} añadido a la Cartera!")
+                with col_fav3:
+                    if st.button("🗑️ Quitar de Favoritos", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
                         st.rerun()
 
@@ -717,7 +826,7 @@ elif st.session_state.stage == 'favorites_view':
             st.rerun()
 
 # ----------------------------------------------------
-# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA)
+# SECCIÓN CARTERA CONSOLIDADA
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
@@ -885,7 +994,7 @@ elif st.session_state.stage == 'portfolio_view':
                 st.rerun()
 
 # ----------------------------------------------------
-# ETAPA 2: ANALIZADOR
+# SECCIÓN ANALIZADOR
 # ----------------------------------------------------
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
@@ -1001,9 +1110,6 @@ elif st.session_state.stage == 'analyzer':
         if not user_input:
             st.info("👆 Selecciona un activo en el buscador para comenzar.")
         else:
-            # ----------------------------------------------------
-            # CASO A: ACCIONES
-            # ----------------------------------------------------
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
                 ticker_input, racha_info, est_div_growth, db_div_yield, db_per, db_beta, db_payout = stock_result
@@ -1083,9 +1189,6 @@ elif st.session_state.stage == 'analyzer':
                 except Exception as e:
                     st.error(f"Error al obtener datos: {e}")
 
-            # ----------------------------------------------------
-            # CASO B: FONDOS INDEXADOS (CON SIMULADOR INDIVIDUAL)
-            # ----------------------------------------------------
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower() or data["ticker"].lower() == user_input.lower()), None)
                 
@@ -1158,7 +1261,6 @@ elif st.session_state.stage == 'analyzer':
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
-                # SIMULADOR INDIVIDUAL DE FONDO
                 st.markdown("---")
                 st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
                 toggle_f_sim = st.toggle("Activar calculadora individual de este fondo", value=False, key="tg_f_sim")
@@ -1255,9 +1357,6 @@ elif st.session_state.stage == 'analyzer':
                     </div>
                     """, unsafe_allow_html=True)
 
-            # ----------------------------------------------------
-            # CASO C: ETFS (CON SIMULADOR INDIVIDUAL Y DESGLOSE)
-            # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
                 
@@ -1359,7 +1458,6 @@ elif st.session_state.stage == 'analyzer':
                 }
                 st.table(pd.DataFrame(df_etf_data))
 
-                # SIMULADOR INDIVIDUAL DE ETF
                 st.markdown("---")
                 st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
                 toggle_e_sim = st.toggle("Activar calculadora individual de este ETF", value=False, key="tg_e_sim")
@@ -1403,7 +1501,7 @@ elif st.session_state.stage == 'analyzer':
 
                     for p in range(1, tot_per_e + 1):
                         if p > 1:
-                            cb = (app_p_e * (epct / 100.0)) + ffix
+                            cb = (app_p_e * (epct / 100.0)) + efix
                             cs = app_p_e * (espr / 100.0)
                             cf = app_p_e * (efx / 100.0)
                             ct = cb + cs + cf
