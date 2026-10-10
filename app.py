@@ -62,40 +62,72 @@ st.markdown("""
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
 
-    /* Animación de Cadena / Estela Neón Fluida */
-    .neon-chain-box {
-        display: flex;
-        gap: 6px;
-        justify-content: center;
-        align-items: center;
+    /* Animación de Cadena Deslizante en Estela Neón */
+    .neon-stream-vertical {
+        position: relative;
+        width: 40px;
+        height: 50px;
+        overflow: hidden;
+        display: inline-block;
+        margin: 0 auto;
+    }
+    .neon-stream-horizontal {
+        position: relative;
+        width: 70px;
+        height: 30px;
+        overflow: hidden;
+        display: inline-block;
+        margin: 0 auto;
+    }
+
+    @keyframes slideUpStream {
+        0% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e; }
+        100% { top: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
+    }
+    @keyframes slideDownStream {
+        0% { top: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; }
+        100% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
+    }
+    @keyframes slideRightStream {
+        0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
+        50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #eab308, 0 0 20px #eab308; }
+        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
+    }
+
+    .arrow-item-up {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
         font-size: 1.6rem;
         font-weight: 900;
+        color: #22c55e;
+        animation: slideUpStream 1.2s infinite linear;
     }
-    
-    @keyframes chainWaveUp {
-        0% { transform: translateY(6px); opacity: 0.1; filter: blur(2px); color: #22c55e; text-shadow: 0 0 2px #22c55e; }
-        50% { transform: translateY(0px); opacity: 1; filter: blur(0px); color: #4ade80; text-shadow: 0 0 12px #22c55e, 0 0 20px #22c55e; }
-        100% { transform: translateY(-6px); opacity: 0.1; filter: blur(2px); color: #22c55e; text-shadow: 0 0 2px #22c55e; }
+    .arrow-item-down {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: #ef4444;
+        animation: slideDownStream 1.2s infinite linear;
     }
-    @keyframes chainWaveDown {
-        0% { transform: translateY(-6px); opacity: 0.1; filter: blur(2px); color: #ef4444; text-shadow: 0 0 2px #ef4444; }
-        50% { transform: translateY(0px); opacity: 1; filter: blur(0px); color: #f87171; text-shadow: 0 0 12px #ef4444, 0 0 20px #ef4444; }
-        100% { transform: translateY(6px); opacity: 0.1; filter: blur(2px); color: #ef4444; text-shadow: 0 0 2px #ef4444; }
-    }
-    @keyframes chainWaveSide {
-        0% { transform: translateX(-6px); opacity: 0.1; filter: blur(2px); color: #eab308; text-shadow: 0 0 2px #eab308; }
-        50% { transform: translateX(0px); opacity: 1; filter: blur(0px); color: #facc15; text-shadow: 0 0 12px #eab308, 0 0 20px #eab308; }
-        100% { transform: translateX(6px); opacity: 0.1; filter: blur(2px); color: #eab308; text-shadow: 0 0 2px #eab308; }
+    .arrow-item-side {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.5rem;
+        font-weight: 900;
+        color: #eab308;
+        animation: slideRightStream 1.4s infinite linear;
     }
 
-    .arrow-chain-up { display: inline-block; animation: chainWaveUp 1.2s infinite ease-in-out; }
-    .arrow-chain-down { display: inline-block; animation: chainWaveDown 1.2s infinite ease-in-out; }
-    .arrow-chain-side { display: inline-block; animation: chainWaveSide 1.4s infinite ease-in-out; }
-
-    /* Retrasos escalonados para crear el efecto de cadena fluida */
-    .ac-1 { animation-delay: 0.0s; }
-    .ac-2 { animation-delay: 0.2s; }
-    .ac-3 { animation-delay: 0.4s; }
+    /* Retrasos secuenciales para formar la cadena continua */
+    .st-1 { animation-delay: 0.0s; }
+    .st-2 { animation-delay: 0.4s; }
+    .st-3 { animation-delay: 0.8s; }
 
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -341,27 +373,27 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
-    def get_trend_chain_arrows(hist_df):
+    def get_trend_chain_stream(hist_df):
         if hist_df is None or len(hist_df) < 2:
-            return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
         
         closes = hist_df['Close'].dropna()
         if len(closes) < 2:
-            return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
 
         first_p = float(closes.iloc[0])
         last_p = float(closes.iloc[-1])
         pct_change = ((last_p - first_p) / first_p) * 100
 
         if pd.isna(pct_change):
-            return '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
 
         if pct_change >= 1.0:
-            return f'<div class="neon-chain-box"><span class="arrow-chain-up ac-1">▲</span><span class="arrow-chain-up ac-2">▲</span><span class="arrow-chain-up ac-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-chain-box"><span class="arrow-chain-down ac-1">▼</span><span class="arrow-chain-down ac-2">▼</span><span class="arrow-chain-down ac-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
-            return f'<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
+            return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
@@ -513,7 +545,7 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                     
-                    trend_html = get_trend_chain_arrows(hist_price)
+                    trend_html = get_trend_chain_stream(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -617,7 +649,7 @@ elif st.session_state.stage == 'analyzer':
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
-                trend_html_fund = '<div class="neon-chain-box"><span class="arrow-chain-side ac-1">◄</span><span class="arrow-chain-side ac-2">►</span><span class="arrow-chain-side ac-3">◄</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
+                trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 st.markdown(f"""
@@ -824,7 +856,7 @@ elif st.session_state.stage == 'analyzer':
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                 
-                trend_html_etf = get_trend_chain_arrows(etf_hist)
+                trend_html_etf = get_trend_chain_stream(etf_hist)
 
                 score_etf = 0
                 max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
