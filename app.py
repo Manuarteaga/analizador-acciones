@@ -61,50 +61,38 @@ st.markdown("""
         0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
-    @keyframes neonChainUp {
-        0% { transform: translateY(10px); opacity: 0; filter: blur(3px); }
-        30% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e; }
-        70% { opacity: 0.8; filter: blur(0px); text-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e; }
-        100% { transform: translateY(-10px); opacity: 0; filter: blur(3px); }
+    @keyframes neonTrailUp {
+        0% { transform: translateY(8px); opacity: 0.1; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
+        50% { transform: translateY(0px); opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #22c55e, 0 0 25px #22c55e; }
+        100% { transform: translateY(-8px); opacity: 0.1; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
     }
-    @keyframes neonChainDown {
-        0% { transform: translateY(-10px); opacity: 0; filter: blur(3px); }
-        30% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; }
-        70% { opacity: 0.8; filter: blur(0px); text-shadow: 0 0 10px #ef4444, 0 0 20px #ef4444; }
-        100% { transform: translateY(10px); opacity: 0; filter: blur(3px); }
+    @keyframes neonTrailDown {
+        0% { transform: translateY(-8px); opacity: 0.1; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
+        50% { transform: translateY(0px); opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #ef4444, 0 0 25px #ef4444; }
+        100% { transform: translateY(8px); opacity: 0.1; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
     }
-    @keyframes neonChainSide {
-        0% { transform: translateX(-10px); opacity: 0; filter: blur(2px); }
-        30% { opacity: 1; filter: blur(0px); text-shadow: 0 0 10px #eab308, 0 0 20px #eab308; }
-        70% { opacity: 0.8; filter: blur(0px); text-shadow: 0 0 10px #eab308, 0 0 20px #eab308; }
-        100% { transform: translateX(10px); opacity: 0; filter: blur(2px); }
+    @keyframes neonTrailSide {
+        0% { transform: translateX(-6px); opacity: 0.2; filter: blur(1px); text-shadow: 0 0 2px #eab308; }
+        50% { transform: translateX(0px); opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #eab308, 0 0 25px #eab308; }
+        100% { transform: translateX(6px); opacity: 0.2; filter: blur(1px); text-shadow: 0 0 2px #eab308; }
     }
-    .neon-arrow-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 55px;
-        justify-content: center;
-        overflow: hidden;
-        gap: 2px;
-    }
-    .arrow-chain-up {
-        font-size: 1.8rem;
-        line-height: 1;
+    .trend-neon-bull {
+        font-size: 2.5rem;
         color: #22c55e;
-        animation: neonChainUp 1.2s infinite linear;
+        display: inline-block;
+        animation: neonTrailUp 1.4s infinite ease-in-out;
     }
-    .arrow-chain-down {
-        font-size: 1.8rem;
-        line-height: 1;
+    .trend-neon-bear {
+        font-size: 2.5rem;
         color: #ef4444;
-        animation: neonChainDown 1.2s infinite linear;
+        display: inline-block;
+        animation: neonTrailDown 1.4s infinite ease-in-out;
     }
-    .arrow-chain-side {
-        font-size: 1.8rem;
-        line-height: 1;
+    .trend-neon-side {
+        font-size: 2.5rem;
         color: #eab308;
-        animation: neonChainSide 1.5s infinite linear;
+        display: inline-block;
+        animation: neonTrailSide 1.6s infinite ease-in-out;
     }
     .final-net-card {
         background: linear-gradient(135deg, #065f46 0%, #047857 100%);
@@ -350,18 +338,18 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.sub_type = None
         st.rerun()
 
-    def get_trend_chain_arrows(hist_df):
+    def get_trend_single_neon_arrow(hist_df):
         if hist_df is None or len(hist_df) < 5:
-            return '<div class="neon-arrow-container"><div class="arrow-chain-side" style="animation-delay: 0s;">◄</div><div class="arrow-chain-side" style="animation-delay: 0.5s;">►</div></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+            return '<div class="trend-neon-side">◄ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
         first_p = hist_df['Close'].iloc[0]
         last_p = hist_df['Close'].iloc[-1]
         pct_change = ((last_p - first_p) / first_p) * 100
         if pct_change >= 2.0:
-            return f'<div class="neon-arrow-container"><div class="arrow-chain-up" style="animation-delay: 0s;">▲</div><div class="arrow-chain-up" style="animation-delay: 0.4s;">▲</div></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
+            return f'<div class="trend-neon-bull">▲</div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -2.0:
-            return f'<div class="neon-arrow-container"><div class="arrow-chain-down" style="animation-delay: 0s;">▼</div><div class="arrow-chain-down" style="animation-delay: 0.4s;">▼</div></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="trend-neon-bear">▼</div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
-            return f'<div class="neon-arrow-container"><div class="arrow-chain-side" style="animation-delay: 0s;">◄</div><div class="arrow-chain-side" style="animation-delay: 0.5s;">►</div></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
+            return f'<div class="trend-neon-side">◄ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
@@ -507,7 +495,7 @@ elif st.session_state.stage == 'analyzer':
                     last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                     avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                     
-                    trend_html = get_trend_chain_arrows(hist_price)
+                    trend_html = get_trend_single_neon_arrow(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -542,7 +530,7 @@ elif st.session_state.stage == 'analyzer':
                     st.markdown(f"""
                     <div class="score-container">
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 5px;">{trend_html}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                     </div>
@@ -611,13 +599,13 @@ elif st.session_state.stage == 'analyzer':
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
-                trend_html_fund = '<div class="neon-arrow-container"><div class="arrow-chain-side" style="animation-delay: 0s;">◄</div><div class="arrow-chain-side" style="animation-delay: 0.5s;">►</div></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
+                trend_html_fund = '<div class="trend-neon-side">◄ ►</div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
                 st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 5px;">{trend_html_fund}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
                 </div>
@@ -628,7 +616,7 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
+                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
 
                 # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
                 st.markdown("---")
@@ -816,7 +804,7 @@ elif st.session_state.stage == 'analyzer':
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                 
-                trend_html_etf = get_trend_chain_arrows(etf_hist)
+                trend_html_etf = get_trend_single_neon_arrow(etf_hist)
 
                 score_etf = 0
                 max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
@@ -835,7 +823,7 @@ elif st.session_state.stage == 'analyzer':
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 5px;">{trend_html_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia Neón</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
