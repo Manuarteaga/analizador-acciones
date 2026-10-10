@@ -358,7 +358,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA) CON SELECCIÓN DE BRÓKER
+# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA) CON TABLAS ANUALES DESGLOSADAS
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
@@ -370,7 +370,7 @@ elif st.session_state.stage == 'portfolio_view':
     if not st.session_state.portfolio:
         st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
-        st.markdown("Configura el plazo, la frecuencia y el **bróker específico** de cada activo para calcular el rendimiento neto real descontando comisiones, spreads y tributación:")
+        st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
         c_p1, c_p2 = st.columns(2)
         with c_p1:
@@ -379,7 +379,7 @@ elif st.session_state.stage == 'portfolio_view':
             frecuencia_cartera = st.selectbox("Frecuencia de Aportaciones", options=["Mensual", "Anual"], key="freq_cart")
 
         st.markdown("---")
-        st.markdown("### 📋 Desglose de Activos en tu Cartera")
+        st.markdown("### 📋 Desglose y Configuración por Activo")
 
         total_capital_bruto_acum = 0.0
         total_capital_aportado_acum = 0.0
@@ -395,7 +395,7 @@ elif st.session_state.stage == 'portfolio_view':
                     sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
                 with col_b2:
                     b_data = broker_profiles[sel_broker]
-                    plan_sc = st.checkbox("Plan periódico automatizado a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
+                    plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
 
                 col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
                 with col_i1:
@@ -410,7 +410,6 @@ elif st.session_state.stage == 'portfolio_view':
                         st.session_state.portfolio.pop(idx)
                         st.rerun()
 
-                # Parámetros de comisiones del bróker seleccionado
                 f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
                 f_fix = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_fixed"]
                 f_spr = b_data["spread_percent"]
@@ -422,25 +421,57 @@ elif st.session_state.stage == 'portfolio_view':
                 tasa_periodica = (tasa_neta / 100.0) / periodos_ano
                 tot_periodos = anos_cartera * periodos_ano
 
-                # Costes iniciales
-                c_ini = (inv_ini * (f_pct / 100.0)) + f_fix + (inv_ini * (f_spr / 100.0)) + (inv_ini * (f_fx / 100.0))
-                saldo = max(0.0, inv_ini - c_ini)
-                aport_acum = inv_ini
-                costes_act = c_ini
+                c_broker_ini = (inv_ini * (b_data["fee_percent"] / 100.0)) + b_data["fee_fixed"]
+                c_spread_ini = inv_ini * (f_spr / 100.0)
+                c_fx_ini = inv_ini * (f_fx / 100.0)
+                c_tot_ini = c_broker_ini + c_spread_ini + c_fx_ini
+
+                saldo_act = max(0.0, inv_ini - c_tot_ini)
+                total_aport_acum = inv_ini
+                acum_b = c_broker_ini
+                acum_s = c_spread_ini
+                acum_f = c_fx_ini
+
+                historial_activo = []
 
                 for p in range(1, tot_periodos + 1):
                     if p > 1:
-                        c_per = (app_per * (f_pct / 100.0)) + f_fix + (app_per * (f_spr / 100.0)) + (app_per * (f_fx / 100.0))
-                        net_app = max(0.0, app_per - c_per)
-                        aport_acum += app_per
-                        costes_act += c_per
-                        saldo = saldo * (1 + tasa_periodica) + net_app
-                    else:
-                        saldo = saldo * (1 + tasa_periodica)
+                        cb = (app_per * (f_pct / 100.0)) + f_fix
+                        cs = app_per * (f_spr / 100.0)
+                        cf = app_per * (f_fx / 100.0)
+                        ct = cb + cs + cf
 
-                total_capital_bruto_acum += saldo
-                total_capital_aportado_acum += aport_acum
-                total_costes_acum += costes_act
+                        import_neto = max(0.0, app_per - ct)
+                        total_aport_acum += app_per
+                        acum_b += cb
+                        acum_s += cs
+                        acum_f += cf
+                        saldo_act = saldo_act * (1 + tasa_periodica) + import_neto
+                    else:
+                        saldo_act = saldo_act * (1 + tasa_periodica)
+
+                    if p % periodos_ano == 0:
+                        ano_act = p // periodos_ano
+                        costes_tot_act = acum_b + acum_s + acum_f
+                        int_brutos = saldo_act - (total_aport_acum - costes_tot_act)
+                        
+                        historial_activo.append({
+                            "Año": f"Año {ano_act}",
+                            "Capital Aportado Bruto (€)": round(total_aport_acum, 2),
+                            "Comisiones Bróker (€)": round(acum_b, 2),
+                            "Coste Spread (€)": round(acum_s, 2),
+                            "Coste Cambio Divisa (€)": round(acum_f, 2),
+                            "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
+                            "Capital Total Neto (€)": round(saldo_act, 2)
+                        })
+
+                df_act = pd.DataFrame(historial_activo)
+                st.markdown("##### 📊 Desglose de crecimiento anual para este activo:")
+                st.dataframe(df_act, use_container_width=True)
+
+                total_capital_bruto_acum += saldo_act
+                total_capital_aportado_acum += total_aport_acum
+                total_costes_acum += (acum_b + acum_s + acum_f)
 
         if st.session_state.portfolio:
             capital_neto_aportado = total_capital_aportado_acum - total_costes_acum
@@ -455,9 +486,9 @@ elif st.session_state.stage == 'portfolio_view':
             m1, m2, m3, m4, m5 = st.columns(5)
             m1.metric("Capital Invertido Bruto", f"{total_capital_aportado_acum:,.2f} €")
             m2.metric("Total Costes Bróker", f"{total_costes_acum:,.2f} €")
-            m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
-            m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
-            m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
+            m3.metric("Beneficio Bruto Consolidado", f"{beneficio_bruto_global:,.2f} €")
+            m4.metric("Impuestos Estimados (19%)", f"{impuestos_globales:,.2f} €")
+            m5.metric("Beneficio Neto Libre de Impuestos", f"{beneficio_neto_global:,.2f} €")
 
             st.markdown(f"""
             <div class="final-net-card">
@@ -742,22 +773,56 @@ elif st.session_state.stage == 'analyzer':
                     t_per_f = (t_neta_f / 100.0) / per_ano_f
                     tot_per_f = anos_f * per_ano_f
 
-                    c_ini_f = (inv_i_f * (fpct / 100.0)) + ffix + (inv_i_f * (fspr / 100.0)) + (inv_i_f * (ffx / 100.0))
+                    c_broker_i_f = (inv_i_f * (b_f_data["fee_percent"] / 100.0)) + b_f_data["fee_fixed"]
+                    c_spread_i_f = inv_i_f * (fspr / 100.0)
+                    c_fx_i_f = inv_i_f * (ffx / 100.0)
+                    c_ini_f = c_broker_i_f + c_spread_i_f + c_fx_i_f
+
                     saldo_f = max(0.0, inv_i_f - c_ini_f)
                     aport_f = inv_i_f
-                    costes_f = c_ini_f
+                    a_broker_f = c_broker_i_f
+                    a_spread_f = c_spread_i_f
+                    a_fx_f = c_fx_i_f
+
+                    historial_f = []
 
                     for p in range(1, tot_per_f + 1):
                         if p > 1:
-                            cp = (app_p_f * (fpct / 100.0)) + ffix + (app_p_f * (fspr / 100.0)) + (app_p_f * (ffx / 100.0))
-                            net_app_f = max(0.0, app_p_f - cp)
+                            cb = (app_p_f * (fpct / 100.0)) + ffix
+                            cs = app_p_f * (fspr / 100.0)
+                            cf = app_p_f * (ffx / 100.0)
+                            ct = cb + cs + cf
+
+                            net_app_f = max(0.0, app_p_f - ct)
                             aport_f += app_p_f
-                            costes_f += cp
+                            a_broker_f += cb
+                            a_spread_f += cs
+                            a_fx_f += cf
                             saldo_f = saldo_f * (1 + t_per_f) + net_app_f
                         else:
                             saldo_f = saldo_f * (1 + t_per_f)
 
-                    net_aport_f = aport_f - costes_f
+                        if p % per_ano_f == 0:
+                            ano_act_f = p // per_ano_f
+                            c_tot_f = a_broker_f + a_spread_f + a_fx_f
+                            int_b_f = saldo_f - (aport_f - c_tot_f)
+                            
+                            historial_f.append({
+                                "Año": f"Año {ano_act_f}",
+                                "Capital Aportado Bruto (€)": round(aport_f, 2),
+                                "Comisiones Bróker (€)": round(a_broker_f, 2),
+                                "Coste Spread (€)": round(a_spread_f, 2),
+                                "Coste Cambio Divisa (€)": round(a_fx_f, 2),
+                                "Beneficio Neto (€)": round(max(0.0, int_b_f), 2),
+                                "Capital Total Neto (€)": round(saldo_f, 2)
+                            })
+
+                    df_sim_f = pd.DataFrame(historial_f)
+                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                        st.dataframe(df_sim_f, use_container_width=True)
+
+                    c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
+                    net_aport_f = aport_f - c_tot_acum_f
                     bruto_f = max(0.0, saldo_f - net_aport_f)
                     imp_f = bruto_f * 0.19
                     neto_f = bruto_f - imp_f
@@ -765,7 +830,7 @@ elif st.session_state.stage == 'analyzer':
 
                     fm1, fm2, fm3, fm4 = st.columns(4)
                     fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
-                    fm2.metric("Costes Totales", f"{costes_f:,.2f} €")
+                    fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
                     fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
                     fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
 
@@ -777,7 +842,7 @@ elif st.session_state.stage == 'analyzer':
                     """, unsafe_allow_html=True)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (CON MÉTRICAS COMPLETAS Y SIMULADOR INDIVIDUAL)
+            # CASO C: ETFS (CON SIMULADOR INDIVIDUAL Y DESGLOSE)
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
@@ -894,22 +959,56 @@ elif st.session_state.stage == 'analyzer':
                     t_per_e = (t_neta_e / 100.0) / per_ano_e
                     tot_per_e = anos_e * per_ano_e
 
-                    c_ini_e = (inv_i_e * (epct / 100.0)) + efix + (inv_i_e * (espr / 100.0)) + (inv_i_e * (efx / 100.0))
+                    c_broker_i_e = (inv_i_e * (b_e_data["fee_percent"] / 100.0)) + b_e_data["fee_fixed"]
+                    c_spread_i_e = inv_i_e * (espr / 100.0)
+                    c_fx_i_e = inv_i_e * (efx / 100.0)
+                    c_ini_e = c_broker_i_e + c_spread_i_e + c_fx_i_e
+
                     saldo_e = max(0.0, inv_i_e - c_ini_e)
                     aport_e = inv_i_e
-                    costes_e = c_ini_e
+                    a_broker_e = c_broker_i_e
+                    a_spread_e = c_spread_i_e
+                    a_fx_e = c_fx_i_e
+
+                    historial_e = []
 
                     for p in range(1, tot_per_e + 1):
                         if p > 1:
-                            cp = (app_p_e * (epct / 100.0)) + efix + (app_p_e * (espr / 100.0)) + (app_p_e * (efx / 100.0))
-                            net_app_e = max(0.0, app_p_e - cp)
+                            cb = (app_p_e * (epct / 100.0)) + efix
+                            cs = app_p_e * (espr / 100.0)
+                            cf = app_p_e * (efx / 100.0)
+                            ct = cb + cs + cf
+
+                            net_app_e = max(0.0, app_p_e - ct)
                             aport_e += app_p_e
-                            costes_e += cp
+                            a_broker_e += cb
+                            a_spread_e += cs
+                            a_fx_e += cf
                             saldo_e = saldo_e * (1 + t_per_e) + net_app_e
                         else:
                             saldo_e = saldo_e * (1 + t_per_e)
 
-                    net_aport_e = aport_e - costes_e
+                        if p % per_ano_e == 0:
+                            ano_act_e = p // per_ano_e
+                            c_tot_e = a_broker_e + a_spread_e + a_fx_e
+                            int_b_e = saldo_e - (aport_e - c_tot_e)
+                            
+                            historial_e.append({
+                                "Año": f"Año {ano_act_e}",
+                                "Capital Aportado Bruto (€)": round(aport_e, 2),
+                                "Comisiones Bróker (€)": round(a_broker_e, 2),
+                                "Coste Spread (€)": round(a_spread_e, 2),
+                                "Coste Cambio Divisa (€)": round(a_fx_e, 2),
+                                "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
+                                "Capital Total Neto (€)": round(saldo_e, 2)
+                            })
+
+                    df_sim_e = pd.DataFrame(historial_e)
+                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                        st.dataframe(df_sim_e, use_container_width=True)
+
+                    c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
+                    net_aport_e = aport_e - c_tot_acum_e
                     bruto_e = max(0.0, saldo_e - net_aport_e)
                     imp_e = bruto_e * 0.19
                     neto_e = bruto_e - imp_e
@@ -917,7 +1016,7 @@ elif st.session_state.stage == 'analyzer':
 
                     em1, em2, em3, em4 = st.columns(4)
                     em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                    em2.metric("Costes Totales", f"{costes_e:,.2f} €")
+                    em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
                     em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
                     em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
 
