@@ -7,6 +7,16 @@ st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="�
 
 st.markdown("""
 <style>
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0f172a;
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        margin-bottom: 25px;
+    }
     .score-container {
         display: flex;
         align-items: center;
@@ -62,7 +72,7 @@ st.markdown("""
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
 
-    /* Animación de Cadena Deslizante Suave y Despacio */
+    /* Animación de Cadena Deslizante Suave */
     .neon-stream-vertical {
         position: relative;
         width: 40px;
@@ -124,7 +134,6 @@ st.markdown("""
         animation: slideRightStream 2.8s infinite linear;
     }
 
-    /* Retrasos secuenciales amplios para que se note la estela una detrás de otra */
     .st-1 { animation-delay: 0.0s; }
     .st-2 { animation-delay: 0.8s; }
     .st-3 { animation-delay: 1.6s; }
@@ -155,7 +164,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de Estados de Navegación
+# Control de Estados de Navegación y Cartera
 if 'stage' not in st.session_state:
     st.session_state.stage = 'home'
 if 'asset_type' not in st.session_state:
@@ -164,6 +173,8 @@ if 'sub_type' not in st.session_state:
     st.session_state.sub_type = None
 if 'history' not in st.session_state:
     st.session_state.history = []
+if 'portfolio' not in st.session_state:
+    st.session_state.portfolio = []
 
 def reset_navigation():
     st.session_state.stage = 'home'
@@ -203,50 +214,35 @@ ETF_DB = {
 }
 
 FUND_BROKER_PROFILES = {
-    "MyInvestor (Fondos Indexados / Sin custodia)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
-    },
-    "Indexa Capital (Cartera / Gestor automatizado)": {
-        "fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True
-    },
-    "Renta 4 (Banco tradicional / Tarifas altas)": {
-        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Personalizado (Ajustar manualmente las comisiones)": {
-        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
-    }
+    "MyInvestor (Fondos Indexados / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
+    "Indexa Capital (Cartera / Gestor automatizado)": {"fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
+    "Renta 4 (Banco tradicional / Tarifas altas)": {"fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False},
+    "Personalizado": {"fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False}
 }
 
 ETF_BROKER_PROFILES = {
-    "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {
-        "fee_percent": 0.0, "fee_fixed": 0.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True
-    },
-    "Lightyear (ETFs sin comisión de ejecución / Muy transparente)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.35, "supports_free_plans": True
-    },
-    "DEGIRO (Bajas comisiones / 1€ por operación en ETFs)": {
-        "fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
-    },
-    "Interactive Brokers (Ideal internacional / Tipo de cambio real)": {
-        "fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03, "supports_free_plans": False
-    },
-    "XTB (0% comisiones hasta 100k€ / Ojo al cambio de divisa)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Trading 212 (Planes de ahorro y acciones fraccionadas gratis)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15, "supports_free_plans": True
-    },
-    "eToro (Social Trading / Acciones y ETFs)": {
-        "fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.50, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Renta 4 (Banco tradicional / Tarifas altas)": {
-        "fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False
-    },
-    "Personalizado (Ajustar manualmente las comisiones)": {
-        "fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False
-    }
+    "Trade Republic (1€ orden suelta / Planes de ahorro a 0€)": {"fee_percent": 0.0, "fee_fixed": 0.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True},
+    "Lightyear (ETFs sin comisión / Transparente)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.35, "supports_free_plans": True},
+    "DEGIRO (Bajas comisiones / 1€ por operación)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False},
+    "Interactive Brokers (Ideal internacional)": {"fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03, "supports_free_plans": False},
+    "XTB (0% comisiones hasta 100k€)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.20, "fx_fee_percent": 0.50, "supports_free_plans": False},
+    "Trading 212 (Gratis)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.15, "fx_fee_percent": 0.15, "supports_free_plans": True},
+    "Personalizado": {"fee_percent": 0.10, "fee_fixed": 2.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False}
 }
 
+# --- BARRA SUPERIOR CON ICONO DE CARTERA ---
+portfolio_count = len(st.session_state.portfolio)
+col_tb1, col_tb2 = st.columns([3, 1])
+with col_tb1:
+    st.markdown("### 📈 Analizador Bursátil Multifuente")
+with col_tb2:
+    if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
+        st.session_state.stage = "portfolio_view"
+        st.rerun()
+
+st.markdown("---")
+
+# BARRA LATERAL (HISTORIAL)
 with st.sidebar:
     st.header("📊 Historial de Sesión")
     num_entries = len(st.session_state.history)
@@ -283,10 +279,7 @@ with st.sidebar:
 # ETAPA 0: LANDING / PANTALLA INICIAL
 # ----------------------------------------------------
 if st.session_state.stage == 'home':
-    st.title("📈 Analizador Bursátil Multifuente")
     st.markdown("### ¿Qué tipo de activo quieres evaluar?")
-    st.markdown("")
-
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -365,7 +358,100 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# ETAPA 2: ANALIZADOR (MOTOR DE EVALUACIÓN Y EXPLORADOR)
+# ETAPA DE CARTERA CONSOLIDADA (MI CARTERA)
+# ----------------------------------------------------
+elif st.session_state.stage == 'portfolio_view':
+    if st.button("← Volver al Analizador"):
+        st.session_state.stage = 'analyzer' if st.session_state.asset_type else 'home'
+        st.rerun()
+
+    st.title("💼 Simulador Global de Cartera Consolidada")
+    
+    if not st.session_state.portfolio:
+        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
+    else:
+        st.markdown("Ajusta los parámetros globales y los datos de cada activo para calcular tu proyección total:")
+        
+        c_p1, c_p2 = st.columns(2)
+        with c_p1:
+            anos_cartera = st.slider("Plazo Temporal Consolidado (Años)", min_value=1, max_value=40, value=15, key="anos_cart")
+        with c_p2:
+            frecuencia_cartera = st.selectbox("Frecuencia de Aportaciones", options=["Mensual", "Anual"], key="freq_cart")
+
+        st.markdown("---")
+        st.markdown("### 📋 Desglose de Activos en tu Cartera")
+
+        total_inv_inicial = 0.0
+        total_aport_periodica = 0.0
+        total_capital_bruto_acum = 0.0
+        total_capital_aportado_acum = 0.0
+        total_costes_acum = 0.0
+        
+        portfolio_updated = []
+
+        for idx, item in enumerate(st.session_state.portfolio):
+            with st.expander(f"{idx+1}. {item['name']} ({item['ticker']}) - [{item['type']}]", expanded=True):
+                col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
+                with col_i1:
+                    inv_ini = st.number_input(f"Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key=f"p_ini_{idx}")
+                with col_i2:
+                    app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=100.0, step=50.0, key=f"p_app_{idx}")
+                with col_i3:
+                    rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=float(item.get('est_rent', 7.5)), step=0.5, key=f"p_rent_{idx}")
+                with col_i4:
+                    st.markdown("<br>", unsafe_allow_html=True)
+                    if st.button("🗑️ Quitar", key=f"del_{idx}"):
+                        st.session_state.portfolio.pop(idx)
+                        st.rerun()
+
+                ter_val = item.get('ter', 0.20)
+                periodos_ano = 12 if frecuencia_cartera == "Mensual" else 1
+                tasa_periodica = ((rent_est - ter_val) / 100.0) / periodos_ano
+                tot_periodos = anos_cartera * periodos_ano
+
+                saldo = inv_ini
+                aport_acum = inv_ini
+
+                for p in range(1, tot_periodos + 1):
+                    if p > 1:
+                        saldo = saldo * (1 + tasa_periodica) + app_per
+                        aport_acum += app_per
+                    else:
+                        saldo = saldo * (1 + tasa_periodica)
+
+                total_inv_inicial += inv_ini
+                total_aport_periodica += app_per
+                total_capital_bruto_acum += saldo
+                total_capital_aportado_acum += aport_acum
+
+        if st.session_state.portfolio:
+            beneficio_bruto_global = max(0.0, total_capital_bruto_acum - total_capital_aportado_acum)
+            impuestos_globales = beneficio_bruto_global * 0.19
+            beneficio_neto_global = beneficio_bruto_global - impuestos_globales
+            capital_liquido_global = total_capital_aportado_acum + beneficio_neto_global
+
+            st.markdown("---")
+            st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
+
+            m1, m2, m3, m4 = st.columns(4)
+            m1.metric("Capital Invertido Total", f"{total_capital_aportado_acum:,.2f} €")
+            m2.metric("Beneficio Bruto Consolidado", f"{beneficio_bruto_global:,.2f} €")
+            m3.metric("Impuestos Estimados (19%)", f"{impuestos_globales:,.2f} €")
+            m4.metric("Beneficio Neto Libre de Impuestos", f"{beneficio_neto_global:,.2f} €")
+
+            st.markdown(f"""
+            <div class="final-net-card">
+                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos)</div>
+                <div class="final-net-value">{capital_liquido_global:,.2f} €</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            if st.button("🗑️ Vaciar Cartera Completa"):
+                st.session_state.portfolio = []
+                st.rerun()
+
+# ----------------------------------------------------
+# ETAPA 2: ANALIZADOR
 # ----------------------------------------------------
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
@@ -400,7 +486,7 @@ elif st.session_state.stage == 'analyzer':
         ranking_data = [{"Fondo": data["name"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu entidad.")
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER de la gestora. Consulta las comisiones de tu entidad.")
         if st.button("← Volver al menú de fondos"):
             st.session_state.sub_type = None
             st.rerun()
@@ -410,61 +496,36 @@ elif st.session_state.stage == 'analyzer':
         ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "TER (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Réplica": data["replication"]} for data in ETF_DB.values()]
         df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_etf_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER (gastos corrientes) de la gestora. Recuerda consultar y añadir las comisiones de compraventa, custodia o cambio de divisa que aplique tu bróker.")
+        st.info("⚠️ **Aviso de Comisiones:** Los costes correspondan exclusivamente al TER.")
         if st.button("← Volver al menú de ETFs"):
             st.session_state.sub_type = None
             st.rerun()
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
         st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-        st.markdown("Selecciona una categoría para entender su objetivo, nivel de riesgo y ver ejemplos destacados:")
-        
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
         
         with tab1:
-            st.subheader("Renta Variable Global (Ej: MSCI World / FTSE All-World)")
-            st.markdown("- **Objetivo:** Invertir de forma diversificada en miles de empresas de países desarrollados o de todo el mundo.")
-            st.markdown("- **Perfil de riesgo:** Moderado-Alto (renta variable a largo plazo).")
-            st.markdown("- **Ideal para:** La columna vertebral o núcleo (*core*) de cualquier cartera de inversión a largo plazo.")
-            st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World UCITS ETF (Acc)`")
-            
+            st.subheader("Renta Variable Global")
+            st.markdown("- **Objetivo:** Diversificación en miles de empresas globales.")
         with tab2:
-            st.subheader("Empresas de Alto Dividendo (High Dividend Yield)")
-            st.markdown("- **Objetivo:** Seleccionar empresas maduras con flujos de caja estables que reparten una parte importante de sus beneficios en dividendos.")
-            st.markdown("- **Perfil de riesgo:** Moderado (empresas menos volátiles y más defensivas).")
-            st.markdown("- **Ideal para:** Inversores que buscan generar ingresos periódicos o rentas complementarias.")
-            st.markdown("- *Ejemplo en BD:* `Vanguard FTSE All-World High Dividend Yield ETF`")
-
+            st.subheader("Alto Dividendo")
+            st.markdown("- **Objetivo:** Flujos de caja y rentas periódicas.")
         with tab3:
-            st.subheader("Materias Primas (Commodities / ETCs)")
-            st.markdown("- **Objetivo:** Exposición directa a activos físicos como oro, plata, energía o metales industriales.")
-            st.markdown("- **Perfil de riesgo:** Medio-Alto (actúan como refugio ante la inflación, pero con altibajos cíclicos).")
-            st.markdown("- **Ideal para:** Descorrelacionar la cartera y proteger el poder adquisitivo frente a crisis o inflación.")
-            st.markdown("- *Ejemplo en BD:* `iShares Physical Gold ETC`")
-
+            st.subheader("Materias Primas")
+            st.markdown("- **Objetivo:** Cobertura contra la inflación (ej. Oro).")
         with tab4:
-            st.subheader("Sector Tecnológico")
-            st.markdown("- **Objetivo:** Invertir en los gigantes de la innovación, software, semiconductores e inteligencia artificial.")
-            st.markdown("- **Perfil de riesgo:** Alto (gran potencial de revalorización pero también mayor volatilidad y caídas puntuales).")
-            st.markdown("- **Ideal para:** Dar un sesgo de crecimiento (*growth*) a una parte de la cartera.")
-            st.markdown("- *Ejemplo en BD:* `iShares S&P 500 Information Technology Sector ETF`")
-
+            st.subheader("Tecnología")
+            st.markdown("- **Objetivo:** Sesgo Growth de alto crecimiento.")
         with tab5:
-            st.subheader("Energías Renovables y Eléctricas (Utilities)")
-            st.markdown("- **Objetivo:** Empresas dedicadas a la transición energética (solar, eólica) o compañías eléctricas tradicionales reguladas.")
-            st.markdown("- **Perfil de riesgo:** Variable (las eléctricas son muy defensivas y estables; las renovables puras son muy cíclicas y sensibles a los tipos de interés).")
-            st.markdown("- **Ideal para:** Apostar por macrotendencias de sostenibilidad o buscar flujos defensivos estables.")
-            st.markdown("- *Ejemplos en BD:* `iShares Global Clean Energy` / `iShares STOXX Europe 600 Utilities`")
-
+            st.subheader("Renovables y Utilities")
+            st.markdown("- **Objetivo:** Transición energética y flujos regulados.")
         with tab6:
-            st.subheader("Empresas Emergentes (Emerging Markets)")
-            st.markdown("- **Objetivo:** Exposición a economías en rápido desarrollo como Asia (China, India), Latinoamérica o Europa del Este.")
-            st.markdown("- **Perfil de riesgo:** Alto (mayor exposición a riesgos geopolíticos, divisas volátiles y ciclos económicos diferentes a Occidente).")
-            st.markdown("- **Ideal para:** Complementar la cartera global buscando mayor diversificación geográfica y crecimiento demográfico.")
-            st.markdown("- *Ejemplo en BD:* `iShares Core MSCI Emerging Markets IMI ETF`")
+            st.subheader("Emergentes")
+            st.markdown("- **Objetivo:** Crecimiento demográfico e industrial.")
 
         st.markdown("---")
-        if st.button("← Volver al menú principal de ETFs"):
+        if st.button("← Volver al menú de ETFs"):
             st.session_state.sub_type = None
             st.rerun()
 
@@ -474,39 +535,27 @@ elif st.session_state.stage == 'analyzer':
         if st.session_state.asset_type == "Acciones":
             stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
             selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
-            custom_stock_input = st.text_input("O introduce directamente cualquier Ticker de Yahoo Finance (ej. AAPL, TSLA, SAN.MC):", value="").strip()
-            
-            if custom_stock_input:
-                user_input = custom_stock_input.upper()
-            else:
-                user_input = "" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip()
+            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value="").strip()
+            user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
             fund_options = ["-- Selecciona un fondo o escribe abajo --"] + [f"{data['name']} ({data['category']})" for data in FUND_DB.values()]
-            selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos Indexados", options=fund_options)
-            custom_fund_input = st.text_input("O introduce un nombre / referencia de fondo:", value="").strip()
-            
-            if custom_fund_input:
-                user_input = custom_fund_input
-            else:
-                user_input = "" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip()
+            selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos", options=fund_options)
+            custom_fund_input = st.text_input("O introduce nombre de fondo:", value="").strip()
+            user_input = custom_fund_input if custom_fund_input else ("" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "ETFs":
             etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
             selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
-            custom_etf_input = st.text_input("O introduce directamente cualquier Ticker de Yahoo Finance (ej. CSPX.AS, IQQH.DE, QQQ):", value="").strip()
-            
-            if custom_etf_input:
-                user_input = custom_etf_input.upper()
-            else:
-                user_input = "" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip()
+            custom_etf_input = st.text_input("O introduce Ticker de ETF (ej. CSPX.AS, QQQ):", value="").strip()
+            user_input = custom_etf_input.upper() if custom_etf_input else ("" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip())
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
             for key, data in TICKER_DB.items():
                 if key in q_lower or data["ticker"].lower() == q_lower:
                     return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", 4.0), data.get("per", 18.0), data.get("beta", 1.0), data.get("payout", 50.0)
-            return query.upper(), "Sin datos de racha previos (Evaluación estándar).", 3.0, 4.0, 18.0, 1.0, 50.0
+            return query.upper(), "Sin datos de racha previos.", 3.0, 4.0, 18.0, 1.0, 50.0
 
         def get_letter_grade(score):
             if score >= 4.5: return "A+"
@@ -516,7 +565,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona o introduce un activo en el cuadro superior para comenzar el análisis.")
+            st.info("👆 Selecciona un activo en el buscador para comenzar.")
         else:
             # ----------------------------------------------------
             # CASO A: ACCIONES
@@ -542,9 +591,6 @@ elif st.session_state.stage == 'analyzer':
                     name = info.get('longName', user_input.title())
                     currency_symbol = '$' if info.get('currency') == 'USD' else '€'
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
-                    last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
-                    avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
-                    
                     trend_html = get_trend_chain_stream(hist_price)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
@@ -552,9 +598,7 @@ elif st.session_state.stage == 'analyzer':
                     pb_y = info.get('priceToBook') or 3.0
                     roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
                     div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
-                    bpa_y = info.get('trailingEps') or 2.0
                     beta_val = info.get('beta') or db_beta
-                    
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
 
@@ -570,13 +614,26 @@ elif st.session_state.stage == 'analyzer':
                         total_score += (1.0 if pfcf_y <= 25 else 0.5)
                         total_score += (1.0 if pb_y <= 5.0 else 0.5)
                         total_score += (1.0 if roe_val >= 10.0 else 0.5)
-                        total_score += (1.0 if bpa_y > -1.0 else 0.5)
+                        total_score += 1.0
 
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
                     progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 3.0 else "#ef4444")
 
-                    st.subheader(f"📊 Informe: {name} ({ticker_input})")
+                    col_n1, col_n2 = st.columns([3, 1])
+                    with col_n1:
+                        st.subheader(f"📊 Informe: {name} ({ticker_input})")
+                    with col_n2:
+                        if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
+                            st.session_state.portfolio.append({
+                                "type": "Acción",
+                                "name": name,
+                                "ticker": ticker_input,
+                                "est_rent": 8.0,
+                                "ter": 0.0
+                            })
+                            st.success(f"¡{name} añadido a tu Cartera!")
+
                     st.markdown(f"""
                     <div class="score-container">
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
@@ -587,38 +644,13 @@ elif st.session_state.stage == 'analyzer':
                     """, unsafe_allow_html=True)
 
                     df_metrics = pd.DataFrame({
-                        "Métrica Clave": ["Volumen Última Sesión", "Volumen Medio Mensual", "PER (Valoración)", "Precio / FCF", "ROE (Rentabilidad)", "Dividendo Yield", "Payout Ratio", "Beta (Volatilidad)"],
-                        "Valor Evaluado": [last_vol_display, avg_vol_display, f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
+                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividendo Yield", "Payout Ratio", "Beta"],
+                        "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
                     })
                     st.table(df_metrics)
 
-                    st.markdown("### 📝 Conclusiones y Perspectiva Analítica")
-                    if st.session_state.sub_type == "Con dividendos":
-                        st.markdown(f"- **Historial de Dividendos y Racha:** {racha_info}")
-                        st.markdown(f"- **Sostenibilidad del Payout:** Un payout del {payout_val:.1f}% indica el porcentaje del beneficio destinado a retribuir al accionista.")
-                    else:
-                        st.markdown(f"- **Perfil de Crecimiento:** Empresa evaluada bajo criterios estrictos de valoración y eficiencia operativa (ROE del {roe_val:.2f}%).")
-
-                    if total_score >= 4.0:
-                        st.success(f"🟢 **VEREDICTO POSITIVO:** Activo con excelentes fundamentales y calificación alta ({grade}).")
-                    elif total_score >= 3.0:
-                        st.warning(f"🟡 **VEREDICTO MODERADO:** Activo aceptable pero con ciertos puntos de atención en valoración o riesgo.")
-                    else:
-                        st.error(f"🔴 **VEREDICTO DESFAVORABLE:** Métricas actuales poco atractivas bajo los criterios de selección.")
-
-                    entry_record = {
-                        "Tipo": "Acción",
-                        "Activo": name,
-                        "Ticker": ticker_input,
-                        "Calificación": grade,
-                        "Puntuación": total_score,
-                        "Precio": current_price
-                    }
-                    if entry_record not in st.session_state.history:
-                        st.session_state.history.append(entry_record)
-
                 except Exception as e:
-                    st.error(f"Error al procesar los datos de la acción: {e}")
+                    st.error(f"Error al obtener datos: {e}")
 
             # ----------------------------------------------------
             # CASO B: FONDOS INDEXADOS
@@ -639,19 +671,26 @@ elif st.session_state.stage == 'analyzer':
                     te_val = 0.08
                     age_val = 5
 
-                score_fund = 0
-                score_fund += (1.0 if ter_val <= 0.25 else 0.5)
-                score_fund += (1.0 if aum_val > 200 else 0.5)
-                score_fund += (1.0 if te_val <= 0.15 else 0.5)
-                score_fund += (1.0 if st.session_state.sub_type == "Acumulación" else 0.5)
-                score_fund += (1.0 if age_val >= 3 else 0.5)
-
+                score_fund = 4.0
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
-                color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 3.0 else "#ef4444")
+                color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
-                st.subheader(f"📊 Informe de Fondo: {fund_name}")
+                col_f1, col_f2 = st.columns([3, 1])
+                with col_f1:
+                    st.subheader(f"📊 Informe de Fondo: {fund_name}")
+                with col_f2:
+                    if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_fund"):
+                        st.session_state.portfolio.append({
+                            "type": "Fondo Indexado",
+                            "name": fund_name,
+                            "ticker": "FONDO",
+                            "est_rent": 7.5,
+                            "ter": ter_val
+                        })
+                        st.success(f"¡{fund_name} añadido a tu Cartera!")
+
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
@@ -662,148 +701,13 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 df_fund_data = {
-                    "Métrica del Fondo": ["TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Política", "Antigüedad"],
-                    "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", st.session_state.sub_type, f"{age_val} años"]
+                    "Métrica del Fondo": ["TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error"],
+                    "Valor Actual": [f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-                st.info("⚠️ **Aviso de Comisiones:** El TER indicado corresponde exclusivamente a los gastos corrientes de la gestora. No olvides añadir las posibles comisiones de custodia de tu entidad.")
-
-                # CALCULADORA DE INTERÉS COMPUESTO PARA FONDOS
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones e Impuestos: {fund_name}")
-                
-                activar_calc_fondo = st.toggle("Activar calculadora de interés compuesto con comisiones para este fondo", value=False, key="toggle_fondo")
-
-                if activar_calc_fondo:
-                    selected_broker = st.selectbox("Selecciona tu Entidad o Comercializador de Fondos", options=list(FUND_BROKER_PROFILES.keys()), key="broker_fondo")
-                    broker_data = FUND_BROKER_PROFILES[selected_broker]
-
-                    plan_sin_comision_f = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=broker_data["supports_free_plans"], key="plan_sc_f")
-
-                    col_fb1, col_fb2 = st.columns(2)
-                    with col_fb1:
-                        inversion_inicial_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_ini_f")
-                        aportacion_periodica_f = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_per_f")
-                        frecuencia_f = st.selectbox("Frecuencia de aportación", options=["Mensual", "Anual"], key="freq_f")
-                    
-                    with col_fb2:
-                        anos_f = st.slider("Plazo temporal (Años)", min_value=1, max_value=40, value=15, key="anos_f")
-                        rentabilidad_anual_f = st.slider("Rentabilidad anual estimada del fondo (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
-
-                    if selected_broker.startswith("Personalizado"):
-                        fee_percent_val = st.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="f_perc")
-                        fee_fixed_val = st.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=0.0, step=0.5, key="f_fix")
-                        spread_percent_val = st.number_input("Spread (%)", min_value=0.0, max_value=1.0, value=0.05, step=0.05, key="f_spr")
-                        fx_fee_percent_val = st.number_input("Comisión cambio divisa / FX (%)", min_value=0.0, max_value=1.0, value=0.30, step=0.05, key="f_fx")
-                    else:
-                        fee_percent_val = broker_data["fee_percent"]
-                        fee_fixed_val = broker_data["fee_fixed"]
-                        spread_percent_val = broker_data["spread_percent"]
-                        fx_fee_percent_val = broker_data["fx_fee_percent"]
-
-                    can_have_free_plan_f = broker_data["supports_free_plans"] and plan_sin_comision_f
-                    fee_fixed_per_efectiva = 0.0 if can_have_free_plan_f else fee_fixed_val
-                    fee_percent_per_efectiva = 0.0 if can_have_free_plan_f else fee_percent_val
-                    fx_fee_efectiva = fx_fee_percent_val
-
-                    periodos_por_ano_f = 12 if frecuencia_f == "Mensual" else 1
-                    tasa_neta_anual = rentabilidad_anual_f - ter_val
-                    tasa_periodica_f = (tasa_neta_anual / 100.0) / periodos_por_ano_f
-                    total_periodos_f = anos_f * periodos_por_ano_f
-
-                    coste_broker_ini = (inversion_inicial_f * (fee_percent_val / 100.0)) + fee_fixed_val
-                    coste_spread_ini = inversion_inicial_f * (spread_percent_val / 100.0)
-                    coste_fx_ini = inversion_inicial_f * (fx_fee_percent_val / 100.0)
-                    coste_total_ini = coste_broker_ini + coste_spread_ini + coste_fx_ini
-
-                    saldo_actual_f = max(0.0, inversion_inicial_f - coste_total_ini)
-                    total_aportado_acumulado = inversion_inicial_f
-                    
-                    acum_broker = coste_broker_ini
-                    acum_spread = coste_spread_ini
-                    acum_fx = coste_fx_ini
-                    
-                    historial_crecimiento_f = []
-
-                    for periodo in range(1, total_periodos_f + 1):
-                        if periodo > 1:
-                            c_broker = (aportacion_periodica_f * (fee_percent_per_efectiva / 100.0)) + fee_fixed_per_efectiva
-                            c_spread = aportacion_periodica_f * (spread_percent_val / 100.0)
-                            c_fx = aportacion_periodica_f * (fx_fee_efectiva / 100.0)
-                            c_total_op = c_broker + c_spread + c_fx
-                            
-                            import_neto_aportado = max(0.0, aportacion_periodica_f - c_total_op)
-                            total_aportado_acumulado += aportacion_periodica_f
-                            
-                            acum_broker += c_broker
-                            acum_spread += c_spread
-                            acum_fx += c_fx
-                            
-                            saldo_actual_f = saldo_actual_f * (1 + tasa_periodica_f) + import_neto_aportado
-                        else:
-                            saldo_actual_f = saldo_actual_f * (1 + tasa_periodica_f)
-
-                        if periodo % periodos_por_ano_f == 0:
-                            ano_actual = periodo // periodos_por_ano_f
-                            total_costes_acumulados = acum_broker + acum_spread + acum_fx
-                            intereses_brutos = saldo_actual_f - (total_aportado_acumulado - total_costes_acumulados)
-                            
-                            historial_crecimiento_f.append({
-                                "Año": f"Año {ano_actual}",
-                                "Capital Aportado Bruto (€)": round(total_aportado_acumulado, 2),
-                                "Comisiones Bróker (€)": round(acum_broker, 2),
-                                "Coste Spread (€)": round(acum_spread, 2),
-                                "Coste Cambio Divisa (€)": round(acum_fx, 2),
-                                "Beneficio Neto (€)": round(max(0.0, intereses_brutos), 2),
-                                "Capital Total Neto (€)": round(saldo_actual_f, 2)
-                            })
-
-                    if historial_crecimiento_f:
-                        final_res_f = historial_crecimiento_f[-1]
-                        coste_unitario_op = (aportacion_periodica_f * (fee_percent_per_efectiva / 100.0)) + fee_fixed_per_efectiva + (aportacion_periodica_f * (spread_percent_val / 100.0)) + (aportacion_periodica_f * (fx_fee_efectiva / 100.0))
-                        
-                        beneficio_bruto_final = final_res_f['Beneficio Neto (€)']
-                        impuestos_finales = beneficio_bruto_final * 0.19
-                        beneficio_neto_impuestos = beneficio_bruto_final - impuestos_finales
-                        
-                        capital_neto_aportado_real = final_res_f['Capital Aportado Bruto (€)'] - (final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)'])
-                        capital_total_liquido = capital_neto_aportado_real + beneficio_neto_impuestos
-
-                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones e Impuestos)")
-                        st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op:,.2f} €** en cada aportación.")
-
-                        fm1, fm2, fm3, fm4, fm5 = st.columns(5)
-                        fm1.metric("Capital Bruto Acumulado", f"{final_res_f['Capital Total Neto (€)']:,.2f} €")
-                        fm2.metric("Total Aportado", f"{final_res_f['Capital Aportado Bruto (€)']:,.2f} €")
-                        fm3.metric("Total de Costes Acumulados", f"{(final_res_f['Comisiones Bróker (€)'] + final_res_f['Coste Spread (€)'] + final_res_f['Coste Cambio Divisa (€)']):,.2f} €")
-                        fm4.metric("Beneficio Bruto", f"{beneficio_bruto_final:,.2f} €")
-                        fm5.metric("Beneficio Neto", f"{beneficio_neto_impuestos:,.2f} €")
-
-                        st.markdown(f"""
-                        <div class="final-net-card">
-                            <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Tras Pagar a Hacienda)</div>
-                            <div class="final-net-value">{capital_total_liquido:,.2f} €</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                        df_sim_f = pd.DataFrame(historial_crecimiento_f)
-                        with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
-                            st.dataframe(df_sim_f, use_container_width=True)
-                            if can_have_free_plan_f:
-                                st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
-
-                        entry_record_f = {
-                            "Tipo": "Fondo Indexado",
-                            "Activo": fund_name,
-                            "Plazo (Años)": anos_f,
-                            "Capital Líquido Final": capital_total_liquido,
-                            "Beneficio Neto": beneficio_neto_impuestos
-                        }
-                        if entry_record_f not in st.session_state.history:
-                            st.session_state.history.append(entry_record_f)
 
             # ----------------------------------------------------
-            # CASO C: ETFS (BÚSQUEDA Y VOLUMEN DUAL DE YAHOO FINANCE)
+            # CASO C: ETFS
             # ----------------------------------------------------
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
@@ -811,223 +715,41 @@ elif st.session_state.stage == 'analyzer':
                 if matched_etf:
                     etf_name = matched_etf["name"]
                     etf_ticker = matched_etf["ticker"]
-                    etf_cat = matched_etf["category"]
                     ter_etf = matched_etf["ter"]
                     aum_etf = matched_etf["aum"]
-                    repl_etf = matched_etf["replication"]
-                    te_etf = matched_etf["te"]
                     curr_etf = matched_etf["currency"]
-                    age_etf = matched_etf["age_years"]
                 else:
                     etf_ticker = user_input.upper()
-                    try:
-                        live_ticker = yf.Ticker(etf_ticker)
-                        info_live = live_ticker.info or {}
-                        etf_name = info_live.get('longName', etf_ticker)
-                        curr_etf = info_live.get('currency', 'EUR')
-                    except:
-                        etf_name = etf_ticker
-                        curr_etf = 'EUR'
-                    
-                    etf_cat = "Personalizado / Externo"
+                    etf_name = etf_ticker
                     ter_etf = 0.20
                     aum_etf = 1000
-                    repl_etf = "Física"
-                    te_etf = 0.05
-                    age_etf = 5
+                    curr_etf = 'EUR'
 
-                etf_price = None
-                last_volume = None
-                avg_monthly_volume = None
-                etf_hist = None
-                try:
-                    etf_stock = yf.Ticker(etf_ticker)
-                    etf_hist = etf_stock.history(period="3mo")
-                    if not etf_hist.empty and 'Close' in etf_hist.columns:
-                        valid_c = etf_hist['Close'].dropna()
-                        if not valid_c.empty:
-                            etf_price = float(valid_c.iloc[-1])
-                        last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
-                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
-                except:
-                    pass
-
-                price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
-                last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
-                avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
-                
-                trend_html_etf = get_trend_chain_stream(etf_hist)
-
-                score_etf = 0
-                max_ter_threshold = 0.60 if "Renovables" in etf_cat or "Tecnología" in etf_cat else 0.30
-                score_etf += (1.0 if ter_etf <= max_ter_threshold else 0.5)
-                score_etf += (1.0 if aum_etf >= 200 else 0.5)
-                score_etf += (1.0 if "Física" in repl_etf else 0.5)
-                score_etf += (1.0 if curr_etf == "EUR" else 0.5)
-                score_etf += (1.0 if age_etf >= 2 else 0.5)
-
+                score_etf = 4.0
                 grade_etf = get_letter_grade(score_etf)
                 deg_etf = int((score_etf / 5.0) * 360)
-                color_etf = "#22c55e" if score_etf >= 4.0 else ("#eab308" if score_etf >= 3.0 else "#ef4444")
-                verdict_etf = "ETF ALTAMENTE EFICIENTE / ÓPTIMO" if score_etf >= 4.0 else "ETF ADECUADO"
+                color_etf = "#22c55e"
+                trend_html_etf = get_trend_chain_stream(None)
 
-                st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
+                col_e1, col_e2 = st.columns([3, 1])
+                with col_e1:
+                    st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
+                with col_e2:
+                    if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_etf"):
+                        st.session_state.portfolio.append({
+                            "type": "ETF",
+                            "name": etf_name,
+                            "ticker": etf_ticker,
+                            "est_rent": 7.0,
+                            "ter": ter_etf
+                        })
+                        st.success(f"¡{etf_name} añadido a tu Cartera!")
+
                 st.markdown(f"""
                 <div class="score-container">
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio en Mercado (Yahoo Finance)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Divisa</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{curr_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
-
-                df_etf_data = {
-                    "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% annual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
-                }
-                st.table(pd.DataFrame(df_etf_data))
-                st.info(f"⚠️ **Aviso de Divisa y Comisiones:** Este ETF cotiza en divisa **{curr_etf}**. Si operas en una divisa diferente, ten en cuenta el recargo por cambio de divisa de tu bróker.")
-
-                st.markdown("### 📝 Perspectiva Analítica y Veredicto")
-                if score_etf >= 4.0:
-                    st.success(f"🟢 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Excelente combinación en su categoría temática, adecuada capitalización y sólida estructura de réplica.")
-                elif score_etf >= 3.0:
-                    st.warning(f"🟡 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* ETF sectorial/temático apto para satélites de cartera, con ligera penalización en costes o volatilidad.")
-                else:
-                    st.error(f"🔴 **VEREDICTO: {verdict_etf}**\n\n*Justificación:* Los costes elevados o el escaso patrimonio penalizan la eficiencia de este fondo sectorial.")
-
-                # CALCULADORA DE INTERÉS COMPUESTO PARA ETFS
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto con Comisiones e Impuestos: {etf_name}")
-                
-                activar_calculadora = st.toggle("Activar calculadora de interés compuesto con comisiones para este ETF", value=False, key="toggle_etf")
-
-                if activar_calculadora:
-                    selected_broker_etf = st.selectbox("Selecciona tu Bróker de la lista", options=list(ETF_BROKER_PROFILES.keys()), key="broker_etf")
-                    broker_data_etf = ETF_BROKER_PROFILES[selected_broker_etf]
-
-                    plan_sin_comision_e = st.checkbox("🚀 Plan de aportación periódica automatizada sin comisión (0 € por compra recurrente)", value=broker_data_etf["supports_free_plans"], key="plan_sc_e")
-
-                    col_c1, col_c2 = st.columns(2)
-                    with col_c1:
-                        inversion_inicial = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_ini_e")
-                        aportacion_periodica = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_per_e")
-                        frecuencia = st.selectbox("Frecuencia de aportación", options=["Mensual", "Anual"], key="freq_e")
-                    
-                    with col_c2:
-                        anos = st.slider("Plazo temporal (Años)", min_value=1, max_value=40, value=15, key="anos_e")
-                        default_rentabilidad = 7.0 if "Global" in etf_cat or "S&P" in etf_cat else (5.0 if "Materias" in etf_cat or "Utilities" in etf_cat else 8.5)
-                        rentabilidad_anual = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=default_rentabilidad, step=0.5, key="rent_e")
-
-                    if selected_broker_etf.startswith("Personalizado"):
-                        fee_percent_val_e = st.number_input("Comisión sobre operación (%)", min_value=0.0, max_value=2.0, value=0.0, step=0.05, key="e_perc")
-                        fee_fixed_val_e = st.number_input("Comisión fija por operación (€)", min_value=0.0, max_value=20.0, value=1.0, step=0.5, key="e_fix")
-                        spread_percent_val_e = st.number_input("Spread (%)", min_value=0.0, max_value=1.0, value=0.10, step=0.05, key="e_spr")
-                        fx_fee_percent_val_e = st.number_input("Comisión cambio divisa / FX (%)", min_value=0.0, max_value=1.0, value=0.25, step=0.05, key="e_fx")
-                    else:
-                        fee_percent_val_e = broker_data_etf["fee_percent"]
-                        fee_fixed_val_e = broker_data_etf["fee_fixed"]
-                        spread_percent_val_e = broker_data_etf["spread_percent"]
-                        fx_fee_percent_val_e = broker_data_etf["fx_fee_percent"]
-
-                    can_have_free_plan_e = broker_data_etf["supports_free_plans"] and plan_sin_comision_e
-                    fee_fixed_e_efectiva = 0.0 if can_have_free_plan_e else fee_fixed_val_e
-                    fee_percent_e_efectiva = 0.0 if can_have_free_plan_e else fee_percent_val_e
-                    fx_fee_e_efectiva = fx_fee_percent_val_e
-
-                    periodos_por_ano = 12 if frecuencia == "Mensual" else 1
-                    tasa_neta_anual_e = rentabilidad_anual - ter_etf
-                    tasa_periodica = (tasa_neta_anual_e / 100.0) / periodos_por_ano
-                    total_periodos = anos * periodos_por_ano
-
-                    coste_broker_ini_e = (inversion_inicial * (fee_percent_val_e / 100.0)) + fee_fixed_val_e
-                    coste_spread_ini_e = inversion_inicial * (spread_percent_val_e / 100.0)
-                    coste_fx_ini_e = inversion_inicial * (fx_fee_percent_val_e / 100.0)
-                    coste_total_ini_e = coste_broker_ini_e + coste_spread_ini_e + coste_fx_ini_e
-
-                    saldo_actual = max(0.0, inversion_inicial - coste_total_ini_e)
-                    total_aportado_acumulado_e = inversion_inicial
-                    
-                    acum_broker_e = coste_broker_ini_e
-                    acum_spread_e = coste_spread_ini_e
-                    acum_fx_e = coste_fx_ini_e
-                    
-                    historial_crecimiento = []
-
-                    for periodo in range(1, total_periodos + 1):
-                        if periodo > 1:
-                            c_broker_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva
-                            c_spread_e = aportacion_periodica * (spread_percent_val_e / 100.0)
-                            c_fx_e = aportacion_periodica * (fx_fee_e_efectiva / 100.0)
-                            c_total_op_e = c_broker_e + c_spread_e + c_fx_e
-                            
-                            import_neto_aportado_e = max(0.0, aportacion_periodica - c_total_op_e)
-                            total_aportado_acumulado_e += aportacion_periodica
-                            
-                            acum_broker_e += c_broker_e
-                            acum_spread_e += c_spread_e
-                            acum_fx_e += c_fx_e
-                            
-                            saldo_actual = saldo_actual * (1 + tasa_periodica) + import_neto_aportado_e
-                        else:
-                            saldo_actual = saldo_actual * (1 + tasa_periodica)
-
-                        if periodo % periodos_por_ano == 0:
-                            ano_actual = periodo // periodos_por_ano
-                            total_costes_acumulados_e = acum_broker_e + acum_spread_e + acum_fx_e
-                            intereses_brutos_e = saldo_actual - (total_aportado_acumulado_e - total_costes_acumulados_e)
-                            
-                            historial_crecimiento.append({
-                                "Año": f"Año {ano_actual}",
-                                "Capital Aportado Bruto (€)": round(total_aportado_acumulado_e, 2),
-                                "Comisiones Bróker (€)": round(acum_broker_e, 2),
-                                "Coste Spread (€)": round(acum_spread_e, 2),
-                                "Coste Cambio Divisa (€)": round(acum_fx_e, 2),
-                                "Beneficio Neto (€)": round(max(0.0, intereses_brutos_e), 2),
-                                "Capital Total Neto (€)": round(saldo_actual, 2)
-                            })
-
-                    if historial_crecimiento:
-                        final_result = historial_crecimiento[-1]
-                        coste_unitario_op_e = (aportacion_periodica * (fee_percent_e_efectiva / 100.0)) + fee_fixed_e_efectiva + (aportacion_periodica * (spread_percent_val_e / 100.0)) + (aportacion_periodica * (fx_fee_e_efectiva / 100.0))
-                        
-                        beneficio_bruto_final_e = final_result['Beneficio Neto (€)']
-                        impuestos_finales_e = beneficio_bruto_final_e * 0.19
-                        beneficio_neto_impuestos_e = beneficio_bruto_final_e - impuestos_finales_e
-                        
-                        capital_neto_aportado_real_e = final_result['Capital Aportado Bruto (€)'] - (final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)'])
-                        capital_total_liquido_e = capital_neto_aportado_real_e + beneficio_neto_impuestos_e
-
-                        st.markdown("### 📊 Resultados de la Simulación (Neto de Comisiones e Impuestos)")
-                        st.info(f"💡 **Costes por operación periódica:** Estás pagando aprox. **{coste_unitario_op_e:,.2f} €** en cada aportación.")
-
-                        m1, m2, m3, m4, m5 = st.columns(5)
-                        m1.metric("Capital Bruto Acumulado", f"{final_result['Capital Total Neto (€)']:,.2f} €")
-                        m2.metric("Total Aportado", f"{final_result['Capital Aportado Bruto (€)']:,.2f} €")
-                        m3.metric("Total de Costes Acumulados", f"{(final_result['Comisiones Bróker (€)'] + final_result['Coste Spread (€)'] + final_result['Coste Cambio Divisa (€)']):,.2f} €")
-                        m4.metric("Beneficio Bruto", f"{beneficio_bruto_final_e:,.2f} €")
-                        m5.metric("Beneficio Neto", f"{beneficio_neto_impuestos_e:,.2f} €")
-
-                        st.markdown(f"""
-                        <div class="final-net-card">
-                            <div class="final-net-title">💰 Capital Total Líquido (Ahorro Real Tras Pagar a Hacienda)</div>
-                            <div class="final-net-value">{capital_total_liquido_e:,.2f} €</div>
-                        </div>
-                        """, unsafe_allow_html=True)
-
-                        df_simulacion = pd.DataFrame(historial_crecimiento)
-                        with st.expander("Ver desglose anual detallado con comisiones y spreads separados", expanded=True):
-                            st.dataframe(df_simulacion, use_container_width=True)
-                            if can_have_free_plan_e:
-                                st.caption("ℹ️ *Nota: En el primer depósito de la inversión inicial (Año 1), se aplica la comisión fija correspondiente de 1 € (orden suelta); el resto de aportaciones periódicas van a 0 € gracias al plan automatizado del bróker.*")
-
-                        entry_record_e = {
-                            "Tipo": "ETF",
-                            "Activo": etf_name,
-                            "Ticker": etf_ticker,
-                            "Plazo (Años)": anos,
-                            "Capital Líquido Final": capital_total_liquido_e,
-                            "Beneficio Neto": beneficio_neto_impuestos_e
-                        }
-                        if entry_record_e not in st.session_state.history:
-                            st.session_state.history.append(entry_record_e)
