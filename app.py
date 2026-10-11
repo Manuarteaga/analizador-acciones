@@ -446,18 +446,14 @@ ETF_BROKER_PROFILES = {
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
-col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([2, 1, 1, 1])
+col_tb1, col_tb2, col_tb3 = st.columns([2, 1, 1])
 with col_tb1:
     st.markdown("### 📈 Analizador Bursátil Multifuente")
 with col_tb2:
-    if st.button("⚔️ Comparador", use_container_width=True):
-        st.session_state.stage = "comparator_view"
-        st.rerun()
-with col_tb3:
     if st.button(f"⭐ Favoritos ({favorites_count})", use_container_width=True):
         st.session_state.stage = "favorites_view"
         st.rerun()
-with col_tb4:
+with col_tb3:
     if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
         st.rerun()
@@ -1108,7 +1104,6 @@ elif st.session_state.stage == 'analyzer':
                         ex = item.get('exchange', '')
                         qtype = item.get('quoteType', '')
                         
-                        # Filtro amplio para capturar todos los fondos e índices S&P 500
                         if sym and (qtype in ['MUTUALFUND', 'INDEX', 'ETF'] or 'FUND' in sname.upper() or 'INDEX' in sname.upper() or '500' in sname or 'ACC' in sname.upper()):
                             label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
                             if sym not in combined_options.values():
@@ -1297,7 +1292,7 @@ elif st.session_state.stage == 'analyzer':
                 color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
-                col_f1, col_f2, col_f3, col_f4, col_f5 = st.columns([2, 1, 1, 1, 1])
+                col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
                 with col_f1:
                     st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 with col_f2:
@@ -1309,30 +1304,6 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
-                    if st.button("⚔️ Comparador", use_container_width=True, key="comp_fund"):
-                        st.session_state.custom_comparison_pair = {
-                            "fund_name": fund_name,
-                            "fund_isin": fund_isin,
-                            "fund_ter": ter_val,
-                            "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
-                            "etf_ticker": "SPYL.DE",
-                            "etf_ter": 0.03
-                        }
-                        st.session_state.stage = "comparator_view"
-                        st.rerun()
-                with col_f4:
-                    if st.button("📤 Enviar a Comparador", use_container_width=True, key="send_comp_fund"):
-                        st.session_state.custom_comparison_pair = {
-                            "fund_name": fund_name,
-                            "fund_isin": fund_isin,
-                            "fund_ter": ter_val,
-                            "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
-                            "etf_ticker": "SPYL.DE",
-                            "etf_ter": 0.03
-                        }
-                        st.session_state.stage = "comparator_view"
-                        st.rerun()
-                with col_f5:
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
@@ -1511,7 +1482,7 @@ elif st.session_state.stage == 'analyzer':
                 deg_etf = int((score_etf / 5.0) * 360)
                 color_etf = "#22c55e"
 
-                col_e1, col_e2, col_e3, col_e4, col_e5 = st.columns([2, 1, 1, 1, 1])
+                col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
                 with col_e1:
                     st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
                 with col_e2:
@@ -1523,30 +1494,6 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_e3:
-                    if st.button("⚔️ Comparador", use_container_width=True, key="comp_etf"):
-                        st.session_state.custom_comparison_pair = {
-                            "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
-                            "fund_isin": "IE0032126645",
-                            "fund_ter": 0.10,
-                            "etf_name": etf_name,
-                            "etf_ticker": etf_ticker,
-                            "etf_ter": ter_etf
-                        }
-                        st.session_state.stage = "comparator_view"
-                        st.rerun()
-                with col_e4:
-                    if st.button("📤 Enviar a Comparador", use_container_width=True, key="send_comp_etf"):
-                        st.session_state.custom_comparison_pair = {
-                            "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
-                            "fund_isin": "IE0032126645",
-                            "fund_ter": 0.10,
-                            "etf_name": etf_name,
-                            "etf_ticker": etf_ticker,
-                            "etf_ter": ter_etf
-                        }
-                        st.session_state.stage = "comparator_view"
-                        st.rerun()
-                with col_e5:
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
