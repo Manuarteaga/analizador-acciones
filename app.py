@@ -1080,34 +1080,39 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
-            st.markdown("### 🔍 Buscador Inteligente de Fondos Indexados (Catálogo + Tiempo Real)")
+            st.markdown("### 🔍 Buscador Inteligente Múltiple de Fondos Indexados")
             fund_query = st.text_input("Escribe una palabra clave, gestora o ISIN (ej. 'S&P 500', 'iShares', 'Vanguard'):", value=default_input).strip()
             
             user_input = ""
             combined_options = {}
 
             if fund_query:
+                q_clean = fund_query.lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
                 q_low = fund_query.lower()
-                # 1. Recopilar todas las coincidencias del catálogo interno
+                
+                # 1. Búsqueda exhaustiva en catálogo verificado
                 for key, data in FUND_DB.items():
-                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_low in data['category'].lower():
+                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
+                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
                         label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
                         combined_options[label_cat] = data['ticker']
 
-                # 2. Recopilar coincidencias en tiempo real de Yahoo Finance
+                # 2. Búsqueda en tiempo real con mayor alcance (max_results=30)
                 try:
-                    results = yf.Search(fund_query, max_results=10).quotes
-                    fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper() or 'ACC' in r.get('longname', '').upper()]
-                    if not fund_results:
-                        fund_results = results
-
-                    for item in fund_results:
+                    search_term = "S&P 500 Index Fund" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else fund_query
+                    results = yf.Search(search_term, max_results=30).quotes
+                    
+                    for item in results:
                         sym = item.get('symbol')
                         sname = item.get('shortname', item.get('longname', sym))
                         ex = item.get('exchange', '')
-                        label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
-                        if sym not in combined_options.values():
-                            combined_options[label_rt] = sym
+                        qtype = item.get('quoteType', '')
+                        
+                        # Filtro amplio para capturar todos los fondos e índices S&P 500
+                        if sym and (qtype in ['MUTUALFUND', 'INDEX', 'ETF'] or 'FUND' in sname.upper() or 'INDEX' in sname.upper() or '500' in sname or 'ACC' in sname.upper()):
+                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
+                            if sym not in combined_options.values():
+                                combined_options[label_rt] = sym
                 except Exception as e:
                     pass
 
@@ -1122,41 +1127,49 @@ elif st.session_state.stage == 'analyzer':
                     user_input = fund_query
 
         elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Buscador Inteligente de ETFs (Catálogo + Tiempo Real)")
+            st.markdown("### 🌐 Buscador Inteligente Múltiple de ETFs")
             search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'SPYL.DE', 'World'):", value=default_input).strip()
             
             user_input = ""
-            matched_catalog_etf = None
+            combined_etf_options = {}
+
             if search_query:
                 q_low = search_query.lower()
-                matched_catalog_etf = next((data for key, data in ETF_DB.items() if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key), None)
+                q_clean = q_low.replace("&", "and").replace("s&p", "sp").replace(" ", "")
 
-            if matched_catalog_etf:
-                st.success(f"✨ ETF verificado encontrado en catálogo: **{matched_catalog_etf['name']} ({matched_catalog_etf['ticker']})** [TER: {matched_catalog_etf['ter']}%]")
-                if st.button("👉 Seleccionar este ETF verificado", type="primary"):
-                    user_input = matched_catalog_etf['ticker']
-            else:
-                if search_query:
-                    with st.spinner(f"Buscando '{search_query}' en los mercados globales..."):
-                        try:
-                            results = yf.Search(search_query, max_results=8).quotes
-                            etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
-                            if not etf_results:
-                                etf_results = results
-                            
-                            if etf_results:
-                                st.success(f"¡Se han encontrado {len(etf_results)} resultados en tiempo real!")
-                                options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in etf_results}
-                                selected_label = st.selectbox("Selecciona el ETF de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
-                                
-                                if not selected_label.startswith("--"):
-                                    user_input = options_map[selected_label]
-                            else:
-                                st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
-                                user_input = search_query.upper()
-                        except Exception as e:
-                            st.error(f"Error en la búsqueda en tiempo real: {e}")
-                            user_input = search_query.upper()
+                # 1. Catálogo de ETFs
+                for key, data in ETF_DB.items():
+                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
+                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
+                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
+                        combined_etf_options[label_cat] = data['ticker']
+
+                # 2. Búsqueda en tiempo real (max_results=30)
+                try:
+                    search_term = "S&P 500 ETF" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else search_query
+                    results = yf.Search(search_term, max_results=30).quotes
+                    
+                    for item in results:
+                        sym = item.get('symbol')
+                        sname = item.get('shortname', item.get('longname', sym))
+                        ex = item.get('exchange', '')
+                        
+                        if sym:
+                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
+                            if sym not in combined_etf_options.values():
+                                combined_etf_options[label_rt] = sym
+                except Exception as e:
+                    pass
+
+                if combined_etf_options:
+                    st.success(f"¡Se han encontrado {len(combined_etf_options)} ETFs disponibles para tu búsqueda!")
+                    selected_label = st.selectbox("Despliega y selecciona el ETF de la lista:", options=["-- Selecciona un ETF de la lista --"] + list(combined_etf_options.keys()))
+                    
+                    if not selected_label.startswith("--"):
+                        user_input = combined_etf_options[selected_label]
+                else:
+                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
+                    user_input = search_query.upper()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
