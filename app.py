@@ -334,30 +334,20 @@ ETF_DB = {
     },
 }
 
-# Algoritmo de selección automática de los mejores recomendados basados en puntuación
 def get_best_algorithmic_recommendations():
-    # 1. Mejor Acción (algoritmo: mayor yield ponderado por estabilidad/PER razonable)
     best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
     stock_data = TICKER_DB[best_stock_key]
-    stock_score = 4.3
-    stock_grade = "A"
-
-    # 2. Mejor Fondo (menor TER y mayor AUM)
+    
     best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
     fund_data = FUND_DB[best_fund_key]
-    fund_score = 4.6
-    fund_grade = "A+"
-
-    # 3. Mejor ETF (menor TER absoluto)
+    
     best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
     etf_data = ETF_DB[best_etf_key]
-    etf_score = 4.7
-    etf_grade = "A+"
 
     return {
-        "action": {"name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"], "desc": stock_data["racha"], "score": stock_score, "grade": stock_grade},
-        "fund": {"name": fund_data["name"], "ticker": fund_data["ticker"], "ter": fund_data["ter"], "desc": fund_data["category"], "score": fund_score, "grade": fund_grade},
-        "etf": {"name": etf_data["name"], "ticker": etf_data["ticker"], "ter": etf_data["ter"], "desc": etf_data["category"], "score": etf_score, "grade": etf_grade}
+        "action": {"name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"], "desc": stock_data["racha"], "score": 4.3, "grade": "A"},
+        "fund": {"name": fund_data["name"], "ticker": fund_data["ticker"], "ter": fund_data["ter"], "desc": fund_data["category"], "score": 4.6, "grade": "A+"},
+        "etf": {"name": etf_data["name"], "ticker": etf_data["ticker"], "ter": etf_data["ter"], "desc": etf_data["category"], "score": 4.7, "grade": "A+"}
     }
 
 rec_assets = get_best_algorithmic_recommendations()
@@ -456,12 +446,11 @@ if st.session_state.stage == 'home':
     st.markdown("---")
 
     # ----------------------------------------------------
-    # SECCIÓN: RECOMENDADOS DEL MES (DINÁMICOS Y CON NOTA)
+    # RECOMENDADOS DEL MES
     # ----------------------------------------------------
-    st.markdown("### 🌟 Recomendados del Mes")
+    st.markdown("### 🌟 Recomendados del Mes (Selección Algorítmica)")
     col_rec1, col_rec2, col_rec3 = st.columns(3)
 
-    # 1. Acción recomendada
     with col_rec1:
         act = rec_assets["action"]
         st.markdown(f"""
@@ -475,20 +464,19 @@ if st.session_state.stage == 'home':
         
         c_btn_a, c_btn_b = st.columns(2)
         with c_btn_a:
-            if st.button("🔍 Evaluar acción", key="rec_eval_act", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_act", use_container_width=True):
                 st.session_state.asset_type = "Acciones"
                 st.session_state.sub_type = "Con dividendos"
                 st.session_state.selected_eval_input = act['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_b:
-            if st.button("➕ Añadir a cartera", key="rec_add_act", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_act", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "Acción", "name": act['name'], "ticker": act['ticker'], "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
                 })
                 st.success("¡Añadido a Cartera!")
 
-    # 2. Fondo recomendado
     with col_rec2:
         fnd = rec_assets["fund"]
         st.markdown(f"""
@@ -502,20 +490,19 @@ if st.session_state.stage == 'home':
         
         c_btn_c, c_btn_d = st.columns(2)
         with c_btn_c:
-            if st.button("🔍 Evaluar Fondo Indexado", key="rec_eval_fnd", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_fnd", use_container_width=True):
                 st.session_state.asset_type = "Fondos indexados"
                 st.session_state.sub_type = "Acumulación"
                 st.session_state.selected_eval_input = fnd['name']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_d:
-            if st.button("➕ Añadir a cartera", key="rec_add_fnd", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_fnd", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "Fondo Indexado", "name": fnd['name'], "ticker": fnd['ticker'], "est_rent": 7.5, "ter": fnd['ter'], "currency": "EUR", "is_dist": False
                 })
                 st.success("¡Añadido a Cartera!")
 
-    # 3. ETF recomendado
     with col_rec3:
         etf = rec_assets["etf"]
         st.markdown(f"""
@@ -529,14 +516,14 @@ if st.session_state.stage == 'home':
         
         c_btn_e, c_btn_f = st.columns(2)
         with c_btn_e:
-            if st.button("🔍 Evaluar ETF", key="rec_eval_etf", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_etf", use_container_width=True):
                 st.session_state.asset_type = "ETFs"
                 st.session_state.sub_type = "Evaluación ETF"
                 st.session_state.selected_eval_input = etf['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_f:
-            if st.button("➕ Añadir a cartera", key="rec_add_etf", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_etf", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "ETF", "name": etf['name'], "ticker": etf['ticker'], "est_rent": 8.0, "ter": etf['ter'], "currency": "EUR", "is_dist": False
                 })
@@ -545,7 +532,7 @@ if st.session_state.stage == 'home':
     st.markdown("---")
 
     # ----------------------------------------------------
-    # SECCIÓN: NOTICIAS CON ENLACES REALES
+    # NOTICIAS CON ENLACES REALES
     # ----------------------------------------------------
     st.markdown("### 📰 Noticias del Mercado Bursátil y Financiero")
     
@@ -615,7 +602,7 @@ elif st.session_state.stage == 'sub_options':
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c2:
-            if st.button("✍️ Evaluar un Fondo con Buscador Predictivo", use_container_width=True):
+            if st.button("✍️ Evaluar un Fondo", use_container_width=True):
                 st.session_state.sub_type = "Acumulación"
                 st.session_state.stage = "analyzer"
                 st.rerun()
@@ -634,7 +621,7 @@ elif st.session_state.stage == 'sub_options':
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c3:
-            if st.button("🔍 Evaluar un ETF Específico", use_container_width=True):
+            if st.button("🔍 Buscador en Tiempo Real de ETFs", use_container_width=True):
                 st.session_state.sub_type = "Evaluación ETF"
                 st.session_state.stage = "analyzer"
                 st.rerun()
@@ -953,10 +940,32 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_fund_input if custom_fund_input else ("" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "ETFs":
-            etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
-            selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
-            custom_etf_input = st.text_input("O introduce Ticker de ETF (ej. CSPX.AS, QQQ):", value=default_input).strip()
-            user_input = custom_etf_input.upper() if custom_etf_input else ("" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip())
+            st.markdown("### 🌐 Buscador Inteligente en Tiempo Real de ETFs")
+            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'crude', 'gold', 'tech', 'SPYL.DE'):", value=default_input).strip()
+            
+            user_input = ""
+            if search_query:
+                with st.spinner(f"Buscando '{search_query}' en los mercados globales..."):
+                    try:
+                        results = yf.Search(search_query, max_results=8).quotes
+                        etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
+                        
+                        if not etf_results:
+                            etf_results = results # Si no filtra estricto, muestra resultados generales
+                        
+                        if etf_results:
+                            st.success(f"¡Se han encontrado {len(etf_results)} resultados en tiempo real!")
+                            options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in etf_results}
+                            selected_label = st.selectbox("Selecciona el ETF de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
+                            
+                            if not selected_label.startswith("--"):
+                                user_input = options_map[selected_label]
+                        else:
+                            st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
+                            user_input = search_query.upper()
+                    except Exception as e:
+                        st.error(f"Error en la búsqueda en tiempo real: {e}")
+                        user_input = search_query.upper()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -973,7 +982,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona un activo en el buscador para comenzar.")
+            st.info("👆 Introduce una palabra clave o selecciona un activo para comenzar.")
         else:
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -997,7 +1006,6 @@ elif st.session_state.stage == 'analyzer':
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
-                    pb_y = info.get('priceToBook') or 3.0
                     roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
                     div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
                     beta_val = info.get('beta') or db_beta
@@ -1015,24 +1023,13 @@ elif st.session_state.stage == 'analyzer':
                     with col_n2:
                         if st.button("⭐ Añadir a Favoritos", use_container_width=True):
                             st.session_state.favorites.append({
-                                "type": "Acción",
-                                "name": name,
-                                "ticker": ticker_input,
-                                "ter": 0.0,
-                                "currency": info.get('currency', 'EUR'),
-                                "category": "Renta Variable (Acción)"
+                                "type": "Acción", "name": name, "ticker": ticker_input, "ter": 0.0, "currency": info.get('currency', 'EUR'), "category": "Renta Variable (Acción)"
                             })
                             st.success("¡Añadido a Favoritos!")
                     with col_n3:
                         if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
-                                "type": "Acción",
-                                "name": name,
-                                "ticker": ticker_input,
-                                "est_rent": 8.0,
-                                "ter": 0.0,
-                                "currency": info.get('currency', 'EUR'),
-                                "is_dist": True
+                                "type": "Acción", "name": name, "ticker": ticker_input, "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True
                             })
                             st.success(f"¡{name} añadido a tu Cartera!")
 
@@ -1057,26 +1054,15 @@ elif st.session_state.stage == 'analyzer':
             elif st.session_state.asset_type == "Fondos indexados":
                 matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower() or data["ticker"].lower() == user_input.lower()), None)
                 
-                if matched_fund:
-                    fund_name = matched_fund["name"]
-                    fund_isin = matched_fund["ticker"]
-                    ter_val = matched_fund["ter"]
-                    aum_val = matched_fund["aum"]
-                    te_val = matched_fund["tracking_error"]
-                    age_val = matched_fund["age_years"]
-                    curr_fund = matched_fund["currency"]
-                    is_dist_fund = matched_fund["is_dist"]
-                    cat_fund = matched_fund["category"]
-                else:
-                    fund_name = user_input
-                    fund_isin = "FONDO"
-                    ter_val = 0.20
-                    aum_val = 2000
-                    te_val = 0.08
-                    age_val = 5
-                    curr_fund = "EUR"
-                    is_dist_fund = False
-                    cat_fund = "Fondo Indexado"
+                fund_name = matched_fund["name"] if matched_fund else user_input
+                fund_isin = matched_fund["ticker"] if matched_fund else "FONDO"
+                ter_val = matched_fund["ter"] if matched_fund else 0.20
+                aum_val = matched_fund["aum"] if matched_fund else 2000
+                te_val = matched_fund["tracking_error"] if matched_fund else 0.08
+                age_val = matched_fund["age_years"] if matched_fund else 5
+                curr_fund = matched_fund["currency"] if matched_fund else "EUR"
+                is_dist_fund = matched_fund["is_dist"] if matched_fund else False
+                cat_fund = matched_fund["category"] if matched_fund else "Fondo Indexado"
 
                 score_fund = 4.2
                 grade_fund = get_letter_grade(score_fund)
@@ -1090,24 +1076,13 @@ elif st.session_state.stage == 'analyzer':
                 with col_f2:
                     if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_fund"):
                         st.session_state.favorites.append({
-                            "type": "Fondo Indexado",
-                            "name": fund_name,
-                            "ticker": fund_isin,
-                            "ter": ter_val,
-                            "currency": curr_fund,
-                            "category": cat_fund
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin, "ter": ter_val, "currency": curr_fund, "category": cat_fund
                         })
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
                     if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
-                            "type": "Fondo Indexado",
-                            "name": fund_name,
-                            "ticker": fund_isin,
-                            "est_rent": 7.5,
-                            "ter": ter_val,
-                            "currency": curr_fund,
-                            "is_dist": is_dist_fund
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin, "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
                         })
                         st.success(f"¡{fund_name} añadido a tu Cartera!")
 
@@ -1125,102 +1100,6 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [fund_isin, f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
                 }
                 st.table(pd.DataFrame(df_fund_data))
-
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
-                toggle_f_sim = st.toggle("Activar calculadora individual de este fondo", value=False, key="tg_f_sim")
-
-                if toggle_f_sim:
-                    sel_b_f = st.selectbox("Selecciona tu Entidad Comercializadora", options=list(FUND_BROKER_PROFILES.keys()), key="sel_b_f")
-                    b_f_data = FUND_BROKER_PROFILES[sel_b_f]
-                    plan_f_free = st.checkbox("Plan de aportación automática sin comisión", value=b_f_data["supports_free_plans"], key="plan_f_free")
-
-                    cf1, cf2 = st.columns(2)
-                    with cf1:
-                        inv_i_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_f")
-                        app_p_f = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_f")
-                        freq_f = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_f")
-                    with cf2:
-                        anos_f = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_f")
-                        rent_f = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
-
-                    fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
-                    ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
-                    fspr = b_f_data["spread_percent"]
-                    ffx = 0.0 if curr_fund == "EUR" else b_f_data["fx_fee_percent"]
-
-                    per_ano_f = 12 if freq_f == "Mensual" else 1
-                    t_neta_f = rent_f - ter_val
-                    t_per_f = (t_neta_f / 100.0) / per_ano_f
-                    tot_per_f = anos_f * per_ano_f
-
-                    c_broker_i_f = (inv_i_f * (b_f_data["fee_percent"] / 100.0)) + b_f_data["fee_fixed"]
-                    c_spread_i_f = inv_i_f * (fspr / 100.0)
-                    c_fx_i_f = inv_i_f * (ffx / 100.0)
-                    c_ini_f = c_broker_i_f + c_spread_i_f + c_fx_i_f
-
-                    saldo_f = max(0.0, inv_i_f - c_ini_f)
-                    aport_f = inv_i_f
-                    a_broker_f = c_broker_i_f
-                    a_spread_f = c_spread_i_f
-                    a_fx_f = c_fx_i_f
-
-                    historial_f = []
-
-                    for p in range(1, tot_per_f + 1):
-                        if p > 1:
-                            cb = (app_p_f * (fpct / 100.0)) + ffix
-                            cs = app_p_f * (fspr / 100.0)
-                            cf = app_p_f * (ffx / 100.0)
-                            ct = cb + cs + cf
-
-                            net_app_f = max(0.0, app_p_f - ct)
-                            aport_f += app_p_f
-                            a_broker_f += cb
-                            a_spread_f += cs
-                            a_fx_f += cf
-                            saldo_f = saldo_f * (1 + t_per_f) + net_app_f
-                        else:
-                            saldo_f = saldo_f * (1 + t_per_f)
-
-                        if p % per_ano_f == 0:
-                            ano_act_f = p // per_ano_f
-                            c_tot_f = a_broker_f + a_spread_f + a_fx_f
-                            int_b_f = saldo_f - (aport_f - c_tot_f)
-                            
-                            historial_f.append({
-                                "Año": f"Año {ano_act_f}",
-                                "Capital Aportado Bruto (€)": round(aport_f, 2),
-                                "Comisiones Bróker (€)": round(a_broker_f, 2),
-                                "Coste Spread (€)": round(a_spread_f, 2),
-                                "Coste Cambio Divisa (€)": round(a_fx_f, 2),
-                                "Beneficio Neto (€)": round(max(0.0, int_b_f), 2),
-                                "Capital Total Neto (€)": round(saldo_f, 2)
-                            })
-
-                    df_sim_f = pd.DataFrame(historial_f)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
-                        st.dataframe(df_sim_f, use_container_width=True)
-
-                    c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
-                    net_aport_f = aport_f - c_tot_acum_f
-                    bruto_f = max(0.0, saldo_f - net_aport_f)
-                    imp_f = bruto_f * 0.19
-                    neto_f = bruto_f - imp_f
-                    liquido_f = net_aport_f + neto_f
-
-                    fm1, fm2, fm3, fm4 = st.columns(4)
-                    fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
-                    fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
-                    fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
-                    fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
-
-                    st.markdown(f"""
-                    <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo</div>
-                        <div class="final-net-value">{liquido_f:,.2f} €</div>
-                    </div>
-                    """, unsafe_allow_html=True)
 
             elif st.session_state.asset_type == "ETFs":
                 matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
@@ -1247,7 +1126,7 @@ elif st.session_state.stage == 'analyzer':
                         etf_name = etf_ticker
                         curr_etf = 'EUR'
                     
-                    etf_cat = "Personalizado"
+                    etf_cat = "Tiempo Real / Global"
                     ter_etf = 0.20
                     aum_etf = 1000
                     repl_etf = "Física"
@@ -1287,24 +1166,13 @@ elif st.session_state.stage == 'analyzer':
                 with col_e2:
                     if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_etf"):
                         st.session_state.favorites.append({
-                            "type": "ETF",
-                            "name": etf_name,
-                            "ticker": etf_ticker,
-                            "ter": ter_etf,
-                            "currency": curr_etf,
-                            "category": etf_cat
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker, "ter": ter_etf, "currency": curr_etf, "category": etf_cat
                         })
                         st.success("¡Añadido a Favoritos!")
                 with col_e3:
                     if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
-                            "type": "ETF",
-                            "name": etf_name,
-                            "ticker": etf_ticker,
-                            "est_rent": 7.5,
-                            "ter": ter_etf,
-                            "currency": curr_etf,
-                            "is_dist": is_dist_etf
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker, "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
                         })
                         st.success(f"¡{etf_name} añadido a tu Cartera!")
 
@@ -1322,99 +1190,3 @@ elif st.session_state.stage == 'analyzer':
                     "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
-
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
-                toggle_e_sim = st.toggle("Activar calculadora individual de este ETF", value=False, key="tg_e_sim")
-
-                if toggle_e_sim:
-                    sel_b_e = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_e")
-                    b_e_data = ETF_BROKER_PROFILES[sel_b_e]
-                    plan_e_free = st.checkbox("Plan de aportación automática sin comisión", value=b_e_data["supports_free_plans"], key="plan_e_free")
-
-                    ce1, ce2 = st.columns(2)
-                    with ce1:
-                        inv_i_e = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_e")
-                        app_p_e = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_e")
-                        freq_e = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_e")
-                    with ce2:
-                        anos_e = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_e")
-                        rent_e = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_e")
-
-                    epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
-                    efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
-                    espr = b_e_data["spread_percent"]
-                    efx = 0.0 if curr_etf == "EUR" else b_e_data["fx_fee_percent"]
-
-                    per_ano_e = 12 if freq_e == "Mensual" else 1
-                    t_neta_e = rent_e - ter_etf
-                    t_per_e = (t_neta_e / 100.0) / per_ano_e
-                    tot_per_e = anos_e * per_ano_e
-
-                    c_broker_i_e = (inv_i_e * (b_e_data["fee_percent"] / 100.0)) + b_e_data["fee_fixed"]
-                    c_spread_i_e = inv_i_e * (espr / 100.0)
-                    c_fx_i_e = inv_i_e * (efx / 100.0)
-                    c_ini_e = c_broker_i_e + c_spread_i_e + c_fx_i_e
-
-                    saldo_e = max(0.0, inv_i_e - c_ini_e)
-                    aport_e = inv_i_e
-                    a_broker_e = c_broker_i_e
-                    a_spread_e = c_spread_i_e
-                    a_fx_e = c_fx_i_e
-
-                    historial_e = []
-
-                    for p in range(1, tot_per_e + 1):
-                        if p > 1:
-                            cb = (app_p_e * (epct / 100.0)) + efix
-                            cs = app_p_e * (espr / 100.0)
-                            cf = app_p_e * (efx / 100.0)
-                            ct = cb + cs + cf
-
-                            net_app_e = max(0.0, app_p_e - ct)
-                            aport_e += app_p_e
-                            a_broker_e += cb
-                            a_spread_e += cs
-                            a_fx_e += cf
-                            saldo_e = saldo_e * (1 + t_per_e) + net_app_e
-                        else:
-                            saldo_e = saldo_e * (1 + t_per_e)
-
-                        if p % per_ano_e == 0:
-                            ano_act_e = p // per_ano_e
-                            c_tot_e = a_broker_e + a_spread_e + a_fx_e
-                            int_b_e = saldo_e - (aport_e - c_tot_e)
-                            
-                            historial_e.append({
-                                "Año": f"Año {ano_act_e}",
-                                "Capital Aportado Bruto (€)": round(aport_e, 2),
-                                "Comisiones Bróker (€)": round(a_broker_e, 2),
-                                "Coste Spread (€)": round(a_spread_e, 2),
-                                "Coste Cambio Divisa (€)": round(a_fx_e, 2),
-                                "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
-                                "Capital Total Neto (€)": round(saldo_e, 2)
-                            })
-
-                    df_sim_e = pd.DataFrame(historial_e)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
-                        st.dataframe(df_sim_e, use_container_width=True)
-
-                    c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
-                    net_aport_e = aport_e - c_tot_acum_e
-                    bruto_e = max(0.0, saldo_e - net_aport_e)
-                    imp_e = bruto_e * 0.19
-                    neto_e = bruto_e - imp_e
-                    liquido_e = net_aport_e + neto_e
-
-                    em1, em2, em3, em4 = st.columns(4)
-                    em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                    em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
-                    em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
-                    em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
-
-                    st.markdown(f"""
-                    <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF</div>
-                        <div class="final-net-value">{liquido_e:,.2f} €</div>
-                    </div>
-                    """, unsafe_allow_html=True)
