@@ -104,7 +104,7 @@ st.markdown("""
     @keyframes slideRightStream {
         0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
         50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #eab308, 0 0 22px #eab308; }
-        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 12px #eab308; }
+        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
     }
 
     .arrow-item-up {
@@ -254,7 +254,7 @@ TICKER_DB = {
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
     "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los plans de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
 }
 
 FUND_DB = {
@@ -366,7 +366,6 @@ ETF_DB = {
     },
 }
 
-# PAREJAS DE COMPARACIÓN DIRECTA FONDO VS ETF
 COMPARISON_PAIRS = {
     "MSCI World (Renta Variable Global)": {
         "fund_name": "Vanguard Global Stock Index Fund EUR Acc",
@@ -516,7 +515,6 @@ if st.session_state.stage == 'home':
             st.session_state.stage = "sub_options"
             st.rerun()
 
-    # BOTÓN DE COMPARACIÓN FONDO VS ETF DEBAJO DE LOS TRES BOTONES
     st.markdown("<br>", unsafe_allow_html=True)
     if st.button("⚔️ Comparador Directo: Fondo Indexado vs. ETF (Mismo Índice)", use_container_width=True):
         st.session_state.stage = "comparator_view"
@@ -524,7 +522,38 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    # 1. CUESTIONARIO INTERACTIVO CON OPCIÓN HÍBRIDA EN LA PREGUNTA 1
+    # 1. RECOMENDADO DEL MES (AHORA DELANTE DEL ASISTENTE INTERACTIVO)
+    st.markdown("### 🌟 Recomendado del Mes")
+    st.markdown(f"""
+    <div class="featured-card">
+        <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
+        <span class="score-tag">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
+        <h3 style="margin: 10px 0 6px 0; color: #f8fafc;">{top_asset['name']}</h3>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">{top_asset['desc']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_top_a, col_top_b = st.columns(2)
+    with col_top_a:
+        if st.button(f"🔍 Evaluar {top_asset['name']}", key="rec_eval_single_top", use_container_width=True, type="primary"):
+            st.session_state.asset_type = top_asset['asset_type']
+            st.session_state.sub_type = top_asset['sub_type']
+            st.session_state.selected_eval_input = top_asset['ticker']
+            st.session_state.stage = "analyzer"
+            st.rerun()
+    with col_top_b:
+        if st.button("➕ Añadir a mi Cartera", key="rec_add_single_top", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
+                "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
+                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist']
+            })
+            guardar_en_url()
+            st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
+
+    st.markdown("---")
+
+    # 2. CUESTIONARIO INTERACTIVO
     st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
     with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
         q_knowledge = st.radio(
@@ -567,37 +596,6 @@ if st.session_state.stage == 'home':
                 st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales (TER del 0.03% vs 0.18%) compensa con creces cualquier ventaja fiscal de traspaso.")
             elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
                 st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
-
-    st.markdown("---")
-
-    # 2. RECOMENDADO DEL MES
-    st.markdown("### 🌟 Recomendado del Mes")
-    st.markdown(f"""
-    <div class="featured-card">
-        <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
-        <span class="score-tag">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
-        <h3 style="margin: 10px 0 6px 0; color: #f8fafc;">{top_asset['name']}</h3>
-        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">{top_asset['desc']}</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col_top_a, col_top_b = st.columns(2)
-    with col_top_a:
-        if st.button(f"🔍 Evaluar {top_asset['name']}", key="rec_eval_single_top", use_container_width=True, type="primary"):
-            st.session_state.asset_type = top_asset['asset_type']
-            st.session_state.sub_type = top_asset['sub_type']
-            st.session_state.selected_eval_input = top_asset['ticker']
-            st.session_state.stage = "analyzer"
-            st.rerun()
-    with col_top_b:
-        if st.button("➕ Añadir a mi Cartera", key="rec_add_single_top", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
-                "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
-                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist']
-            })
-            guardar_en_url()
-            st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
 
 # ----------------------------------------------------
 # SECCIÓN COMPARADOR FONDO VS ETF
