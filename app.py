@@ -1074,54 +1074,74 @@ elif st.session_state.stage == 'analyzer':
             fund_query = st.text_input("Escribe una palabra clave, nombre o ISIN (ej. 'vanguard', 'msci world', 'IE00B03HD191'):", value=default_input).strip()
             
             user_input = ""
+            matched_catalog_fund = None
             if fund_query:
-                with st.spinner(f"Buscando '{fund_query}' en la base de fondos..."):
-                    try:
-                        results = yf.Search(fund_query, max_results=8).quotes
-                        fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper()]
-                        if not fund_results:
-                            fund_results = results
+                q_low = fund_query.lower()
+                matched_catalog_fund = next((data for key, data in FUND_DB.items() if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key), None)
 
-                        if fund_results:
-                            st.success(f"¡Se han encontrado {len(fund_results)} resultados en tiempo real!")
-                            options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in fund_results}
-                            selected_label = st.selectbox("Selecciona el Fondo de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
-                            
-                            if not selected_label.startswith("--"):
-                                user_input = options_map[selected_label]
-                        else:
-                            st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
+            if matched_catalog_fund:
+                st.success(f"✨ Activo encontrado en el catálogo verificado: **{matched_catalog_fund['name']} ({matched_catalog_fund['ticker']})**")
+                if st.button("👉 Seleccionar este fondo del catálogo", type="primary"):
+                    user_input = matched_catalog_fund['ticker']
+            else:
+                if fund_query:
+                    with st.spinner(f"Buscando '{fund_query}' en la base de fondos..."):
+                        try:
+                            results = yf.Search(fund_query, max_results=8).quotes
+                            fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper()]
+                            if not fund_results:
+                                fund_results = results
+
+                            if fund_results:
+                                st.success(f"¡Se han encontrado {len(fund_results)} resultados en tiempo real!")
+                                options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in fund_results}
+                                selected_label = st.selectbox("Selecciona el Fondo de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
+                                
+                                if not selected_label.startswith("--"):
+                                    user_input = options_map[selected_label]
+                            else:
+                                st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
+                                user_input = fund_query
+                        except Exception as e:
+                            st.error(f"Error en la búsqueda en tiempo real: {e}")
                             user_input = fund_query
-                    except Exception as e:
-                        st.error(f"Error en la búsqueda en tiempo real: {e}")
-                        user_input = fund_query
 
         elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Buscador Inteligente en Tiempo Real de ETFs")
-            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'crude', 'gold', 'tech', 'SPYL.DE'):", value=default_input).strip()
+            st.markdown("### 🌐 Buscador Inteligente de ETFs (Catálogo + Tiempo Real)")
+            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'SPYL.DE', 'World'):", value=default_input).strip()
             
             user_input = ""
+            matched_catalog_etf = None
             if search_query:
-                with st.spinner(f"Buscando '{search_query}' en los mercados globales..."):
-                    try:
-                        results = yf.Search(search_query, max_results=8).quotes
-                        etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
-                        if not etf_results:
-                            etf_results = results
-                        
-                        if etf_results:
-                            st.success(f"¡Se han encontrado {len(etf_results)} resultados en tiempo real!")
-                            options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in etf_results}
-                            selected_label = st.selectbox("Selecciona el ETF de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
+                q_low = search_query.lower()
+                matched_catalog_etf = next((data for key, data in ETF_DB.items() if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key), None)
+
+            if matched_catalog_etf:
+                st.success(f"✨ ETF verificado encontrado en catálogo: **{matched_catalog_etf['name']} ({matched_catalog_etf['ticker']})** [TER: {matched_catalog_etf['ter']}%]")
+                if st.button("👉 Seleccionar este ETF verificado", type="primary"):
+                    user_input = matched_catalog_etf['ticker']
+            else:
+                if search_query:
+                    with st.spinner(f"Buscando '{search_query}' en los mercados globales..."):
+                        try:
+                            results = yf.Search(search_query, max_results=8).quotes
+                            etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
+                            if not etf_results:
+                                etf_results = results
                             
-                            if not selected_label.startswith("--"):
-                                user_input = options_map[selected_label]
-                        else:
-                            st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
+                            if etf_results:
+                                st.success(f"¡Se han encontrado {len(etf_results)} resultados en tiempo real!")
+                                options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in etf_results}
+                                selected_label = st.selectbox("Selecciona el ETF de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
+                                
+                                if not selected_label.startswith("--"):
+                                    user_input = options_map[selected_label]
+                            else:
+                                st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
+                                user_input = search_query.upper()
+                        except Exception as e:
+                            st.error(f"Error en la búsqueda en tiempo real: {e}")
                             user_input = search_query.upper()
-                    except Exception as e:
-                        st.error(f"Error en la búsqueda en tiempo real: {e}")
-                        user_input = search_query.upper()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
