@@ -475,14 +475,14 @@ if st.session_state.stage == 'home':
         
         c_btn_a, c_btn_b = st.columns(2)
         with c_btn_a:
-            if st.button("🔍 Evaluar", key="rec_eval_act", use_container_width=True):
+            if st.button("🔍 Evaluar recomendado", key="rec_eval_act", use_container_width=True):
                 st.session_state.asset_type = "Acciones"
                 st.session_state.sub_type = "Con dividendos"
                 st.session_state.selected_eval_input = act['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_b:
-            if st.button("➕ A Cartera", key="rec_add_act", use_container_width=True):
+            if st.button("➕ Añadir a cartera", key="rec_add_act", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "Acción", "name": act['name'], "ticker": act['ticker'], "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
                 })
