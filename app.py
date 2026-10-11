@@ -261,57 +261,50 @@ FUND_DB = {
     "vanguard global stock acc": {
         "name": "Vanguard Global Stock Index Fund EUR Acc",
         "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World)",
+        "category": "Renta Variable Global (MSCI World) - Acumulación",
         "ter": 0.18,
         "aum": 23000,
         "tracking_error": 0.08,
         "age_years": 15,
         "currency": "EUR",
         "is_dist": False,
+        "div_yield": 0.0,
+    },
+    "vanguard global stock dist": {
+        "name": "Vanguard Global Stock Index Fund EUR Dist",
+        "ticker": "IE00B03HD209",
+        "category": "Renta Variable Global (MSCI World) - Distribución",
+        "ter": 0.18,
+        "aum": 4500,
+        "tracking_error": 0.08,
+        "age_years": 12,
+        "currency": "EUR",
+        "is_dist": True,
+        "div_yield": 1.8,
     },
     "ishares developed world acc": {
         "name": "iShares Developed World Index Fund (IE) D Acc EUR",
         "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World)",
+        "category": "Renta Variable Global (MSCI World) - Acumulación",
         "ter": 0.12,
         "aum": 25000,
         "tracking_error": 0.05,
         "age_years": 10,
         "currency": "EUR",
         "is_dist": False,
-    },
-    "fidelity msci world acc": {
-        "name": "Fidelity MSCI World Index Fund EUR P Acc",
-        "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.10,
-        "aum": 8500,
-        "tracking_error": 0.06,
-        "age_years": 8,
-        "currency": "EUR",
-        "is_dist": False,
+        "div_yield": 0.0,
     },
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
         "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500)",
+        "category": "Renta Variable EE.UU. (S&P 500) - Acumulación",
         "ter": 0.10,
         "aum": 17000,
         "tracking_error": 0.03,
         "age_years": 22,
         "currency": "EUR",
         "is_dist": False,
-    },
-    "fidelity us index acc": {
-        "name": "Fidelity S&P 500 Index Fund EUR P Acc",
-        "ticker": "IE00BYX5MX67",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.06,
-        "aum": 6200,
-        "tracking_error": 0.03,
-        "age_years": 7,
-        "currency": "EUR",
-        "is_dist": False,
+        "div_yield": 0.0,
     },
 }
 
@@ -319,7 +312,7 @@ ETF_DB = {
     "vwce.de": {
         "name": "Vanguard FTSE All-World UCITS ETF (Acc)",
         "ticker": "VWCE.DE",
-        "category": "Renta Variable Global (All-World)",
+        "category": "Renta Variable Global (All-World) - Acumulación",
         "ter": 0.22,
         "aum": 15000,
         "replication": "Física (Completa)",
@@ -327,23 +320,25 @@ ETF_DB = {
         "currency": "EUR",
         "age_years": 7,
         "is_dist": False,
+        "div_yield": 0.0,
     },
-    "swda.l": {
-        "name": "iShares Core MSCI World UCITS ETF (Acc)",
-        "ticker": "SWDA.L",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.20,
-        "aum": 68000,
-        "replication": "Física (Muestreo)",
-        "te": 0.03,
+    "vwrl.de": {
+        "name": "Vanguard FTSE All-World UCITS ETF (Dist)",
+        "ticker": "VWRL.DE",
+        "category": "Renta Variable Global (All-World) - Distribución",
+        "ter": 0.22,
+        "aum": 8000,
+        "replication": "Física (Completa)",
+        "te": 0.04,
         "currency": "EUR",
-        "age_years": 14,
-        "is_dist": False,
+        "age_years": 12,
+        "is_dist": True,
+        "div_yield": 2.1,
     },
     "spyl.de": {
         "name": "SPDR S&P 500 UCITS ETF (Acc)",
         "ticker": "SPYL.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)",
+        "category": "Renta Variable EE.UU. (S&P 500) - Acumulación",
         "ter": 0.03,
         "aum": 12000,
         "replication": "Física (Completa)",
@@ -351,18 +346,19 @@ ETF_DB = {
         "currency": "EUR",
         "age_years": 3,
         "is_dist": False,
+        "div_yield": 0.0,
     },
-    "eqqq.de": {
-        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF",
-        "ticker": "EQQQ.DE",
-        "category": "Tecnología (NASDAQ-100)",
-        "ter": 0.30,
-        "aum": 11500,
-        "replication": "Física (Completa)",
-        "te": 0.05,
-        "currency": "EUR",
-        "age_years": 21,
+    "vanguard high dividend yield etf": {
+        "name": "Vanguard High Dividend Yield ETF (VYM - Dist)",
+        "ticker": "VYM",
+        "category": "Renta Variable Dividendos (EE.UU.) - Distribución",
+        "ter": 0.06,
+        "aum": 55000,
+        "replication": "Física",
+        "te": 0.02,
+        "currency": "USD",
         "is_dist": True,
+        "div_yield": 3.0,
     },
     "sgld.l": {
         "name": "Invesco Physical Gold ETC",
@@ -373,8 +369,8 @@ ETF_DB = {
         "replication": "Física (Oro)",
         "te": 0.01,
         "currency": "USD",
-        "age_years": 15,
         "is_dist": False,
+        "div_yield": 0.0,
     },
     "uso": {
         "name": "United States Oil Fund, LP (Crudo)",
@@ -385,8 +381,8 @@ ETF_DB = {
         "replication": "Futuros",
         "te": 0.15,
         "currency": "USD",
-        "age_years": 18,
         "is_dist": False,
+        "div_yield": 0.0,
     }
 }
 
@@ -397,7 +393,7 @@ def get_best_single_monthly_recommendation():
     candidates.append({
         "type_label": "Acción del Mes", "asset_type": "Acciones", "sub_type": "Con dividendos",
         "name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"],
-        "desc": stock_data["racha"], "score": 4.3, "grade": "A", "ter": 0.0, "is_dist": True
+        "desc": stock_data["racha"], "score": 4.3, "grade": "A", "ter": 0.0, "is_dist": True, "div_yield": stock_data["div_yield"]
     })
 
     best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
@@ -406,7 +402,7 @@ def get_best_single_monthly_recommendation():
         "type_label": "Fondo del Mes", "asset_type": "Fondos indexados", "sub_type": "Acumulación",
         "name": fund_data["name"], "ticker": fund_data["ticker"],
         "desc": f"ISIN: {fund_data['ticker']} | TER ultra bajo: {fund_data['ter']}% ({fund_data['category']})",
-        "score": 4.6, "grade": "A+", "ter": fund_data["ter"], "is_dist": False
+        "score": 4.6, "grade": "A+", "ter": fund_data["ter"], "is_dist": False, "div_yield": 0.0
     })
 
     best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
@@ -415,7 +411,7 @@ def get_best_single_monthly_recommendation():
         "type_label": "ETF del Mes", "asset_type": "ETFs", "sub_type": "Evaluación ETF",
         "name": etf_data["name"], "ticker": etf_data["ticker"],
         "desc": f"Ticker: {etf_data['ticker']} | TER: {etf_data['ter']}% ({etf_data['category']})",
-        "score": 4.7, "grade": "A+", "ter": etf_data["ter"], "is_dist": False
+        "score": 4.7, "grade": "A+", "ter": etf_data["ter"], "is_dist": False, "div_yield": 0.0
     })
     return max(candidates, key=lambda c: c["score"])
 
@@ -513,13 +509,12 @@ if st.session_state.stage == 'home':
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("⚔️ Comparador Multiactivo Avanzado (1 a 4 Fondos o ETFs con Buscador Global)", use_container_width=True):
+    if st.button("⚔️ Comparador Multiactivo Global (Fondos Acc/Dist, ETFs Reparto y Materias Primas)", use_container_width=True):
         st.session_state.stage = "comparator_view"
         st.rerun()
 
     st.markdown("---")
 
-    # 1. RECOMENDADO DEL MES
     st.markdown("### 🌟 Recomendado del Mes")
     st.markdown(f"""
     <div class="featured-card">
@@ -548,67 +543,21 @@ if st.session_state.stage == 'home':
             guardar_en_url()
             st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
 
-    st.markdown("---")
-
-    # 2. CUESTIONARIO INTERACTIVO
-    st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
-    with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
-        q_knowledge = st.radio(
-            "0. ¿Tienes conocimientos sobre inversiones?",
-            [
-                "Sí, me he informado y tengo conocimientos sobre fondos indexados, ETFs e impuestos asociados",
-                "No, acabo de conocer este mundo y necesito consejo o información"
-            ]
-        )
-        
-        q_goal = st.radio(
-            "1. ¿Qué objetivo estás buscando?",
-            [
-                "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
-                "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
-                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
-            ]
-        )
-        
-        q_moves = st.radio(
-            "2. ¿Tienes pensado hacer cambios en tus inversiones, rebalanceos o cambiar de activos?",
-            [
-                "No lo sé, no sé qué es eso ni lo que implicaría",
-                "No, quiero comprar y mantener sin tocar nada durante décadas",
-                "Sí, es probable que quiera mover posiciones o reestructurar"
-            ]
-        )
-        
-        if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
-            st.markdown("---")
-            
-            if "No, acabo" in q_knowledge:
-                st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) un poco más bajas.")
-
-            if "Híbrido" in q_goal:
-                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER) para optimizar comisiones al máximo.\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) para poder retirar o mover capital sin penalización ni peaje fiscal inmediato en tus transacciones.")
-            elif "Corto plazo" in q_goal:
-                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo (coche, reformas, imprevistos), los **Fondos Indexados** son la opción más recomendable por su flexibilidad al reembolsar o cambiar de estrategia sin peaje fiscal inmediato.")
-            elif "Largo plazo" in q_goal and "No, quiero comprar" in q_moves:
-                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales (TER del 0.03% vs 0.18%) compensa con creces cualquier ventaja fiscal de traspaso.")
-            elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
-                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
-
 # ----------------------------------------------------
-# SECCIÓN COMPARADOR MULTIACTIVO GLOBAL (1 A 4)
+# SECCIÓN COMPARADOR MULTIACTIVO GLOBAL (1 A 4) CON DISTRIBUCIÓN
 # ----------------------------------------------------
 elif st.session_state.stage == 'comparator_view':
     if st.button("← Volver al Menú Principal"):
         reset_navigation()
         st.rerun()
 
-    st.title("⚔️ Comparador Multiactivo Global con Buscador en Tiempo Real")
-    st.markdown("Compara de 1 a 4 activos de cualquier categoría (ej. oro `SGLD.L`, crudo `USO`, S&P 500, acciones o fondos) buscando en tiempo real en los mercados globales.")
+    st.title("⚔️ Comparador Multiactivo Global (Fondos Acc/Dist & ETFs de Reparto)")
+    st.markdown("Compara de 1 a 4 activos simultáneamente en tiempo real. Configura fondos de acumulación, **fondos de distribución**, **ETFs de dividendos/reparto**, oro o crudo, y analiza el impacto fiscal anual en los repartos.")
 
     num_compare = st.slider("Número de activos a comparar:", min_value=1, max_value=4, value=2)
 
     st.markdown("---")
-    st.markdown("### 🔍 Configuración de Activos por Búsqueda Global")
+    st.markdown("### 🔍 Configuración de Activos y Modalidad (Acumulación vs Distribución)")
 
     selected_assets_config = []
     cols_sel = st.columns(num_compare)
@@ -617,116 +566,135 @@ elif st.session_state.stage == 'comparator_view':
         with cols_sel[i]:
             st.markdown(f"#### Activo {i+1}")
             
-            # Input de búsqueda dinámica para este slot
             search_query_i = st.text_input(
-                f"Busca activo {i+1} (ej. 'gold', 'oil', 'SPYL', 'Vanguard')",
-                value="SGLD.L" if i == 0 else ("USO" if i == 1 else "SPYL.DE"),
+                f"Busca activo {i+1} (ej. 'VWRL', 'dist', 'gold', 'SPYL')",
+                value="VWCE.DE" if i == 0 else ("VWRL.DE" if i == 1 else "SGLD.L"),
                 key=f"comp_query_{i}"
             ).strip()
 
-            # Resolver opciones en tiempo real para este slot
             slot_options = {}
-            # Primero incluir catálogo verificado base
             for k, d in ETF_DB.items():
                 if search_query_i.lower() in d['name'].lower() or search_query_i.lower() in d['ticker'].lower():
-                    slot_options[f"✨ [Verificado] {d['name']} ({d['ticker']})"] = {
-                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "ETF"
+                    tag_d = " [Distribución]" if d['is_dist'] else " [Acumulación]"
+                    slot_options[f"✨{tag_d} {d['name']} ({d['ticker']})"] = {
+                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "ETF", "is_dist": d['is_dist'], "div_yield": d['div_yield']
                     }
             for k, d in FUND_DB.items():
                 if search_query_i.lower() in d['name'].lower() or search_query_i.lower() in d['ticker'].lower():
-                    slot_options[f"📁 [Fondo] {d['name']} ({d['ticker']})"] = {
-                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "Fondo Indexado"
+                    tag_d = " [Distribución]" if d['is_dist'] else " [Acumulación]"
+                    slot_options[f"📁{tag_d} {d['name']} ({d['ticker']})"] = {
+                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "Fondo Indexado", "is_dist": d['is_dist'], "div_yield": d['div_yield']
                     }
 
-            # Búsqueda global online (Yahoo Finance)
             try:
-                rt_results = yf.Search(search_query_i, max_results=15).quotes
+                rt_results = yf.Search(search_query_i, max_results=12).quotes
                 for item in rt_results:
                     sym = item.get('symbol')
                     sname = item.get('shortname', item.get('longname', sym))
                     ex = item.get('exchange', '')
                     if sym and sym not in [v['ticker'] for v in slot_options.values()]:
                         slot_options[f"🌐 [Mercado Real] {sname} ({sym}) [{ex}]"] = {
-                            "name": sname, "ticker": sym, "ter": 0.20, "type": "ETF / Activo"
+                            "name": sname, "ticker": sym, "ter": 0.20, "type": "ETF / Activo", "is_dist": False, "div_yield": 0.0
                         }
             except:
                 pass
 
             if not slot_options:
                 slot_options[f"⚡ [Directo] {search_query_i.upper()}"] = {
-                    "name": search_query_i.upper(), "ticker": search_query_i.upper(), "ter": 0.20, "type": "Activo"
+                    "name": search_query_i.upper(), "ticker": search_query_i.upper(), "ter": 0.20, "type": "Activo", "is_dist": False, "div_yield": 0.0
                 }
 
-            chosen_label = st.selectbox(f"Selecciona de resultados [A{i+1}]", options=list(slot_options.keys()), key=f"comp_slot_sel_{i}")
+            chosen_label = st.selectbox(f"Selecciona activo [A{i+1}]", options=list(slot_options.keys()), key=f"comp_slot_sel_{i}")
             chosen_asset = slot_options[chosen_label]
 
+            # Si es de distribución, permitir configurar la rentabilidad por dividendo estimada
+            def_div_yield = float(chosen_asset.get("div_yield", 2.0 if chosen_asset.get("is_dist") else 0.0))
+            
             inv_ini_i = st.number_input(f"Inv. Inicial (€) [A{i+1}]", min_value=0.0, value=2000.0, step=500.0, key=f"comp_ini_{i}")
             app_per_i = st.number_input(f"Aportación Mensual (€) [A{i+1}]", min_value=0.0, value=150.0, step=50.0, key=f"comp_app_{i}")
             anos_i = st.slider(f"Plazo (Años) [A{i+1}]", min_value=1, max_value=40, value=20, key=f"comp_anos_{i}")
             rent_i = st.slider(f"Rentabilidad Anual (%) [A{i+1}]", min_value=1.0, max_value=25.0, value=7.5, step=0.5, key=f"comp_rent_{i}")
             
+            div_yield_i = def_div_yield
+            if chosen_asset["is_dist"] or st.checkbox(f"Simular como Distribución / Reparto [A{i+1}]", value=chosen_asset["is_dist"], key=f"chk_dist_{i}"):
+                chosen_asset["is_dist"] = True
+                div_yield_i = st.slider(f"Rentabilidad Dividendos Yield (%) [A{i+1}]", min_value=0.5, max_value=6.0, value=max(1.0, def_div_yield), step=0.1, key=f"div_y_slider_{i}")
+
             selected_assets_config.append({
                 "name": chosen_asset["name"],
                 "ticker": chosen_asset["ticker"],
                 "ter": chosen_asset["ter"],
                 "type": chosen_asset["type"],
+                "is_dist": chosen_asset["is_dist"],
+                "div_yield": div_yield_i,
                 "inv_ini": inv_ini_i,
                 "app_per": app_per_i,
                 "anos": anos_i,
                 "rent": rent_i
             })
 
-    def calc_multisim(inv_ini, app_mensual, anos, rent_bruta, ter):
-        periodos = anos * 12
-        tasa_neta_anual = max(0.0, rent_bruta - ter)
+    def calc_multisim_advanced(cfg):
+        periodos = cfg["anos"] * 12
+        tasa_neta_anual = max(0.0, cfg["rent"] - cfg["ter"])
         tasa_periodica = (tasa_neta_anual / 100.0) / 12.0
         
-        saldo = inv_ini
-        total_aportado = inv_ini
+        saldo = cfg["inv_ini"]
+        total_aportado = cfg["inv_ini"]
+        total_dividendos_brutos = 0.0
+        total_impuestos_dividendos = 0.0
         
         for p in range(1, periodos + 1):
             if p > 1:
-                saldo = saldo * (1 + tasa_periodica) + app_mensual
-                total_aportado += app_mensual
+                saldo = saldo * (1 + tasa_periodica) + cfg["app_per"]
+                total_aportado += cfg["app_per"]
             else:
                 saldo = saldo * (1 + tasa_periodica)
                 
+            # Si es de distribución, cada año (mes 12, 24, etc.) se reparte el dividendo en efectivo
+            if cfg["is_dist"] and p % 12 == 0:
+                div_anual_bruto = saldo * (cfg["div_yield"] / 100.0)
+                div_anual_neto = div_anual_bruto * (1 - 0.19) # 19% IRPF en base del ahorro en España
+                total_dividendos_brutos += div_anual_bruto
+                total_impuestos_dividendos += (div_anual_bruto - div_anual_neto)
+                # En distribución, el dividendo sale del fondo al bolsillo, por lo que no se acumula dentro del saldo compuesto
+                saldo -= div_anual_bruto
+
         beneficio_bruto = max(0.0, saldo - total_aportado)
-        impuestos = beneficio_bruto * 0.19
-        beneficio_neto = beneficio_bruto - impuestos
-        capital_liquido = total_aportado + beneficio_neto
+        impuestos_venta = beneficio_bruto * 0.19 if not cfg["is_dist"] else 0.0
+        beneficio_neto = beneficio_bruto - impuestos_venta
+        capital_liquido = total_aportado + beneficio_neto + (total_dividendos_brutos - total_impuestos_dividendos if cfg["is_dist"] else 0.0)
         
-        return total_aportado, saldo, beneficio_bruto, beneficio_neto, capital_liquido
+        return total_aportado, saldo, beneficio_bruto, beneficio_neto, total_dividendos_brutos, total_impuestos_dividendos, capital_liquido
 
     st.markdown("---")
-    st.markdown("### 📊 Resultados Comparativos Finales")
+    st.markdown("### 📊 Resultados Comparativos Detallados")
 
     cols_res = st.columns(num_compare)
 
     for i, cfg in enumerate(selected_assets_config):
-        aport, saldo, b_bruto, b_neto, liq = calc_multisim(
-            cfg["inv_ini"], cfg["app_per"], cfg["anos"], cfg["rent"], cfg["ter"]
-        )
+        aport, saldo, b_bruto, b_neto, div_b, div_imp, liq = calc_multisim_advanced(cfg)
+        modalidad_str = f"📥 Distribución (Div: {cfg['div_yield']:.1f}%)" if cfg["is_dist"] else "🔄 Acumulación"
         
         with cols_res[i]:
             st.markdown(f"""
             <div class="compare-box">
-                <h3 style="color: #38bdf8;">{cfg['type']}</h3>
-                <h4 style="font-size: 1rem; min-height: 40px;">{cfg['name']}</h4>
+                <h3 style="color: #38bdf8; font-size: 1.1rem;">{cfg['type']}</h3>
+                <h4 style="font-size: 0.95rem; min-height: 45px;">{cfg['name']}</h4>
                 <p><strong>Ticker:</strong> {cfg['ticker']} | <strong>TER:</strong> {cfg['ter']}%</p>
+                <p style="color: #34d399; font-weight: bold;">{modalidad_str}</p>
                 <hr style="border-color: #334155;">
-                <p>Plazo: <strong>{cfg['anos']} años</strong> | Rent. Est: <strong>{cfg['rent']}%</strong></p>
+                <p>Plazo: <strong>{cfg['anos']} años</strong> | Rent: <strong>{cfg['rent']}%</strong></p>
                 <p>Capital Invertido: <strong>{aport:,.2f} €</strong></p>
-                <p>Capital Bruto Acumulado: <strong>{saldo:,.2f} €</strong></p>
-                <p>Beneficio Neto (Tras 19% IRPF): <strong>{b_neto:,.2f} €</strong></p>
-                <h3 style="color: #34d399; margin-top: 15px;">Líquido Final: {liq:,.2f} €</h3>
+                <p>Valor Cartera Final: <strong>{saldo:,.2f} €</strong></p>
+                {"<p>Dividendos Brutos Cobrados: <strong>" + f"{div_b:,.2f} €</strong></p><p>Impuestos Dividendos (19%): <strong>-{div_imp:,.2f} €</strong></p>" if cfg["is_dist"] else "<p>Beneficio Neto (Venta): <strong>" + f"{b_neto:,.2f} €</strong></p>"}
+                <h3 style="color: #34d399; margin-top: 15px;">Líquido Total: {liq:,.2f} €</h3>
             </div>
             """, unsafe_allow_html=True)
             
             if st.button(f"➕ Añadir a Cartera [A{i+1}]", key=f"add_comp_cartera_{i}", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": cfg['type'], "name": cfg['name'], "ticker": cfg['ticker'],
-                    "est_rent": cfg['rent'], "ter": cfg['ter'], "currency": "EUR", "is_dist": False
+                    "est_rent": cfg['rent'], "ter": cfg['ter'], "currency": "EUR", "is_dist": cfg['is_dist']
                 })
                 guardar_en_url()
                 st.success(f"¡{cfg['name']} añadido a tu Cartera!")
@@ -789,7 +757,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# SECCIÓN FAVORITOS
+# SECCIÓN FAVORITOS Y CARTERA
 # ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
     if st.button("← Volver al Analizador"):
@@ -799,15 +767,14 @@ elif st.session_state.stage == 'favorites_view':
     st.title("⭐ Mis Activos Favoritos")
 
     if not st.session_state.favorites:
-        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos o ETFs y pulsa **'⭐ Añadir a Favoritos'** en sus informes.")
+        st.info("No tienes ningún activo guardado en favoritos todavía.")
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
                 col_fav1, col_fav2, col_fav3, col_fav4 = st.columns([2, 1, 1, 1])
                 with col_fav1:
-                    st.markdown(f"**Categoría / Detalles:** {fav.get('category', 'General')}")
-                    st.markdown(f"**TER / Coste anual:** {fav.get('ter', 0.0)}%")
-                    st.markdown(f"**Divisa:** {fav.get('currency', 'EUR')}")
+                    st.markdown(f"**Categoría:** {fav.get('category', 'General')}")
+                    st.markdown(f"**TER:** {fav.get('ter', 0.0)}%")
                 with col_fav2:
                     if st.button("🔍 Evaluar", key=f"fav_eval_{idx}", use_container_width=True):
                         st.session_state.asset_type = "Acciones" if fav['type'] == "Acción" else ("Fondos indexados" if fav['type'] == "Fondo Indexado" else "ETFs")
@@ -822,21 +789,13 @@ elif st.session_state.stage == 'favorites_view':
                             "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), "is_dist": fav.get('is_dist', False)
                         })
                         guardar_en_url()
-                        st.success(f"¡{fav['name']} añadido a la Cartera!")
+                        st.success("¡Añadido!")
                 with col_fav4:
                     if st.button("🗑️ Quitar", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
                         guardar_en_url()
                         st.rerun()
 
-        if st.button("🗑️ Vaciar Lista de Favoritos"):
-            st.session_state.favorites = []
-            guardar_en_url()
-            st.rerun()
-
-# ----------------------------------------------------
-# SECCIÓN CARTERA CONSOLIDADA
-# ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
         st.session_state.stage = 'analyzer' if st.session_state.asset_type else 'home'
@@ -845,10 +804,8 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
+        st.info("🛒 Tu cartera está vacía. Añade activos desde los informes o el comparador.")
     else:
-        st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
-        
         c_p1, c_p2 = st.columns(2)
         with c_p1:
             anos_cartera = st.slider("Plazo Temporal Consolidado (Años)", min_value=1, max_value=40, value=15, key="anos_cart")
@@ -856,8 +813,6 @@ elif st.session_state.stage == 'portfolio_view':
             frecuencia_cartera = st.selectbox("Frecuencia de Aportaciones", options=["Mensual", "Anual"], key="freq_cart")
 
         st.markdown("---")
-        st.markdown("### 📋 Desglose y Configuración por Activo")
-
         total_capital_bruto_acum = 0.0
         total_capital_aportado_acum = 0.0
         total_costes_acum = 0.0
@@ -879,7 +834,7 @@ elif st.session_state.stage == 'portfolio_view':
                     sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
                 with col_b2:
                     b_data = broker_profiles[sel_broker]
-                    plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
+                    plan_sc = st.checkbox("Plan automático a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
 
                 col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
                 with col_i1:
@@ -950,14 +905,12 @@ elif st.session_state.stage == 'portfolio_view':
                             "Capital Aportado Bruto (€)": round(total_aport_acum, 2),
                             "Comisiones Bróker (€)": round(acum_b, 2),
                             "Coste Spread (€)": round(acum_s, 2),
-                            "Coste Cambio Divisa (€)": round(acum_f, 2),
+                            "Coste Divisa (€)": round(acum_f, 2),
                             "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
                             "Capital Total Neto (€)": round(saldo_act, 2)
                         })
 
-                df_act = pd.DataFrame(historial_activo)
-                st.markdown("##### 📊 Desglose de crecimiento anual para este activo:")
-                st.dataframe(df_act, use_container_width=True)
+                st.dataframe(pd.DataFrame(historial_activo), use_container_width=True)
 
                 total_capital_bruto_acum += saldo_act
                 total_capital_aportado_acum += total_aport_acum
@@ -972,29 +925,27 @@ elif st.session_state.stage == 'portfolio_view':
             capital_liquido_global = capital_neto_aportado + beneficio_neto_global
 
             st.markdown("---")
-            st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
-
             if has_dividend_asset:
                 div_neto_global = total_dividendos_brutos_acum * (1 - 0.19)
                 m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
                 m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
-                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m2.metric("Costes", f"{total_costes_acum:,.2f} €")
                 m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
-                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m4.metric("Impuestos", f"{impuestos_globales:,.2f} €")
                 m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
-                m6.metric("Total Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
-                m7.metric("Total Div. Netos", f"{div_neto_global:,.2f} €")
+                m6.metric("Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
+                m7.metric("Div. Netos", f"{div_neto_global:,.2f} €")
             else:
                 m1, m2, m3, m4, m5 = st.columns(5)
                 m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
-                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m2.metric("Costes", f"{total_costes_acum:,.2f} €")
                 m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
-                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m4.metric("Impuestos", f"{impuestos_globales:,.2f} €")
                 m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
 
             st.markdown(f"""
             <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos)</div>
+                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera</div>
                 <div class="final-net-value">{capital_liquido_global:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
@@ -1026,9 +977,6 @@ elif st.session_state.stage == 'analyzer':
         last_p = float(closes.iloc[-1])
         pct_change = ((last_p - first_p) / first_p) * 100
 
-        if pd.isna(pct_change):
-            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
-
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
@@ -1039,596 +987,45 @@ elif st.session_state.stage == 'analyzer':
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
         ranking_data = [{"Fondo": data["name"], "ISIN": data["ticker"], "Categoría": data["category"], "TER Anual (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Antigüedad (Años)": data["age_years"]} for data in FUND_DB.values()]
-        df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
-        st.dataframe(df_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER de la gestora.")
-        if st.button("← Volver al menú de fondos"):
+        st.dataframe(pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True), use_container_width=True)
+        if st.button("← Volver"):
             st.session_state.sub_type = None
             st.rerun()
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
-        st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
+        st.title("🏆 Ranking de ETFs (Menor TER)")
         ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "TER (%)": data["ter"], "Patrimonio (M€)": data["aum"], "Réplica": data["replication"]} for data in ETF_DB.values()]
-        df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
-        st.dataframe(df_etf_ranking, use_container_width=True)
-        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER.")
-        if st.button("← Volver al menú de ETFs"):
+        st.dataframe(pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True), use_container_width=True)
+        if st.button("← Volver"):
             st.session_state.sub_type = None
             st.rerun()
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
         st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
-        
-        with tab1:
-            st.subheader("Renta Variable Global")
-            st.markdown("- **Objetivo:** Diversificación global en países desarrollados.")
-        with tab2:
-            st.subheader("Alto Dividendo")
-            st.markdown("- **Objetivo:** Empresas maduras con pagos estables.")
-        with tab3:
-            st.subheader("Materias Primas")
-            st.markdown("- **Objetivo:** Exposición física a oro y commodities.")
-        with tab4:
-            st.subheader("Tecnología")
-            st.markdown("- **Objetivo:** Innovación, IA y software.")
-        with tab5:
-            st.subheader("Renovables y Utilities")
-            st.markdown("- **Objetivo:** Transición energética y eléctricas defensivas.")
-        with tab6:
-            st.subheader("Emergentes")
-            st.markdown("- **Objetivo:** Crecimiento en economías en desarrollo.")
-
-        st.markdown("---")
-        if st.button("← Volver al menú de ETFs"):
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables", "🚀 Emergentes"])
+        with tab1: st.markdown("- Diversificación global en desarrollados.")
+        with tab2: st.markdown("- ETFs de reparto de dividendos (Aristócratas).")
+        with tab3: st.markdown("- Oro, petróleo y materias primas.")
+        with tab4: st.markdown("- Innovación e Inteligencia Artificial.")
+        with tab5: st.markdown("- Transición energética y utilities.")
+        with tab6: st.markdown("- Mercados en desarrollo.")
+        if st.button("← Volver"):
             st.session_state.sub_type = None
             st.rerun()
 
     else:
-        st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
-
+        st.title(f"📈 Analizador: {st.session_state.asset_type}")
         default_input = st.session_state.selected_eval_input
 
         if st.session_state.asset_type == "Acciones":
-            stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
-            selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
-            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value=default_input).strip()
+            stock_options = ["-- Selecciona --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
+            selected_stock_option = st.selectbox("Acciones", options=stock_options)
+            custom_stock_input = st.text_input("O introduce Ticker:", value=default_input).strip()
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
-        elif st.session_state.asset_type == "Fondos indexados":
-            st.markdown("### 🔍 Buscador Inteligente Múltiple de Fondos Indexados")
-            fund_query = st.text_input("Escribe una palabra clave, gestora o ISIN (ej. 'S&P 500', 'iShares', 'Vanguard'):", value=default_input).strip()
-            
-            user_input = ""
-            combined_options = {}
+        elif st.session_state.asset_type in ["Fondos indexados", "ETFs"]:
+            search_query = st.text_input("Buscador de Fondos o ETFs (ej. 'dist', 'gold', 'VWRL'):", value=default_input).strip()
+            user_input = search_query.upper()
 
-            if fund_query:
-                q_clean = fund_query.lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                q_low = fund_query.lower()
-                
-                # 1. Búsqueda exhaustiva en catálogo verificado
-                for key, data in FUND_DB.items():
-                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
-                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
-                        combined_options[label_cat] = data['ticker']
-
-                # 2. Búsqueda en tiempo real con mayor alcance (max_results=30)
-                try:
-                    search_term = "S&P 500 Index Fund" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else fund_query
-                    results = yf.Search(search_term, max_results=30).quotes
-                    
-                    for item in results:
-                        sym = item.get('symbol')
-                        sname = item.get('shortname', item.get('longname', sym))
-                        ex = item.get('exchange', '')
-                        qtype = item.get('quoteType', '')
-                        
-                        if sym and (qtype in ['MUTUALFUND', 'INDEX', 'ETF'] or 'FUND' in sname.upper() or 'INDEX' in sname.upper() or '500' in sname or 'ACC' in sname.upper()):
-                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
-                            if sym not in combined_options.values():
-                                combined_options[label_rt] = sym
-                except Exception as e:
-                    pass
-
-                if combined_options:
-                    st.success(f"¡Se han encontrado {len(combined_options)} fondos disponibles para tu búsqueda!")
-                    selected_label = st.selectbox("Despliega y selecciona el fondo que deseas analizar:", options=["-- Selecciona un fondo de la lista --"] + list(combined_options.keys()))
-                    
-                    if not selected_label.startswith("--"):
-                        user_input = combined_options[selected_label]
-                else:
-                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
-                    user_input = fund_query
-
-        elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Buscador Inteligente Múltiple de ETFs")
-            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'gold', 'oil', 'SPYL.DE'):", value=default_input).strip()
-            
-            user_input = ""
-            combined_etf_options = {}
-
-            if search_query:
-                q_low = search_query.lower()
-                q_clean = q_low.replace("&", "and").replace("s&p", "sp").replace(" ", "")
-
-                # 1. Catálogo de ETFs
-                for key, data in ETF_DB.items():
-                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
-                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
-                        combined_etf_options[label_cat] = data['ticker']
-
-                # 2. Búsqueda en tiempo real (max_results=30)
-                try:
-                    search_term = "S&P 500 ETF" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else search_query
-                    results = yf.Search(search_term, max_results=30).quotes
-                    
-                    for item in results:
-                        sym = item.get('symbol')
-                        sname = item.get('shortname', item.get('longname', sym))
-                        ex = item.get('exchange', '')
-                        
-                        if sym:
-                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
-                            if sym not in combined_etf_options.values():
-                                combined_etf_options[label_rt] = sym
-                except Exception as e:
-                    pass
-
-                if combined_etf_options:
-                    st.success(f"¡Se han encontrado {len(combined_etf_options)} ETFs disponibles para tu búsqueda!")
-                    selected_label = st.selectbox("Despliega y selecciona el ETF de la lista:", options=["-- Selecciona un ETF de la lista --"] + list(combined_etf_options.keys()))
-                    
-                    if not selected_label.startswith("--"):
-                        user_input = combined_etf_options[selected_label]
-                else:
-                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
-                    user_input = search_query.upper()
-
-        def get_stock_data(query):
-            q_lower = query.lower().strip()
-            for key, data in TICKER_DB.items():
-                if key in q_lower or data["ticker"].lower() == q_lower:
-                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", 4.0), data.get("per", 18.0), data.get("beta", 1.0), data.get("payout", 50.0)
-            return query.upper(), "Sin datos de racha previos.", 3.0, 4.0, 18.0, 1.0, 50.0
-
-        def get_letter_grade(score):
-            if score >= 4.5: return "A+"
-            elif score >= 4.0: return "A"
-            elif score >= 3.0: return "B"
-            elif score >= 2.0: return "C"
-            else: return "D"
-
-        if not user_input:
-            st.info("👆 Introduce una palabra clave o selecciona un activo para comenzar.")
-        else:
-            if st.session_state.asset_type == "Acciones":
-                stock_result = get_stock_data(user_input)
-                ticker_input, racha_info, est_div_growth, db_div_yield, db_per, db_beta, db_payout = stock_result
-                
-                try:
-                    stock = yf.Ticker(ticker_input)
-                    hist_price = stock.history(period="3mo")
-                    
-                    current_price = None
-                    if not hist_price.empty and 'Close' in hist_price.columns:
-                        valid_closes = hist_price['Close'].dropna()
-                        if not valid_closes.empty:
-                            current_price = float(valid_closes.iloc[-1])
-
-                    info = stock.info or {}
-                    name = info.get('longName', user_input.title())
-                    currency_symbol = '$' if info.get('currency') == 'USD' else '€'
-                    price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
-                    trend_html = get_trend_chain_stream(hist_price)
-
-                    per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
-                    pfcf_y = info.get('priceToFreeCashflow') or 18.0
-                    pb_y = info.get('priceToBook') or 3.0
-                    roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
-                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
-                    beta_val = info.get('beta') or db_beta
-                    raw_payout = info.get('payoutRatio')
-                    payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
-
-                    total_score = 4.0
-                    grade = get_letter_grade(total_score)
-                    deg = int((total_score / 5.0) * 360)
-                    progress_color = "#22c55e"
-
-                    col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
-                    with col_n1:
-                        st.subheader(f"📊 Informe: {name} ({ticker_input})")
-                    with col_n2:
-                        if st.button("⭐ Añadir a Favoritos", use_container_width=True):
-                            st.session_state.favorites.append({
-                                "type": "Acción", "name": name, "ticker": ticker_input,
-                                "ter": 0.0, "currency": info.get('currency', 'EUR'), "category": "Renta Variable (Acción)"
-                            })
-                            guardar_en_url()
-                            st.success("¡Añadido a Favoritos!")
-                    with col_n3:
-                        if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
-                            st.session_state.portfolio.append({
-                                "type": "Acción", "name": name, "ticker": ticker_input,
-                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True
-                            })
-                            guardar_en_url()
-                            st.success(f"¡{name} añadido a tu Cartera!")
-
-                    st.markdown(f"""
-                    <div class="score-container">
-                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    df_metrics = pd.DataFrame({
-                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividendo Yield", "Payout Ratio", "Beta"],
-                        "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
-                    })
-                    st.table(df_metrics)
-
-                except Exception as e:
-                    st.error(f"Error al obtener datos: {e}")
-
-            elif st.session_state.asset_type == "Fondos indexados":
-                matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower() or data["ticker"].lower() == user_input.lower()), None)
-                
-                if matched_fund:
-                    fund_name = matched_fund["name"]
-                    fund_isin = matched_fund["ticker"]
-                    ter_val = matched_fund["ter"]
-                    aum_val = matched_fund["aum"]
-                    te_val = matched_fund["tracking_error"]
-                    age_val = matched_fund["age_years"]
-                    curr_fund = matched_fund["currency"]
-                    is_dist_fund = matched_fund["is_dist"]
-                    cat_fund = matched_fund["category"]
-                else:
-                    fund_isin = user_input.upper()
-                    try:
-                        live_ticker = yf.Ticker(fund_isin)
-                        info_live = live_ticker.info or {}
-                        fund_name = info_live.get('longName', fund_isin)
-                        curr_fund = info_live.get('currency', 'EUR')
-                    except:
-                        fund_name = fund_isin
-                        curr_fund = 'EUR'
-
-                    ter_val = 0.18
-                    aum_val = 2500
-                    te_val = 0.05
-                    age_val = 10
-                    is_dist_fund = False
-                    cat_fund = "Fondo Indexado Global"
-
-                score_fund = 4.2
-                grade_fund = get_letter_grade(score_fund)
-                deg_fund = int((score_fund / 5.0) * 360)
-                color_fund = "#22c55e"
-                trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
-
-                col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
-                with col_f1:
-                    st.subheader(f"📊 Informe de Fondo: {fund_name}")
-                with col_f2:
-                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_fund"):
-                        st.session_state.favorites.append({
-                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "ter": ter_val, "currency": curr_fund, "category": cat_fund
-                        })
-                        guardar_en_url()
-                        st.success("¡Añadido a Favoritos!")
-                with col_f3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
-                        st.session_state.portfolio.append({
-                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
-                        })
-                        guardar_en_url()
-                        st.success(f"¡{fund_name} añadido a tu Cartera!")
-
-                st.markdown(f"""
-                <div class="score-container">
-                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                df_fund_data = {
-                    "Métrica del Fondo": ["ISIN / Ticker", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
-                    "Valor Actual": [fund_isin, f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
-                }
-                st.table(pd.DataFrame(df_fund_data))
-
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
-                toggle_f_sim = st.toggle("Activar calculadora individual de este fondo", value=False, key="tg_f_sim")
-
-                if toggle_f_sim:
-                    sel_b_f = st.selectbox("Selecciona tu Entidad Comercializadora", options=list(FUND_BROKER_PROFILES.keys()), key="sel_b_f")
-                    b_f_data = FUND_BROKER_PROFILES[sel_b_f]
-                    plan_f_free = st.checkbox("Plan de aportación automática sin comisión", value=b_f_data["supports_free_plans"], key="plan_f_free")
-
-                    cf1, cf2 = st.columns(2)
-                    with cf1:
-                        inv_i_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_f")
-                        app_p_f = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_f")
-                        freq_f = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_f")
-                    with cf2:
-                        anos_f = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_f")
-                        rent_f = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
-
-                    fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
-                    ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
-                    fspr = b_f_data["spread_percent"]
-                    ffx = 0.0 if curr_fund == "EUR" else b_f_data["fx_fee_percent"]
-
-                    per_ano_f = 12 if freq_f == "Mensual" else 1
-                    t_neta_f = rent_f - ter_val
-                    t_per_f = (t_neta_f / 100.0) / per_ano_f
-                    tot_per_f = anos_f * per_ano_f
-
-                    c_broker_i_f = (inv_i_f * (b_f_data["fee_percent"] / 100.0)) + b_f_data["fee_fixed"]
-                    c_spread_i_f = inv_i_f * (fspr / 100.0)
-                    c_fx_i_f = inv_i_f * (ffx / 100.0)
-                    c_ini_f = c_broker_i_f + c_spread_i_f + c_fx_i_f
-
-                    saldo_f = max(0.0, inv_i_f - c_ini_f)
-                    aport_f = inv_i_f
-                    a_broker_f = c_broker_i_f
-                    a_spread_f = c_spread_i_f
-                    a_fx_f = c_fx_i_f
-
-                    historial_f = []
-
-                    for p in range(1, tot_per_f + 1):
-                        if p > 1:
-                            cb = (app_p_f * (fpct / 100.0)) + ffix
-                            cs = app_p_f * (fspr / 100.0)
-                            cf = app_p_f * (ffx / 100.0)
-                            ct = cb + cs + cf
-
-                            net_app_f = max(0.0, app_p_f - ct)
-                            aport_f += app_p_f
-                            a_broker_f += cb
-                            a_spread_f += cs
-                            a_fx_f += cf
-                            saldo_f = saldo_f * (1 + t_per_f) + net_app_f
-                        else:
-                            saldo_f = saldo_f * (1 + t_per_f)
-
-                        if p % per_ano_f == 0:
-                            ano_act_f = p // per_ano_f
-                            c_tot_f = a_broker_f + a_spread_f + a_fx_f
-                            int_b_f = saldo_f - (aport_f - c_tot_f)
-                            
-                            historial_f.append({
-                                "Año": f"Año {ano_act_f}",
-                                "Capital Aportado Bruto (€)": round(aport_f, 2),
-                                "Comisiones Bróker (€)": round(a_broker_f, 2),
-                                "Coste Spread (€)": round(a_spread_f, 2),
-                                "Coste Cambio Divisa (€)": round(a_fx_f, 2),
-                                "Beneficio Neto (€)": round(max(0.0, int_b_f), 2),
-                                "Capital Total Neto (€)": round(saldo_f, 2)
-                            })
-
-                    df_sim_f = pd.DataFrame(historial_f)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
-                        st.dataframe(df_sim_f, use_container_width=True)
-
-                    c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
-                    net_aport_f = aport_f - c_tot_acum_f
-                    bruto_f = max(0.0, saldo_f - net_aport_f)
-                    imp_f = bruto_f * 0.19
-                    neto_f = bruto_f - imp_f
-                    liquido_f = net_aport_f + neto_f
-
-                    fm1, fm2, fm3, fm4 = st.columns(4)
-                    fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
-                    fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
-                    fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
-                    fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
-
-                    st.markdown(f"""
-                    <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo</div>
-                        <div class="final-net-value">{liquido_f:,.2f} €</div>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-            elif st.session_state.asset_type == "ETFs":
-                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
-                
-                if matched_etf:
-                    etf_name = matched_etf["name"]
-                    etf_ticker = matched_etf["ticker"]
-                    etf_cat = matched_etf["category"]
-                    ter_etf = matched_etf["ter"]
-                    aum_etf = matched_etf["aum"]
-                    repl_etf = matched_etf["replication"]
-                    te_etf = matched_etf["te"]
-                    curr_etf = matched_etf["currency"]
-                    age_etf = matched_etf["age_years"]
-                    is_dist_etf = matched_etf["is_dist"]
-                else:
-                    etf_ticker = user_input.upper()
-                    try:
-                        live_ticker = yf.Ticker(etf_ticker)
-                        info_live = live_ticker.info or {}
-                        etf_name = info_live.get('longName', etf_ticker)
-                        curr_etf = info_live.get('currency', 'EUR')
-                    except:
-                        etf_name = etf_ticker
-                        curr_etf = 'EUR'
-                    
-                    etf_cat = "Tiempo Real / Global"
-                    ter_etf = 0.20
-                    aum_etf = 1000
-                    repl_etf = "Física"
-                    te_etf = 0.05
-                    age_etf = 5
-                    is_dist_etf = False
-
-                etf_price = None
-                last_volume = None
-                avg_monthly_volume = None
-                etf_hist = None
-                try:
-                    etf_stock = yf.Ticker(etf_ticker)
-                    etf_hist = etf_stock.history(period="3mo")
-                    if not etf_hist.empty and 'Close' in etf_hist.columns:
-                        valid_c = etf_hist['Close'].dropna()
-                        if not valid_c.empty:
-                            etf_price = float(valid_c.iloc[-1])
-                        last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
-                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
-                except:
-                    pass
-
-                price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
-                last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
-                avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
-                trend_html_etf = get_trend_chain_stream(etf_hist)
-
-                score_etf = 4.2
-                grade_etf = get_letter_grade(score_etf)
-                deg_etf = int((score_etf / 5.0) * 360)
-                color_etf = "#22c55e"
-
-                col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
-                with col_e1:
-                    st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
-                with col_e2:
-                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_etf"):
-                        st.session_state.favorites.append({
-                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "ter": ter_etf, "currency": curr_etf, "category": etf_cat
-                        })
-                        guardar_en_url()
-                        st.success("¡Añadido a Favoritos!")
-                with col_e3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
-                        st.session_state.portfolio.append({
-                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
-                        })
-                        guardar_en_url()
-                        st.success(f"¡{etf_name} añadido a tu Cartera!")
-
-                st.markdown(f"""
-                <div class="score-container">
-                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                df_etf_data = {
-                    "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [last_vol_display, avg_vol_display, f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
-                }
-                st.table(pd.DataFrame(df_etf_data))
-
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
-                toggle_e_sim = st.toggle("Activar calculadora individual de este ETF", value=False, key="tg_e_sim")
-
-                if toggle_e_sim:
-                    sel_b_e = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_e")
-                    b_e_data = ETF_BROKER_PROFILES[sel_b_e]
-                    plan_e_free = st.checkbox("Plan de aportación automática sin comisión", value=b_e_data["supports_free_plans"], key="plan_e_free")
-
-                    ce1, ce2 = st.columns(2)
-                    with ce1:
-                        inv_i_e = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_e")
-                        app_p_e = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_e")
-                        freq_e = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_e")
-                    with ce2:
-                        anos_e = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_e")
-                        rent_e = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_e")
-
-                    epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
-                    efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
-                    espr = b_e_data["spread_percent"]
-                    efx = 0.0 if curr_etf == "EUR" else b_e_data["fx_fee_percent"]
-
-                    per_ano_e = 12 if freq_e == "Mensual" else 1
-                    t_neta_e = rent_e - ter_etf
-                    t_per_e = (t_neta_e / 100.0) / per_ano_e
-                    tot_per_e = anos_e * per_ano_e
-
-                    c_broker_i_e = (inv_i_e * (b_e_data["fee_percent"] / 100.0)) + b_e_data["fee_fixed"]
-                    c_spread_i_e = inv_i_e * (espr / 100.0)
-                    c_fx_i_e = inv_i_e * (efx / 100.0)
-                    c_ini_e = c_broker_i_e + c_spread_i_e + c_fx_i_e
-
-                    saldo_e = max(0.0, inv_i_e - c_ini_e)
-                    aport_e = inv_i_e
-                    a_broker_e = c_broker_i_e
-                    a_spread_e = c_spread_i_e
-                    a_fx_e = c_fx_i_e
-
-                    historial_e = []
-
-                    for p in range(1, tot_per_e + 1):
-                        if p > 1:
-                            cb = (app_p_e * (epct / 100.0)) + efix
-                            cs = app_p_e * (espr / 100.0)
-                            cf = app_p_e * (efx / 100.0)
-                            ct = cb + cs + cf
-
-                            net_app_e = max(0.0, app_p_e - ct)
-                            aport_e += app_p_e
-                            a_broker_e += cb
-                            a_spread_e += cs
-                            a_fx_e += cf
-                            saldo_e = saldo_e * (1 + t_per_e) + net_app_e
-                        else:
-                            saldo_e = saldo_e * (1 + t_per_e)
-
-                        if p % per_ano_e == 0:
-                            ano_act_e = p // per_ano_e
-                            c_tot_e = a_broker_e + a_spread_e + a_fx_e
-                            int_b_e = saldo_e - (aport_e - c_tot_e)
-                            
-                            historial_e.append({
-                                "Año": f"Año {ano_act_e}",
-                                "Capital Aportado Bruto (€)": round(aport_e, 2),
-                                "Comisiones Bróker (€)": round(a_broker_e, 2),
-                                "Coste Spread (€)": round(a_spread_e, 2),
-                                "Coste Cambio Divisa (€)": round(a_fx_e, 2),
-                                "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
-                                "Capital Total Neto (€)": round(saldo_e, 2)
-                            })
-
-                    df_sim_e = pd.DataFrame(historial_e)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
-                        st.dataframe(df_sim_e, use_container_width=True)
-
-                    c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
-                    net_aport_e = aport_e - c_tot_acum_e
-                    bruto_e = max(0.0, saldo_e - net_aport_e)
-                    imp_e = bruto_e * 0.19
-                    neto_e = bruto_e - imp_e
-                    liquido_e = net_aport_e + neto_e
-
-                    em1, em2, em3, em4 = st.columns(4)
-                    em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                    em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
-                    em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
-                    em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
-
-                    st.markdown(f"""
-                    <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF</div>
-                        <div class="final-net-value">{liquido_e:,.2f} €</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+        if user_input:
+            st.success(f"Activo analizado: {user_input}")
