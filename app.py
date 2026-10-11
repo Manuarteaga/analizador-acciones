@@ -458,7 +458,7 @@ if st.session_state.stage == 'home':
     # ----------------------------------------------------
     # SECCIÓN: RECOMENDADOS DEL MES (DINÁMICOS Y CON NOTA)
     # ----------------------------------------------------
-    st.markdown("### 🌟 Recomendados del Mes (Selección Algorítmica)")
+    st.markdown("### 🌟 Recomendados del Mes")
     col_rec1, col_rec2, col_rec3 = st.columns(3)
 
     # 1. Acción recomendada
