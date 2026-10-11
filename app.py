@@ -1,10 +1,9 @@
 import streamlit as st
-import yfinance as yf
 import pandas as pd
 import io
 import json
 
-st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
+st.set_page_config(page_title="Analizador Bursátil y Legislativo", page_icon="📈", layout="wide")
 
 st.markdown("""
 <style>
@@ -73,6 +72,7 @@ st.markdown("""
     .featured-badge { background-color: #0284c7; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; display: inline-block; margin-bottom: 8px; }
     .score-tag { background-color: #065f46; color: #34d399; padding: 3px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; float: right; }
     .compare-box { background: #1e293b; border: 1px solid #334155; padding: 20px; border-radius: 12px; }
+    .note-box { background: #1e293b; border-left: 4px solid #38bdf8; padding: 15px; border-radius: 4px; margin-bottom: 15px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -87,8 +87,8 @@ if 'portfolio' not in st.session_state:
     st.session_state.portfolio = []
 if 'favorites' not in st.session_state:
     st.session_state.favorites = []
-if 'selected_eval_input' not in st.session_state:
-    st.session_state.selected_eval_input = ""
+if 'notes' not in st.session_state:
+    st.session_state.notes = []
 
 def cargar_desde_url():
     if 'data_loaded' not in st.session_state:
@@ -98,6 +98,9 @@ def cargar_desde_url():
         if "port" in st.query_params:
             try: st.session_state.portfolio = json.loads(st.query_params["port"])
             except: st.session_state.portfolio = []
+        if "notes" in st.query_params:
+            try: st.session_state.notes = json.loads(st.query_params["notes"])
+            except: st.session_state.notes = []
         st.session_state.data_loaded = True
 
 cargar_desde_url()
@@ -106,69 +109,53 @@ def guardar_en_url():
     try:
         st.query_params["favs"] = json.dumps(st.session_state.favorites)
         st.query_params["port"] = json.dumps(st.session_state.portfolio)
+        st.query_params["notes"] = json.dumps(st.session_state.notes)
     except: pass
 
 def reset_navigation():
     st.session_state.stage = 'home'
     st.session_state.asset_type = None
     st.session_state.sub_type = None
-    st.session_state.selected_eval_input = ""
 
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables).", "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado).", "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
-    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico.", "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
-    "procter & gamble": {"ticker": "PG", "racha": "Aristócrata del Dividendo.", "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0}
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables).", "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0, "nota": "Regla mnemotécnica: INDITEX = Inversión Noble Dividendo Interesante Temporal EXcepcional."},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado).", "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0, "nota": "Regla mnemotécnica: IBERDROLA = Ingresos Beneficios Estables Repartidos Dividendos Ordinarios Ley Acumulada."},
+    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico.", "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0, "nota": "Regla mnemotécnica: MSFT = Mayor Software Financiero Tecnológico."},
+    "procter & gamble": {"ticker": "PG", "racha": "Aristócrata del Dividendo.", "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0, "nota": "Regla mnemotécnica: PG = Pureza Global en dividendos ininterrumpidos."}
 }
 
 MASTER_CATALOG = {
     "📁 [Fondo] Vanguard Global Stock Index EUR Acc (Acumulación) - TER 0.18%": {
-        "name": "Vanguard Global Stock Acc", "ticker": "IE00B03HD191", "ter": 0.18, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 23000
+        "name": "Vanguard Global Stock Acc", "ticker": "IE00B03HD191", "ter": 0.18, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 23000,
+        "nota": "Ventaja fiscal de traspasabilidad en España sin tributar en IRPF hasta el reembolso definitivo."
     },
     "📁 [Fondo] Vanguard Global Stock Index EUR Dist (Distribución) - TER 0.18%": {
-        "name": "Vanguard Global Stock Dist", "ticker": "IE00B03HD209", "ter": 0.18, "type": "Fondo Indexado", "is_dist": True, "div_yield": 1.8, "aum": 4500
+        "name": "Vanguard Global Stock Dist", "ticker": "IE00B03HD209", "ter": 0.18, "type": "Fondo Indexado", "is_dist": True, "div_yield": 1.8, "aum": 4500,
+        "nota": "Reparto periódico de efectivo sujeto a retención del 19% en la base del ahorro."
     },
     "📁 [Fondo] iShares Developed World Index (Acumulación) - TER 0.12%": {
-        "name": "iShares Developed World Acc", "ticker": "IE00BD0NCM55", "ter": 0.12, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 25000
-    },
-    "📁 [Fondo] Fidelity MSCI World Index Fund (Acumulación) - TER 0.10%": {
-        "name": "Fidelity MSCI World Acc", "ticker": "IE00BYX5NX33", "ter": 0.10, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 8500
+        "name": "iShares Developed World Acc", "ticker": "IE00BD0NCM55", "ter": 0.12, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 25000,
+        "nota": "Excelente alternativa de bajo coste para replicar mercados desarrollados."
     },
     "🌐 [ETF] Vanguard FTSE All-World UCITS ETF (Acumulación) - TER 0.22%": {
-        "name": "Vanguard All-World Acc", "ticker": "VWCE.DE", "ter": 0.22, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 15000
+        "name": "Vanguard All-World Acc", "ticker": "VWCE.DE", "ter": 0.22, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 15000,
+        "nota": "Diversificación global total en un único título cotizado."
     },
     "🌐 [ETF] Vanguard FTSE All-World UCITS ETF (Distribución) - TER 0.22%": {
-        "name": "Vanguard All-World Dist", "ticker": "VWRL.DE", "ter": 0.22, "type": "ETF", "is_dist": True, "div_yield": 2.1, "aum": 8000
-    },
-    "🌐 [ETF] iShares Core MSCI World UCITS ETF (Acumulación) - TER 0.20%": {
-        "name": "iShares Core MSCI World Acc", "ticker": "SWDA.L", "ter": 0.20, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 68000
-    },
-    "📁 [Fondo] Vanguard U.S. 500 Stock Index EUR Acc (Acumulación) - TER 0.10%": {
-        "name": "Vanguard S&P 500 Acc", "ticker": "IE0032126645", "ter": 0.10, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 17000
-    },
-    "📁 [Fondo] Fidelity S&P 500 Index EUR P Acc (Acumulación) - TER 0.06%": {
-        "name": "Fidelity S&P 500 Acc", "ticker": "IE00BYX5MX67", "ter": 0.06, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0, "aum": 6200
+        "name": "Vanguard All-World Dist", "ticker": "VWRL.DE", "ter": 0.22, "type": "ETF", "is_dist": True, "div_yield": 2.1, "aum": 8000,
+        "nota": "Ideal para inversores que buscan flujo de caja trimestral por dividendos."
     },
     "🌐 [ETF] SPDR S&P 500 UCITS ETF (Acumulación) - TER 0.03%": {
-        "name": "SPDR S&P 500 Acc", "ticker": "SPYL.DE", "ter": 0.03, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 12000
-    },
-    "🌐 [ETF] Vanguard High Dividend Yield ETF (Distribución) - TER 0.06%": {
-        "name": "Vanguard High Dividend VYM", "ticker": "VYM", "ter": 0.06, "type": "ETF", "is_dist": True, "div_yield": 3.0, "aum": 55000
-    },
-    "🌐 [ETF] Schwab U.S. Dividend Equity ETF (Distribución) - TER 0.06%": {
-        "name": "Schwab Dividend SCHD", "ticker": "SCHD", "ter": 0.06, "type": "ETF", "is_dist": True, "div_yield": 3.4, "aum": 48000
+        "name": "SPDR S&P 500 Acc", "ticker": "SPYL.DE", "ter": 0.03, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 12000,
+        "nota": "El ETF con menor coste de Europa para replicar el S&P 500."
     },
     "🌐 [ETF] Invesco Physical Gold ETC (Oro Físico) - TER 0.12%": {
-        "name": "Invesco Physical Gold SGLD", "ticker": "SGLD.L", "ter": 0.12, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 14000
-    },
-    "🌐 [ETF] SPDR Gold Shares (Oro Físico - GLD) - TER 0.40%": {
-        "name": "SPDR Gold Shares GLD", "ticker": "GLD", "ter": 0.40, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 60000
+        "name": "Invesco Physical Gold SGLD", "ticker": "SGLD.L", "ter": 0.12, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 14000,
+        "nota": "Respaldo físico en lingotes de oro custodiados en Londres."
     },
     "🌐 [ETF] United States Oil Fund (Petróleo Crudo - USO) - TER 0.60%": {
-        "name": "US Oil Fund USO", "ticker": "USO", "ter": 0.60, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 1200
-    },
-    "🌐 [ETF] Invesco EQQQ NASDAQ-100 UCITS ETF (Tecnología) - TER 0.30%": {
-        "name": "Invesco NASDAQ-100 EQQQ", "ticker": "EQQQ.DE", "ter": 0.30, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 11500
+        "name": "US Oil Fund USO", "ticker": "USO", "ter": 0.60, "type": "ETF", "is_dist": False, "div_yield": 0.0, "aum": 1200,
+        "nota": "Exposición a contratos de futuros de petróleo crudo WTI."
     }
 }
 
@@ -185,16 +172,21 @@ ETF_BROKER_PROFILES = {
 
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
+notes_count = len(st.session_state.notes)
 
-col_tb1, col_tb2, col_tb3 = st.columns([2, 1, 1])
+col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([2, 1, 1, 1])
 with col_tb1:
-    st.markdown("### 📈 Analizador Bursátil Total")
+    st.markdown("### 📈 Analizador y Notas Mnemotécnicas")
 with col_tb2:
     if st.button(f"⭐ Favoritos ({favorites_count})", use_container_width=True):
         st.session_state.stage = "favorites_view"
         st.rerun()
 with col_tb3:
-    if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
+    if st.button(f"📝 Notas ({notes_count})", use_container_width=True):
+        st.session_state.stage = "notes_view"
+        st.rerun()
+with col_tb4:
+    if st.button(f"💼 Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
         st.rerun()
 
@@ -211,8 +203,8 @@ with st.sidebar:
     if st.button("📊 Analizador Individual", use_container_width=True):
         st.session_state.stage = "sub_options"
         st.rerun()
-    if st.button("💼 Cartera Consolidada", use_container_width=True):
-        st.session_state.stage = "portfolio_view"
+    if st.button("📝 Mis Notas y Reglas", use_container_width=True):
+        st.session_state.stage = "notes_view"
         st.rerun()
 
 # ----------------------------------------------------
@@ -254,7 +246,7 @@ elif st.session_state.stage == 'comparator_view':
         st.rerun()
 
     st.title("⚔️ Comparador Total: Fondos y ETFs (Catálogo Completo)")
-    st.markdown("Selecciona de 2 a 4 activos directamente del desplegable para comparar comisiones, fiscalidad y rendimiento neto.")
+    st.markdown("Selecciona de 2 a 4 activos directamente del desplegable para comparar comisiones, fiscalidad y rendimiento.")
 
     num_compare = st.slider("Número de activos:", min_value=2, max_value=4, value=2)
     st.markdown("---")
@@ -343,7 +335,7 @@ elif st.session_state.stage == 'comparator_view':
                 st.success(f"¡{cfg['name']} añadido a Cartera!")
 
 # ----------------------------------------------------
-# ANALIZADOR INDIVIDUAL (CON TABLAS DE MÉTRICAS ORIGINALES)
+# ANALIZADOR INDIVIDUAL (CON TABLAS Y NOTAS MNEMOTÉCNICAS)
 # ----------------------------------------------------
 elif st.session_state.stage == 'sub_options':
     if st.button("← Volver al Menú"):
@@ -367,13 +359,26 @@ elif st.session_state.stage == 'sub_options':
         })
         st.table(df_metrics)
         
-        if st.button("➕ Añadir a Cartera", type="primary"):
-            st.session_state.portfolio.append({
-                "type": "Acción", "name": stock_key.title(), "ticker": s_data['ticker'],
-                "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
-            })
-            guardar_en_url()
-            st.success("¡Acción añadida a tu Cartera!")
+        st.markdown(f"""
+        <div class="note-box">
+            <strong>📝 Nota / Regla Mnemotécnica Asociada:</strong><br>{s_data['nota']}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col_act1, col_act2 = st.columns(2)
+        with col_act1:
+            if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": "Acción", "name": stock_key.title(), "ticker": s_data['ticker'],
+                    "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
+                })
+                guardar_en_url()
+                st.success("¡Acción añadida a tu Cartera!")
+        with col_act2:
+            if st.button("📝 Guardar Nota en Mis Notas", use_container_width=True):
+                st.session_state.notes.append(f"{stock_key.title()} ({s_data['ticker']}): {s_data['nota']}")
+                guardar_en_url()
+                st.success("¡Nota guardada con éxito!")
 
     else:
         fund_label = st.selectbox("Selecciona de la lista de referencia", options=list(MASTER_CATALOG.keys()))
@@ -388,13 +393,55 @@ elif st.session_state.stage == 'sub_options':
         })
         st.table(df_metrics)
         
-        if st.button("➕ Añadir a Cartera", type="primary"):
-            st.session_state.portfolio.append({
-                "type": f_data['type'], "name": f_data['name'], "ticker": f_data['ticker'],
-                "est_rent": 7.5, "ter": f_data['ter'], "currency": "EUR", "is_dist": f_data['is_dist']
-            })
+        st.markdown(f"""
+        <div class="note-box">
+            <strong>📝 Nota / Regla Mnemotécnica Asociada:</strong><br>{f_data['nota']}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        col_f1, col_f2 = st.columns(2)
+        with col_f1:
+            if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": f_data['type'], "name": f_data['name'], "ticker": f_data['ticker'],
+                    "est_rent": 7.5, "ter": f_data['ter'], "currency": "EUR", "is_dist": f_data['is_dist']
+                })
+                guardar_en_url()
+                st.success("¡Activo añadido a tu Cartera!")
+        with col_f2:
+            if st.button("📝 Guardar Nota en Mis Notas", use_container_width=True):
+                st.session_state.notes.append(f"{f_data['name']} ({f_data['ticker']}): {f_data['nota']}")
+                guardar_en_url()
+                st.success("¡Nota guardada con éxito!")
+
+# ----------------------------------------------------
+# SECCIÓN NOTAS MNEMOTÉCNICAS
+# ----------------------------------------------------
+elif st.session_state.stage == 'notes_view':
+    if st.button("← Volver al Menú"):
+        reset_navigation()
+        st.rerun()
+
+    st.title("📝 Mis Notas y Reglas Mnemotécnicas")
+    st.markdown("Aquí puedes consultar y gestionar todas las reglas mnemotécnicas y notas de estudio guardadas:")
+
+    if not st.session_state.notes:
+        st.info("No tienes notas guardadas todavía. Explora acciones o fondos y pulsa **'📝 Guardar Nota'** en sus informes.")
+    else:
+        for idx, note in enumerate(st.session_state.notes):
+            col_n1, col_n2 = st.columns([5, 1])
+            with col_n1:
+                st.markdown(f"**{idx+1}.** {note}")
+            with col_n2:
+                if st.button("🗑️ Borrar", key=f"del_note_{idx}"):
+                    st.session_state.notes.pop(idx)
+                    guardar_en_url()
+                    st.rerun()
+
+        if st.button("🗑️ Vaciar Todas las Notas"):
+            st.session_state.notes = []
             guardar_en_url()
-            st.success("¡Activo añadido a tu Cartera!")
+            st.rerun()
 
 # ----------------------------------------------------
 # FAVORITOS Y CARTERA CONSOLIDADA
@@ -434,7 +481,6 @@ elif st.session_state.stage == 'portfolio_view':
         for idx, item in enumerate(st.session_state.portfolio):
             is_etf_or_stock = item['type'] in ["ETF", "Acción"]
             broker_profiles = ETF_BROKER_PROFILES if is_etf_or_stock else FUND_BROKER_PROFILES
-            currency_act = item.get('currency', 'EUR')
             
             with st.expander(f"{idx+1}. {item['name']} ({item['ticker']}) - [{item['type']}]", expanded=True):
                 col_b1, col_b2 = st.columns(2)
