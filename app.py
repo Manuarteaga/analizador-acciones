@@ -475,7 +475,7 @@ if st.session_state.stage == 'home':
         
         c_btn_a, c_btn_b = st.columns(2)
         with c_btn_a:
-            if st.button("🔍 Evaluar recomendado", key="rec_eval_act", use_container_width=True):
+            if st.button("🔍 Evaluar acción", key="rec_eval_act", use_container_width=True):
                 st.session_state.asset_type = "Acciones"
                 st.session_state.sub_type = "Con dividendos"
                 st.session_state.selected_eval_input = act['ticker']
@@ -502,14 +502,14 @@ if st.session_state.stage == 'home':
         
         c_btn_c, c_btn_d = st.columns(2)
         with c_btn_c:
-            if st.button("🔍 Evaluar", key="rec_eval_fnd", use_container_width=True):
+            if st.button("🔍 Evaluar Fondo Indexado", key="rec_eval_fnd", use_container_width=True):
                 st.session_state.asset_type = "Fondos indexados"
                 st.session_state.sub_type = "Acumulación"
                 st.session_state.selected_eval_input = fnd['name']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_d:
-            if st.button("➕ A Cartera", key="rec_add_fnd", use_container_width=True):
+            if st.button("➕ Añadir a cartera", key="rec_add_fnd", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "Fondo Indexado", "name": fnd['name'], "ticker": fnd['ticker'], "est_rent": 7.5, "ter": fnd['ter'], "currency": "EUR", "is_dist": False
                 })
@@ -529,14 +529,14 @@ if st.session_state.stage == 'home':
         
         c_btn_e, c_btn_f = st.columns(2)
         with c_btn_e:
-            if st.button("🔍 Evaluar", key="rec_eval_etf", use_container_width=True):
+            if st.button("🔍 Evaluar ETF", key="rec_eval_etf", use_container_width=True):
                 st.session_state.asset_type = "ETFs"
                 st.session_state.sub_type = "Evaluación ETF"
                 st.session_state.selected_eval_input = etf['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_f:
-            if st.button("➕ A Cartera", key="rec_add_etf", use_container_width=True):
+            if st.button("➕ Añadir a cartera", key="rec_add_etf", use_container_width=True):
                 st.session_state.portfolio.append({
                     "type": "ETF", "name": etf['name'], "ticker": etf['ticker'], "est_rent": 8.0, "ter": etf['ter'], "currency": "EUR", "is_dist": False
                 })
