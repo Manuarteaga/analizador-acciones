@@ -1,7 +1,23 @@
 import streamlit as st
-import yfinance as yf
-import pandas as pd
-import io
+import extra_streamlit_components as stx
+import json
+
+# Inicializar el gestor de almacenamiento local del navegador
+@st.cache_resource
+def get_cookie_or_local_manager():
+    return stx.CookieManager() # O el gestor de LocalStorage de la librería
+
+# Cargar automáticamente los datos del navegador al iniciar la app
+def load_persisted_data():
+    if 'data_loaded' not in st.session_state:
+        # Intentar leer del navegador
+        saved_favorites = st.query_params.get("favs", None)
+        saved_portfolio = st.query_params.get("port", None)
+        
+        # O utilizando LocalStorage
+        st.session_state.favorites = json.loads(saved_favorites) if saved_favorites else []
+        st.session_state.portfolio = json.loads(saved_portfolio) if saved_portfolio else []
+        st.session_state.data_loaded = True
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
