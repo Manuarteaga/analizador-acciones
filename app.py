@@ -364,6 +364,30 @@ ETF_DB = {
         "age_years": 21,
         "is_dist": True,
     },
+    "sgld.l": {
+        "name": "Invesco Physical Gold ETC",
+        "ticker": "SGLD.L",
+        "category": "Materias Primas (Oro)",
+        "ter": 0.12,
+        "aum": 14000,
+        "replication": "Física (Oro)",
+        "te": 0.01,
+        "currency": "USD",
+        "age_years": 15,
+        "is_dist": False,
+    },
+    "uso": {
+        "name": "United States Oil Fund, LP (Crudo)",
+        "ticker": "USO",
+        "category": "Materias Primas (Petróleo Crudo)",
+        "ter": 0.60,
+        "aum": 1200,
+        "replication": "Futuros",
+        "te": 0.15,
+        "currency": "USD",
+        "age_years": 18,
+        "is_dist": False,
+    }
 }
 
 def get_best_single_monthly_recommendation():
@@ -489,7 +513,7 @@ if st.session_state.stage == 'home':
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("⚔️ Comparador Multiactivo (1 a 4 Fondos o ETFs)", use_container_width=True):
+    if st.button("⚔️ Comparador Multiactivo Avanzado (1 a 4 Fondos o ETFs con Buscador Global)", use_container_width=True):
         st.session_state.stage = "comparator_view"
         st.rerun()
 
@@ -541,7 +565,7 @@ if st.session_state.stage == 'home':
             "1. ¿Qué objetivo estás buscando?",
             [
                 "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
-                "Corto plazo (for reformas, imprevistos en el hogar o compra de coche)",
+                "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
                 "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
             ]
         )
@@ -571,32 +595,20 @@ if st.session_state.stage == 'home':
                 st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
 
 # ----------------------------------------------------
-# SECCIÓN COMPARADOR MULTIACTIVO (1 A 4)
+# SECCIÓN COMPARADOR MULTIACTIVO GLOBAL (1 A 4)
 # ----------------------------------------------------
 elif st.session_state.stage == 'comparator_view':
     if st.button("← Volver al Menú Principal"):
         reset_navigation()
         st.rerun()
 
-    st.title("⚔️ Comparador Multiactivo Avanzado (Fondos y ETFs)")
-    st.markdown("Selecciona de 1 a 4 activos, elige exactamente qué fondo o ETF comparar, ajusta los parámetros de inversión de cada uno y visualiza los resultados netos cara a cara.")
+    st.title("⚔️ Comparador Multiactivo Global con Buscador en Tiempo Real")
+    st.markdown("Compara de 1 a 4 activos de cualquier categoría (ej. oro `SGLD.L`, crudo `USO`, S&P 500, acciones o fondos) buscando en tiempo real en los mercados globales.")
 
-    # Generar catálogo unificado combinando Fondos y ETFs para los selectores
-    master_catalog = {}
-    for k, d in FUND_DB.items():
-        master_catalog[f"📁 [Fondo] {d['name']} ({d['ticker']}) - TER: {d['ter']}%"] = {
-            "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "Fondo Indexado"
-        }
-    for k, d in ETF_DB.items():
-        master_catalog[f"🌐 [ETF] {d['name']} ({d['ticker']}) - TER: {d['ter']}%"] = {
-            "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "ETF"
-        }
-
-    # Selector de cantidad de activos a comparar
     num_compare = st.slider("Número de activos a comparar:", min_value=1, max_value=4, value=2)
 
     st.markdown("---")
-    st.markdown("### ⚙️ Configuración y Selección de Activos")
+    st.markdown("### 🔍 Configuración de Activos por Búsqueda Global")
 
     selected_assets_config = []
     cols_sel = st.columns(num_compare)
@@ -604,24 +616,60 @@ elif st.session_state.stage == 'comparator_view':
     for i in range(num_compare):
         with cols_sel[i]:
             st.markdown(f"#### Activo {i+1}")
-            chosen_key = st.selectbox(
-                f"Selecciona activo {i+1}",
-                options=list(master_catalog.keys()),
-                index=i if i < len(master_catalog) else 0,
-                key=f"comp_sel_{i}"
-            )
-            asset_info = master_catalog[chosen_key]
             
+            # Input de búsqueda dinámica para este slot
+            search_query_i = st.text_input(
+                f"Busca activo {i+1} (ej. 'gold', 'oil', 'SPYL', 'Vanguard')",
+                value="SGLD.L" if i == 0 else ("USO" if i == 1 else "SPYL.DE"),
+                key=f"comp_query_{i}"
+            ).strip()
+
+            # Resolver opciones en tiempo real para este slot
+            slot_options = {}
+            # Primero incluir catálogo verificado base
+            for k, d in ETF_DB.items():
+                if search_query_i.lower() in d['name'].lower() or search_query_i.lower() in d['ticker'].lower():
+                    slot_options[f"✨ [Verificado] {d['name']} ({d['ticker']})"] = {
+                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "ETF"
+                    }
+            for k, d in FUND_DB.items():
+                if search_query_i.lower() in d['name'].lower() or search_query_i.lower() in d['ticker'].lower():
+                    slot_options[f"📁 [Fondo] {d['name']} ({d['ticker']})"] = {
+                        "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "Fondo Indexado"
+                    }
+
+            # Búsqueda global online (Yahoo Finance)
+            try:
+                rt_results = yf.Search(search_query_i, max_results=15).quotes
+                for item in rt_results:
+                    sym = item.get('symbol')
+                    sname = item.get('shortname', item.get('longname', sym))
+                    ex = item.get('exchange', '')
+                    if sym and sym not in [v['ticker'] for v in slot_options.values()]:
+                        slot_options[f"🌐 [Mercado Real] {sname} ({sym}) [{ex}]"] = {
+                            "name": sname, "ticker": sym, "ter": 0.20, "type": "ETF / Activo"
+                        }
+            except:
+                pass
+
+            if not slot_options:
+                slot_options[f"⚡ [Directo] {search_query_i.upper()}"] = {
+                    "name": search_query_i.upper(), "ticker": search_query_i.upper(), "ter": 0.20, "type": "Activo"
+                }
+
+            chosen_label = st.selectbox(f"Selecciona de resultados [A{i+1}]", options=list(slot_options.keys()), key=f"comp_slot_sel_{i}")
+            chosen_asset = slot_options[chosen_label]
+
             inv_ini_i = st.number_input(f"Inv. Inicial (€) [A{i+1}]", min_value=0.0, value=2000.0, step=500.0, key=f"comp_ini_{i}")
             app_per_i = st.number_input(f"Aportación Mensual (€) [A{i+1}]", min_value=0.0, value=150.0, step=50.0, key=f"comp_app_{i}")
             anos_i = st.slider(f"Plazo (Años) [A{i+1}]", min_value=1, max_value=40, value=20, key=f"comp_anos_{i}")
-            rent_i = st.slider(f"Rentabilidad Anual (%) [A{i+1}]", min_value=1.0, max_value=15.0, value=7.5, step=0.5, key=f"comp_rent_{i}")
+            rent_i = st.slider(f"Rentabilidad Anual (%) [A{i+1}]", min_value=1.0, max_value=25.0, value=7.5, step=0.5, key=f"comp_rent_{i}")
             
             selected_assets_config.append({
-                "name": asset_info["name"],
-                "ticker": asset_info["ticker"],
-                "ter": asset_info["ter"],
-                "type": asset_info["type"],
+                "name": chosen_asset["name"],
+                "ticker": chosen_asset["ticker"],
+                "ter": chosen_asset["ter"],
+                "type": chosen_asset["type"],
                 "inv_ini": inv_ini_i,
                 "app_per": app_per_i,
                 "anos": anos_i,
@@ -665,7 +713,7 @@ elif st.session_state.stage == 'comparator_view':
             <div class="compare-box">
                 <h3 style="color: #38bdf8;">{cfg['type']}</h3>
                 <h4 style="font-size: 1rem; min-height: 40px;">{cfg['name']}</h4>
-                <p><strong>Ticker/ISIN:</strong> {cfg['ticker']} | <strong>TER:</strong> {cfg['ter']}%</p>
+                <p><strong>Ticker:</strong> {cfg['ticker']} | <strong>TER:</strong> {cfg['ter']}%</p>
                 <hr style="border-color: #334155;">
                 <p>Plazo: <strong>{cfg['anos']} años</strong> | Rent. Est: <strong>{cfg['rent']}%</strong></p>
                 <p>Capital Invertido: <strong>{aport:,.2f} €</strong></p>
@@ -1095,7 +1143,7 @@ elif st.session_state.stage == 'analyzer':
 
         elif st.session_state.asset_type == "ETFs":
             st.markdown("### 🌐 Buscador Inteligente Múltiple de ETFs")
-            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'SPYL.DE', 'World'):", value=default_input).strip()
+            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'gold', 'oil', 'SPYL.DE'):", value=default_input).strip()
             
             user_input = ""
             combined_etf_options = {}
