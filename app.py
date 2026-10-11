@@ -1,5 +1,4 @@
 import streamlit as st
-import yfinance as yf
 import pandas as pd
 import io
 import json
@@ -8,19 +7,6 @@ st.set_page_config(page_title="Analizador y Comparador Bursátil Total", page_ic
 
 st.markdown("""
 <style>
-    .score-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 40px;
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        padding: 30px;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        margin-bottom: 20px;
-        border: 1px solid #334155;
-        flex-wrap: wrap;
-    }
     .compare-box {
         background: #1e293b;
         border: 1px solid #334155;
@@ -38,28 +24,55 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de Estados
-if 'stage' not in st.session_state:
-    st.session_state.stage = 'comparator_view'
-if 'portfolio' not in st.session_state:
-    st.session_state.portfolio = []
-if 'favorites' not in st.session_state:
-    st.session_state.favorites = []
+# Catálogo completo unificado de referencia (Fondos y ETFs de Acumulación y Distribución)
+MASTER_CATALOG = {
+    # FONDOS INDEXADOS
+    "📁 [Fondo] Vanguard Global Stock Index EUR Acc (Acumulación) - TER 0.18%": {
+        "name": "Vanguard Global Stock Acc", "ticker": "IE00B03HD191", "ter": 0.18, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0
+    },
+    "📁 [Fondo] Vanguard Global Stock Index EUR Dist (Distribución) - TER 0.18%": {
+        "name": "Vanguard Global Stock Dist", "ticker": "IE00B03HD209", "ter": 0.18, "type": "Fondo Indexado", "is_dist": True, "div_yield": 1.8
+    },
+    "📁 [Fondo] iShares Developed World Index (Acumulación) - TER 0.12%": {
+        "name": "iShares Developed World Acc", "ticker": "IE00BD0NCM55", "ter": 0.12, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0
+    },
+    "📁 [Fondo] Vanguard U.S. 500 Stock Index EUR Acc (Acumulación) - TER 0.10%": {
+        "name": "Vanguard S&P 500 Acc", "ticker": "IE0032126645", "ter": 0.10, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0
+    },
+    "📁 [Fondo] Fidelity S&P 500 Index EUR P Acc (Acumulación) - TER 0.06%": {
+        "name": "Fidelity S&P 500 Acc", "ticker": "IE00BYX5MX67", "ter": 0.06, "type": "Fondo Indexado", "is_dist": False, "div_yield": 0.0
+    },
 
-FUND_BROKER_PROFILES = {
-    "MyInvestor (0% custodia / Fondos)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
-    "Renta 4 / Bancos Tradicionales": {"fee_percent": 0.25, "fee_fixed": 8.00, "spread_percent": 0.30, "fx_fee_percent": 0.50, "supports_free_plans": False}
+    # ETFS
+    "🌐 [ETF] Vanguard FTSE All-World UCITS ETF (Acumulación) - TER 0.22%": {
+        "name": "Vanguard FTSE All-World Acc", "ticker": "VWCE.DE", "ter": 0.22, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    },
+    "🌐 [ETF] Vanguard FTSE All-World UCITS ETF (Distribución) - TER 0.22%": {
+        "name": "Vanguard FTSE All-World Dist", "ticker": "VWRL.DE", "ter": 0.22, "type": "ETF", "is_dist": True, "div_yield": 2.1
+    },
+    "🌐 [ETF] iShares Core MSCI World UCITS ETF (Acumulación) - TER 0.20%": {
+        "name": "iShares Core MSCI World Acc", "ticker": "SWDA.L", "ter": 0.20, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    },
+    "🌐 [ETF] SPDR S&P 500 UCITS ETF (Acumulación) - TER 0.03%": {
+        "name": "SPDR S&P 500 Acc", "ticker": "SPYL.DE", "ter": 0.03, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    },
+    "🌐 [ETF] Vanguard High Dividend Yield ETF (Distribución) - TER 0.06%": {
+        "name": "Vanguard High Dividend Yield", "ticker": "VYM", "ter": 0.06, "type": "ETF", "is_dist": True, "div_yield": 3.0
+    },
+    "🌐 [ETF] Invesco Physical Gold ETC (Materias Primas - Oro) - TER 0.12%": {
+        "name": "Invesco Physical Gold", "ticker": "SGLD.L", "ter": 0.12, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    },
+    "🌐 [ETF] United States Oil Fund (Materias Primas - Crudo) - TER 0.60%": {
+        "name": "US Oil Fund (Crudo)", "ticker": "USO", "ter": 0.60, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    },
+    "🌐 [ETF] Invesco EQQQ NASDAQ-100 UCITS ETF (Tecnología) - TER 0.30%": {
+        "name": "Invesco NASDAQ-100", "ticker": "EQQQ.DE", "ter": 0.30, "type": "ETF", "is_dist": False, "div_yield": 0.0
+    }
 }
 
-ETF_BROKER_PROFILES = {
-    "Trade Republic (1€ orden / Planes 0€)": {"fee_percent": 0.0, "fee_fixed": 0.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True},
-    "Interactive Brokers (Bajo coste)": {"fee_percent": 0.0, "fee_fixed": 1.50, "spread_percent": 0.02, "fx_fee_percent": 0.03, "supports_free_plans": False},
-    "DEGIRO": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False}
-}
-
-st.title("⚔️ Comparador Total: Fondos vs ETFs (Buscador Global)")
+st.title("⚔️ Comparador Directo de Fondos y ETFs")
 st.markdown("""
-Compara **fondos indexados entre sí**, **ETFs entre sí**, o **mezcla fondos con ETFs** para descubrir cuál te ofrece mayor rentabilidad neta real tras restar el **TER**, las comisiones del bróker/banco y el impacto fiscal (ventaja de traspasabilidad en fondos vs costes de fricción en ETFs).
+Selecciona cuántos activos quieres comparar y **elije directamente del desplegable** cualquier fondo (acumulación o distribución) o ETF (bajo coste, reparto de dividendos, oro, crudo, tecnología) para contrastar comisiones de TER, fiscalidad y rendimiento neto.
 """)
 
 num_compare = st.slider("Número de activos a comparar simultáneamente:", min_value=2, max_value=4, value=2)
@@ -68,60 +81,37 @@ st.markdown("---")
 cols_sel = st.columns(num_compare)
 selected_assets_config = []
 
+catalog_keys = list(MASTER_CATALOG.keys())
+
 for i in range(num_compare):
     with cols_sel[i]:
-        st.markdown(f"### 🔍 Activo {i+1}")
+        st.markdown(f"### 📋 Activo {i+1}")
         
-        tipo_vehiculo = st.radio("Tipo de Vehículo", options=["Fondo Indexado", "ETF / Accion"], key=f"t_veh_{i}")
+        # Único selector directo con todo el catálogo
+        chosen_label = st.selectbox(
+            f"Selecciona activo {i+1}",
+            options=catalog_keys,
+            index=i if i < len(catalog_keys) else 0,
+            key=f"cat_sel_{i}"
+        )
         
-        search_query_i = st.text_input(
-            f"Buscar {tipo_vehiculo} {i+1} (ej. 'MSCI World', 'S&P 500', 'VWCE', 'Gold')",
-            value="IE00B03HD191" if i == 0 and tipo_vehiculo == "Fondo Indexado" else ("SPYL.DE" if i == 1 else "SGLD.L"),
-            key=f"q_{i}"
-        ).strip()
+        asset_data = MASTER_CATALOG[chosen_label]
+        
+        st.info(f"**Tipo:** {asset_data['type']} | **TER:** {asset_data['ter']}%")
 
-        # Opciones en tiempo real vía Yahoo Finance Search
-        slot_options = {}
-        try:
-            rt_results = yf.Search(search_query_i, max_results=12).quotes
-            for item in rt_results:
-                sym = item.get('symbol')
-                sname = item.get('shortname', item.get('longname', sym))
-                ex = item.get('exchange', '')
-                if sym:
-                    slot_options[f"{sname} ({sym}) [{ex}]"] = {"name": sname, "ticker": sym}
-        except:
-            pass
-
-        if not slot_options:
-            slot_options[f"{search_query_i.upper()}"] = {"name": search_query_i.upper(), "ticker": search_query_i.upper()}
-
-        chosen_label = st.selectbox(f"Selecciona de resultados [A{i+1}]", options=list(slot_options.keys()), key=f"sel_{i}")
-        chosen_asset = slot_options[chosen_label]
-
-        # Parámetros financieros del activo
-        col_p1, col_p2 = st.columns(2)
-        with col_p1:
-            ter_i = st.number_input(f"TER Anual (%) [A{i+1}]", min_value=0.0, max_value=2.0, value=0.18 if tipo_vehiculo=="Fondo Indexado" else 0.07, step=0.01, key=f"ter_{i}")
-        with col_p2:
-            is_dist_i = st.checkbox(f"Distribución (Reparto)", value=False, key=f"dist_{i}")
-
-        div_yield_i = 0.0
-        if is_dist_i:
-            div_yield_i = st.slider(f"Div. Yield (%) [A{i+1}]", min_value=0.5, max_value=6.0, value=2.0, step=0.1, key=f"dy_{i}")
-
+        # Permitir ajustar parámetros de simulación personalizados
         inv_ini_i = st.number_input(f"Inv. Inicial (€) [A{i+1}]", min_value=0.0, value=3000.0, step=500.0, key=f"ini_{i}")
         app_per_i = st.number_input(f"Aportación Mensual (€) [A{i+1}]", min_value=0.0, value=200.0, step=50.0, key=f"app_{i}")
         anos_i = st.slider(f"Plazo (Años) [A{i+1}]", min_value=1, max_value=40, value=15, key=f"anos_{i}")
-        rent_i = st.slider(f"Rentabilidad Bruta (%) [A{i+1}]", min_value=1.0, max_value=20.0, value=7.5, step=0.5, key=f"rent_{i}")
+        rent_i = st.slider(f"Rentabilidad Bruta Est. (%) [A{i+1}]", min_value=1.0, max_value=20.0, value=7.5, step=0.5, key=f"rent_{i}")
 
         selected_assets_config.append({
-            "type": tipo_vehiculo,
-            "name": chosen_asset["name"],
-            "ticker": chosen_asset["ticker"],
-            "ter": ter_i,
-            "is_dist": is_dist_i,
-            "div_yield": div_yield_i,
+            "type": asset_data["type"],
+            "name": asset_data["name"],
+            "ticker": asset_data["ticker"],
+            "ter": asset_data["ter"],
+            "is_dist": asset_data["is_dist"],
+            "div_yield": asset_data["div_yield"],
             "inv_ini": inv_ini_i,
             "app_per": app_per_i,
             "anos": anos_i,
@@ -147,13 +137,13 @@ def simular_activo(cfg):
             
         if cfg["is_dist"] and p % 12 == 0:
             div_anual = saldo * (cfg["div_yield"] / 100.0)
-            imp_div = div_anual * 0.19 # 19% IRPF España
+            imp_div = div_anual * 0.19 # 19% IRPF base del ahorro en España
             total_div_brutos += div_anual
             total_div_impuestos += imp_div
-            saldo -= div_anual # Sale en efectivo
+            saldo -= div_anual
 
     beneficio_bruto = max(0.0, saldo - total_aportado)
-    # Los fondos en España tienen ventaja de traspaso sin peaje fiscal. Los ETFs pagan 19% al vender.
+    # Los fondos indexados en España permiten traspasos sin peaje fiscal. Los ETFs tributan al vender.
     tasa_impuesto_venta = 0.0 if cfg["type"] == "Fondo Indexado" else 0.19
     impuestos_venta = beneficio_bruto * tasa_impuesto_venta
     beneficio_neto = beneficio_bruto - impuestos_venta
@@ -171,12 +161,12 @@ for i, cfg in enumerate(selected_assets_config):
     aport, saldo, b_bruto, imp_venta, div_b, div_imp, liq = simular_activo(cfg)
     
     with cols_res[i]:
-        modalidad = "📥 Distribución" if cfg["is_dist"] else "🔄 Acumulación"
+        modalidad = f"📥 Distribución ({cfg['div_yield']}%)" if cfg["is_dist"] else "🔄 Acumulación"
         st.markdown(f"""
         <div class="compare-box">
             <h3 style="color: #38bdf8; font-size: 1rem;">{cfg['type']}</h3>
             <h4 style="font-size: 0.95rem; min-height: 40px;">{cfg['name']}</h4>
-            <p><strong>Ticker/ISIN:</strong> {cfg['ticker']}</p>
+            <p><strong>Identificador:</strong> {cfg['ticker']}</p>
             <p><strong>TER:</strong> {cfg['ter']}% | <strong>Modalidad:</strong> {modalidad}</p>
             <hr style="border-color: #334155;">
             <p>Plazo: <strong>{cfg['anos']} años</strong> | Rent. Bruta: <strong>{cfg['rent']}%</strong></p>
