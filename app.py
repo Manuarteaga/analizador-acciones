@@ -336,19 +336,16 @@ ETF_DB = {
 
 # Algoritmo de selección automática de los mejores recomendados basados en puntuación
 def get_best_algorithmic_recommendations():
-    # 1. Mejor Acción (algoritmo: mayor yield ponderado por estabilidad/PER razonable)
     best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
     stock_data = TICKER_DB[best_stock_key]
     stock_score = 4.3
     stock_grade = "A"
 
-    # 2. Mejor Fondo (menor TER y mayor AUM)
     best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
     fund_data = FUND_DB[best_fund_key]
     fund_score = 4.6
     fund_grade = "A+"
 
-    # 3. Mejor ETF (menor TER absoluto)
     best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
     etf_data = ETF_DB[best_etf_key]
     etf_score = 4.7
@@ -953,10 +950,32 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_fund_input if custom_fund_input else ("" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "ETFs":
-            etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
-            selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
-            custom_etf_input = st.text_input("O introduce Ticker de ETF (ej. CSPX.AS, QQQ):", value=default_input).strip()
-            user_input = custom_etf_input.upper() if custom_etf_input else ("" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip())
+            st.markdown("### 🌐 Buscador Inteligente en Tiempo Real de ETFs")
+            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'crude', 'gold', 'tech', 'SPYL.DE'):", value=default_input).strip()
+            
+            user_input = ""
+            if search_query:
+                with st.spinner(f"Buscando '{search_query}' en los mercados globales..."):
+                    try:
+                        results = yf.Search(search_query, max_results=8).quotes
+                        etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
+                        
+                        if not etf_results:
+                            etf_results = results
+                        
+                        if etf_results:
+                            st.success(f"¡Se han encontrado {len(etf_results)} resultados en tiempo real!")
+                            options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in etf_results}
+                            selected_label = st.selectbox("Selecciona el ETF de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
+                            
+                            if not selected_label.startswith("--"):
+                                user_input = options_map[selected_label]
+                        else:
+                            st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
+                            user_input = search_query.upper()
+                    except Exception as e:
+                        st.error(f"Error en la búsqueda en tiempo real: {e}")
+                        user_input = search_query.upper()
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -973,7 +992,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona un activo en el buscador para comenzar.")
+            st.info("👆 Introduce una palabra clave o selecciona un activo para comenzar.")
         else:
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -1247,7 +1266,7 @@ elif st.session_state.stage == 'analyzer':
                         etf_name = etf_ticker
                         curr_etf = 'EUR'
                     
-                    etf_cat = "Personalizado"
+                    etf_cat = "Tiempo Real / Global"
                     ter_etf = 0.20
                     aum_etf = 1000
                     repl_etf = "Física"
