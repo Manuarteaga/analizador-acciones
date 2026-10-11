@@ -1016,7 +1016,7 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
@@ -1081,40 +1081,45 @@ elif st.session_state.stage == 'analyzer':
 
         elif st.session_state.asset_type == "Fondos indexados":
             st.markdown("### 🔍 Buscador Inteligente de Fondos Indexados (Catálogo + Tiempo Real)")
-            fund_query = st.text_input("Escribe una palabra clave, nombre o ISIN (ej. 'S&P 500', 'Vanguard', 'IE00B03HD191'):", value=default_input).strip()
+            fund_query = st.text_input("Escribe una palabra clave, gestora o ISIN (ej. 'S&P 500', 'iShares', 'Vanguard'):", value=default_input).strip()
             
             user_input = ""
-            matched_catalog_fund = None
+            combined_options = {}
+
             if fund_query:
                 q_low = fund_query.lower()
-                matched_catalog_fund = next((data for key, data in FUND_DB.items() if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key), None)
+                # 1. Recopilar todas las coincidencias del catálogo interno
+                for key, data in FUND_DB.items():
+                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_low in data['category'].lower():
+                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
+                        combined_options[label_cat] = data['ticker']
 
-            if matched_catalog_fund:
-                st.success(f"✨ Fondo verificado encontrado en catálogo: **{matched_catalog_fund['name']} ({matched_catalog_fund['ticker']})** [TER: {matched_catalog_fund['ter']}%]")
-                if st.button("👉 Seleccionar este fondo verificado", type="primary"):
-                    user_input = matched_catalog_fund['ticker']
-            else:
-                if fund_query:
-                    with st.spinner(f"Buscando '{fund_query}' en la base de fondos..."):
-                        try:
-                            results = yf.Search(fund_query, max_results=8).quotes
-                            fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper()]
-                            if not fund_results:
-                                fund_results = results
+                # 2. Recopilar coincidencias en tiempo real de Yahoo Finance
+                try:
+                    results = yf.Search(fund_query, max_results=10).quotes
+                    fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper() or 'ACC' in r.get('longname', '').upper()]
+                    if not fund_results:
+                        fund_results = results
 
-                            if fund_results:
-                                st.success(f"¡Se han encontrado {len(fund_results)} resultados en tiempo real!")
-                                options_map = {f"{item.get('shortname', item.get('longname', ''))} ({item.get('symbol', '')}) - [{item.get('exchange', '')}]": item.get('symbol') for item in fund_results}
-                                selected_label = st.selectbox("Selecciona el Fondo de la lista en tiempo real:", options=["-- Selecciona un resultado --"] + list(options_map.keys()))
-                                
-                                if not selected_label.startswith("--"):
-                                    user_input = options_map[selected_label]
-                            else:
-                                st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
-                                user_input = fund_query
-                        except Exception as e:
-                            st.error(f"Error en la búsqueda en tiempo real: {e}")
-                            user_input = fund_query
+                    for item in fund_results:
+                        sym = item.get('symbol')
+                        sname = item.get('shortname', item.get('longname', sym))
+                        ex = item.get('exchange', '')
+                        label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
+                        if sym not in combined_options.values():
+                            combined_options[label_rt] = sym
+                except Exception as e:
+                    pass
+
+                if combined_options:
+                    st.success(f"¡Se han encontrado {len(combined_options)} fondos disponibles para tu búsqueda!")
+                    selected_label = st.selectbox("Despliega y selecciona el fondo que deseas analizar:", options=["-- Selecciona un fondo de la lista --"] + list(combined_options.keys()))
+                    
+                    if not selected_label.startswith("--"):
+                        user_input = combined_options[selected_label]
+                else:
+                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
+                    user_input = fund_query
 
         elif st.session_state.asset_type == "ETFs":
             st.markdown("### 🌐 Buscador Inteligente de ETFs (Catálogo + Tiempo Real)")
@@ -1279,7 +1284,7 @@ elif st.session_state.stage == 'analyzer':
                 color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
-                col_f1, col_f2, col_f3, col_f4 = st.columns([2, 1, 1, 1])
+                col_f1, col_f2, col_f3, col_f4, col_f5 = st.columns([2, 1, 1, 1, 1])
                 with col_f1:
                     st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 with col_f2:
@@ -1303,6 +1308,18 @@ elif st.session_state.stage == 'analyzer':
                         st.session_state.stage = "comparator_view"
                         st.rerun()
                 with col_f4:
+                    if st.button("📤 Enviar a Comparador", use_container_width=True, key="send_comp_fund"):
+                        st.session_state.custom_comparison_pair = {
+                            "fund_name": fund_name,
+                            "fund_isin": fund_isin,
+                            "fund_ter": ter_val,
+                            "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
+                            "etf_ticker": "SPYL.DE",
+                            "etf_ter": 0.03
+                        }
+                        st.session_state.stage = "comparator_view"
+                        st.rerun()
+                with col_f5:
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
@@ -1481,7 +1498,7 @@ elif st.session_state.stage == 'analyzer':
                 deg_etf = int((score_etf / 5.0) * 360)
                 color_etf = "#22c55e"
 
-                col_e1, col_e2, col_e3, col_e4 = st.columns([2, 1, 1, 1])
+                col_e1, col_e2, col_e3, col_e4, col_e5 = st.columns([2, 1, 1, 1, 1])
                 with col_e1:
                     st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
                 with col_e2:
@@ -1505,6 +1522,18 @@ elif st.session_state.stage == 'analyzer':
                         st.session_state.stage = "comparator_view"
                         st.rerun()
                 with col_e4:
+                    if st.button("📤 Enviar a Comparador", use_container_width=True, key="send_comp_etf"):
+                        st.session_state.custom_comparison_pair = {
+                            "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
+                            "fund_isin": "IE0032126645",
+                            "fund_ter": 0.10,
+                            "etf_name": etf_name,
+                            "etf_ticker": etf_ticker,
+                            "etf_ter": ter_etf
+                        }
+                        st.session_state.stage = "comparator_view"
+                        st.rerun()
+                with col_e5:
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
