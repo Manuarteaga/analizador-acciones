@@ -215,6 +215,8 @@ if 'favorites' not in st.session_state:
     st.session_state.favorites = []
 if 'selected_eval_input' not in st.session_state:
     st.session_state.selected_eval_input = ""
+if 'custom_comparison_pair' not in st.session_state:
+    st.session_state.custom_comparison_pair = None
 
 def cargar_desde_url():
     if 'data_loaded' not in st.session_state:
@@ -608,8 +610,12 @@ elif st.session_state.stage == 'comparator_view':
     st.title("⚔️ Comparador Directo: Fondo Indexado vs. ETF del Mismo Índice")
     st.markdown("Compara el rendimiento final esperado, costes anuales (TER) y ganancias netas entre un Fondo Indexado y un ETF equivalente.")
 
-    selected_pair_key = st.selectbox("Selecciona el Índice / Par a comparar:", list(COMPARISON_PAIRS.keys()))
-    pair = COMPARISON_PAIRS[selected_pair_key]
+    available_pairs = COMPARISON_PAIRS.copy()
+    if st.session_state.custom_comparison_pair:
+        available_pairs["⚡ Personalizada desde Evaluador"] = st.session_state.custom_comparison_pair
+
+    selected_pair_key = st.selectbox("Selecciona el Índice / Par a comparar:", list(available_pairs.keys()))
+    pair = available_pairs[selected_pair_key]
 
     st.markdown("---")
     st.markdown("### ⚙️ Configuración de la Inversión")
@@ -659,7 +665,7 @@ elif st.session_state.stage == 'comparator_view':
         <div class="compare-box">
             <h3 style="color: #38bdf8;">📁 Fondo Indexado</h3>
             <h4>{pair['fund_name']}</h4>
-            <p><strong>ISIN:</strong> {pair['fund_isin']} | <strong>TER:</strong> {pair['fund_ter']}%</p>
+            <p><strong>ISIN/Ticker:</strong> {pair['fund_isin']} | <strong>TER:</strong> {pair['fund_ter']}%</p>
             <hr style="border-color: #334155;">
             <p>Capital Invertido: <strong>{f_aport:,.2f} €</strong></p>
             <p>Capital Bruto Acumulado: <strong>{f_saldo:,.2f} €</strong></p>
@@ -1070,8 +1076,8 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
-            st.markdown("### 🔍 Buscador Inteligente en Tiempo Real de Fondos Indexados")
-            fund_query = st.text_input("Escribe una palabra clave, nombre o ISIN (ej. 'vanguard', 'msci world', 'IE00B03HD191'):", value=default_input).strip()
+            st.markdown("### 🔍 Buscador Inteligente de Fondos Indexados (Catálogo + Tiempo Real)")
+            fund_query = st.text_input("Escribe una palabra clave, nombre o ISIN (ej. 'S&P 500', 'Vanguard', 'IE00B03HD191'):", value=default_input).strip()
             
             user_input = ""
             matched_catalog_fund = None
@@ -1080,8 +1086,8 @@ elif st.session_state.stage == 'analyzer':
                 matched_catalog_fund = next((data for key, data in FUND_DB.items() if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key), None)
 
             if matched_catalog_fund:
-                st.success(f"✨ Activo encontrado en el catálogo verificado: **{matched_catalog_fund['name']} ({matched_catalog_fund['ticker']})**")
-                if st.button("👉 Seleccionar este fondo del catálogo", type="primary"):
+                st.success(f"✨ Fondo verificado encontrado en catálogo: **{matched_catalog_fund['name']} ({matched_catalog_fund['ticker']})** [TER: {matched_catalog_fund['ter']}%]")
+                if st.button("👉 Seleccionar este fondo verificado", type="primary"):
                     user_input = matched_catalog_fund['ticker']
             else:
                 if fund_query:
@@ -1269,11 +1275,11 @@ elif st.session_state.stage == 'analyzer':
                 color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
 
-                col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
+                col_f1, col_f2, col_f3, col_f4 = st.columns([2, 1, 1, 1])
                 with col_f1:
                     st.subheader(f"📊 Informe de Fondo: {fund_name}")
                 with col_f2:
-                    if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_fund"):
+                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_fund"):
                         st.session_state.favorites.append({
                             "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
                             "ter": ter_val, "currency": curr_fund, "category": cat_fund
@@ -1281,7 +1287,19 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
-                    if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_fund"):
+                    if st.button("⚔️ Comparador", use_container_width=True, key="comp_fund"):
+                        st.session_state.custom_comparison_pair = {
+                            "fund_name": fund_name,
+                            "fund_isin": fund_isin,
+                            "fund_ter": ter_val,
+                            "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
+                            "etf_ticker": "SPYL.DE",
+                            "etf_ter": 0.03
+                        }
+                        st.session_state.stage = "comparator_view"
+                        st.rerun()
+                with col_f4:
+                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
                             "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
@@ -1459,11 +1477,11 @@ elif st.session_state.stage == 'analyzer':
                 deg_etf = int((score_etf / 5.0) * 360)
                 color_etf = "#22c55e"
 
-                col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
+                col_e1, col_e2, col_e3, col_e4 = st.columns([2, 1, 1, 1])
                 with col_e1:
                     st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
                 with col_e2:
-                    if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_etf"):
+                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_etf"):
                         st.session_state.favorites.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
                             "ter": ter_etf, "currency": curr_etf, "category": etf_cat
@@ -1471,7 +1489,19 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_e3:
-                    if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_etf"):
+                    if st.button("⚔️ Comparador", use_container_width=True, key="comp_etf"):
+                        st.session_state.custom_comparison_pair = {
+                            "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
+                            "fund_isin": "IE0032126645",
+                            "fund_ter": 0.10,
+                            "etf_name": etf_name,
+                            "etf_ticker": etf_ticker,
+                            "etf_ter": ter_etf
+                        }
+                        st.session_state.stage = "comparator_view"
+                        st.rerun()
+                with col_e4:
+                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
                             "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
