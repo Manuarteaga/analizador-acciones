@@ -446,14 +446,18 @@ ETF_BROKER_PROFILES = {
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
-col_tb1, col_tb2, col_tb3 = st.columns([2, 1, 1])
+col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([2, 1, 1, 1])
 with col_tb1:
     st.markdown("### 📈 Analizador Bursátil Multifuente")
 with col_tb2:
+    if st.button("⚔️ Comparador", use_container_width=True):
+        st.session_state.stage = "comparator_view"
+        st.rerun()
+with col_tb3:
     if st.button(f"⭐ Favoritos ({favorites_count})", use_container_width=True):
         st.session_state.stage = "favorites_view"
         st.rerun()
-with col_tb3:
+with col_tb4:
     if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
         st.rerun()
@@ -1012,7 +1016,7 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
