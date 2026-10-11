@@ -190,6 +190,24 @@ st.markdown("""
         font-weight: bold;
         float: right;
     }
+
+    .converter-card {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        border: 1px solid #6366f1;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        margin-bottom: 25px;
+    }
+    .converter-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #a5b4fc;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -251,121 +269,164 @@ TICKER_DB = {
 }
 
 FUND_DB = {
+    # --- RENTA VARIABLE GLOBAL (MSCI WORLD / ALL-WORLD) ---
     "vanguard global stock acc": {
         "name": "Vanguard Global Stock Index Fund EUR Acc",
         "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World) [Acumulación]",
-        "ter": 0.18,
-        "aum": 23000,
-        "tracking_error": 0.08,
-        "age_years": 15,
-        "currency": "EUR",
-        "is_dist": False,
-        "return_1y": 16.2
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2
+    },
+    "vanguard global stock dist": {
+        "name": "Vanguard Global Stock Index Fund EUR Dist",
+        "ticker": "IE00B03HD209",
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0
     },
     "ishares developed world acc": {
         "name": "iShares Developed World Index Fund (IE) D Acc EUR",
         "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World) [Acumulación]",
-        "ter": 0.12,
-        "aum": 25000,
-        "tracking_error": 0.05,
-        "age_years": 10,
-        "currency": "EUR",
-        "is_dist": False,
-        "return_1y": 15.8
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8
     },
     "fidelity msci world acc": {
         "name": "Fidelity MSCI World Index Fund EUR P Acc",
         "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World) [Acumulación]",
-        "ter": 0.10,
-        "aum": 8500,
-        "tracking_error": 0.06,
-        "age_years": 8,
-        "currency": "EUR",
-        "is_dist": False,
-        "return_1y": 15.9
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9
     },
+
+    # --- S&P 500 / EE.UU. ---
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
         "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500) [Acumulación]",
-        "ter": 0.10,
-        "aum": 17000,
-        "tracking_error": 0.03,
-        "age_years": 22,
-        "currency": "EUR",
-        "is_dist": False,
-        "return_1y": 22.4
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4
+    },
+    "vanguard sp 500 dist": {
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist",
+        "ticker": "IE0032126868",
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2
     },
     "fidelity us index acc": {
         "name": "Fidelity S&P 500 Index Fund EUR P Acc",
         "ticker": "IE00BYX5MX67",
-        "category": "Renta Variable EE.UU. (S&P 500) [Acumulación]",
-        "ter": 0.06,
-        "aum": 6200,
-        "tracking_error": 0.03,
-        "age_years": 7,
-        "currency": "EUR",
-        "is_dist": False,
-        "return_1y": 22.5
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5
     },
+
+    # --- TECNOLOGÍA ---
+    "ishares us technology acc": {
+        "name": "iShares US Technology Index Fund EUR Acc",
+        "ticker": "IE00B1W33F31",
+        "category": "Tecnología",
+        "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5
+    },
+
+    # --- MERCADOS EMERGENTES Y OTROS SECTORES ---
+    "vanguard emerging markets acc": {
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc",
+        "ticker": "IE0031786696",
+        "category": "Mercados Emergentes",
+        "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4
+    },
+    "vanguard emerging markets dist": {
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Dist",
+        "ticker": "IE0031786142",
+        "category": "Mercados Emergentes",
+        "ter": 0.23, "aum": 3200, "tracking_error": 0.12, "age_years": 15, "currency": "EUR", "is_dist": True, "return_1y": 9.2
+    },
+    "vanguard european stock acc": {
+        "name": "Vanguard European Stock Index Fund EUR Acc",
+        "ticker": "IE0007987690",
+        "category": "Renta Variable Europa",
+        "ter": 0.12, "aum": 7800, "tracking_error": 0.06, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 12.1
+    },
+    "vanguard global bond index acc": {
+        "name": "Vanguard Global Bond Index Fund EUR Hedged Acc",
+        "ticker": "IE00B1FT8033",
+        "category": "Renta Fija / Bonos Globales",
+        "ter": 0.15, "aum": 19500, "tracking_error": 0.04, "age_years": 13, "currency": "EUR", "is_dist": False, "return_1y": 4.2
+    }
 }
 
 ETF_DB = {
+    # --- RENTA VARIABLE GLOBAL ---
     "vwce.de": {
         "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]",
-        "ticker": "VWCE.DE",
-        "category": "Renta Variable Global (All-World)",
-        "ter": 0.22,
-        "aum": 15000,
-        "replication": "Física (Completa)",
-        "te": 0.04,
-        "currency": "EUR",
-        "age_years": 7,
-        "is_dist": False,
-        "return_1y": 16.0
+        "ticker": "VWCE.DE", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 7, "is_dist": False, "return_1y": 16.0
+    },
+    "vwrl.as": {
+        "name": "Vanguard FTSE All-World UCITS ETF [Distribución]",
+        "ticker": "VWRL.AS", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 11800,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8
     },
     "swda.l": {
         "name": "iShares Core MSCI World UCITS ETF [Acumulación]",
-        "ticker": "SWDA.L",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.20,
-        "aum": 68000,
-        "replication": "Física (Muestreo)",
-        "te": 0.03,
-        "currency": "EUR",
-        "age_years": 14,
-        "is_dist": False,
-        "return_1y": 15.7
+        "ticker": "SWDA.L", "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
+        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7
     },
+
+    # --- S&P 500 / EE.UU. ---
     "spyl.de": {
         "name": "SPDR S&P 500 UCITS ETF [Acumulación]",
-        "ticker": "SPYL.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.03,
-        "aum": 12000,
-        "replication": "Física (Completa)",
-        "te": 0.01,
-        "currency": "EUR",
-        "age_years": 3,
-        "is_dist": False,
-        "return_1y": 22.3
+        "ticker": "SPYL.DE", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
+        "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3
     },
+    "vusa.as": {
+        "name": "Vanguard S&P 500 UCITS ETF [Distribución]",
+        "ticker": "VUSA.AS", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
+        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1
+    },
+
+    # --- TECNOLOGÍA & IA & CIBERSEGURIDAD ---
     "eqqq.de": {
         "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]",
-        "ticker": "EQQQ.DE",
-        "category": "Tecnología / Nasdaq-100",
-        "ter": 0.30,
-        "aum": 11500,
-        "replication": "Física (Completa)",
-        "te": 0.05,
-        "currency": "EUR",
-        "age_years": 21,
-        "is_dist": True,
-        "return_1y": 26.8
+        "ticker": "EQQQ.DE", "category": "Tecnología", "ter": 0.30, "aum": 11500,
+        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8
     },
+    "cddx.de": {
+        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]",
+        "ticker": "SXRV.DE", "category": "Tecnología", "ter": 0.33, "aum": 14200,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1
+    },
+    "smh.de": {
+        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)",
+        "ticker": "SMH.DE", "category": "Tecnología", "ter": 0.35, "aum": 2100,
+        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0
+    },
+
+    # --- MATERIAS PRIMAS Y METALES PRECIOSOS ---
+    "4glld.de": {
+        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)",
+        "ticker": "4GLD.DE", "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
+        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5
+    },
+    "isln.de": {
+        "name": "iShares Physical Silver ETC (Plata Física)",
+        "ticker": "ISLN.DE", "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
+        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1
+    },
+    "exxy.de": {
+        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)",
+        "ticker": "EXXY.DE", "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
+        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5
+    },
+
+    # --- ALTO DIVIDENDO ---
+    "vhyd.de": {
+        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]",
+        "ticker": "VHYD.DE", "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
+        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2
+    },
+
+    # --- MERCADOS EMERGENTES ---
+    "emim.l": {
+        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]",
+        "ticker": "EMIM.L", "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
+        "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8
+    }
 }
 
 def get_best_single_monthly_recommendation():
@@ -872,6 +933,84 @@ elif st.session_state.stage == 'analyzer':
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
+    # FUNCIÓN CONVERTIDORA / EQUIVALENCIAS EN TIEMPO REAL
+    def render_asset_converter(current_category, current_ticker, current_is_dist, current_asset_type):
+        st.markdown(f"""
+        <div class="converter-card">
+            <div class="converter-title">🔄 Convertidor y Buscador de Alternativas Equivalentes</div>
+            <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
+                ¿Sabías que un mismo índice puede comprarse en versión <b>Fondo Indexado</b> o <b>ETF</b>, y que puedes elegir entre acumular dividendos o cobrarlos? Aquí tienes sus equivalentes exactos:
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        equi_funds_acc = []
+        equi_funds_dist = []
+        equi_etfs_acc = []
+        equi_etfs_dist = []
+
+        # Buscar en Fondos
+        for k, f in FUND_DB.items():
+            if f['category'] == current_category and f['ticker'] != current_ticker:
+                if f['is_dist']:
+                    equi_funds_dist.append(f)
+                else:
+                    equi_funds_acc.append(f)
+
+        # Buscar en ETFs
+        for k, e in ETF_DB.items():
+            if e['category'] == current_category and e['ticker'] != current_ticker:
+                if e['is_dist']:
+                    equi_etfs_dist.append(e)
+                else:
+                    equi_etfs_acc.append(e)
+
+        c_c1, c_c2, c_c3 = st.columns(3)
+
+        with c_c1:
+            st.markdown("##### 📥 Fondos (Acumulación)")
+            if equi_funds_acc:
+                for item in equi_funds_acc:
+                    st.markdown(f"• **{item['name']}**")
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%**")
+                    if st.button(f"🔍 Evaluar Fondo Acc", key=f"conv_f_acc_{item['ticker']}"):
+                        st.session_state.asset_type = "Fondos indexados"
+                        st.session_state.sub_type = "Acumulación"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
+            else:
+                st.caption("No hay otros fondos de acumulación registrados en esta categoría.")
+
+        with c_c2:
+            st.markdown("##### 💰 Fondos (Distribución)")
+            if equi_funds_dist:
+                for item in equi_funds_dist:
+                    st.markdown(f"• **{item['name']}**")
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%**")
+                    if st.button(f"🔍 Evaluar Fondo Dist", key=f"conv_f_dist_{item['ticker']}"):
+                        st.session_state.asset_type = "Fondos indexados"
+                        st.session_state.sub_type = "Acumulación"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
+            else:
+                st.caption("No hay fondos de distribución en esta categoría.")
+
+        with c_c3:
+            st.markdown("##### 🌐 ETFs Equivalentes (Coste Ultra Bajo)")
+            all_etfs = equi_etfs_acc + equi_etfs_dist
+            if all_etfs:
+                for item in all_etfs:
+                    tipo_str = "Distribución" if item['is_dist'] else "Acumulación"
+                    st.markdown(f"• **{item['name']}**")
+                    st.markdown(f"  Ticker: `{item['ticker']}` | TER: **{item['ter']}%** ({tipo_str})")
+                    if st.button(f"🔍 Evaluar ETF", key=f"conv_etf_{item['ticker']}"):
+                        st.session_state.asset_type = "ETFs"
+                        st.session_state.sub_type = "Evaluación ETF"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
+            else:
+                st.caption("No se han encontrado ETFs equivalentes directos para esta categoría específica.")
+
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
         ranking_data = [
@@ -879,6 +1018,7 @@ elif st.session_state.stage == 'analyzer':
                 "Fondo": data["name"], 
                 "ISIN": data["ticker"], 
                 "Categoría": data["category"], 
+                "Modalidad": "Distribución" if data.get("is_dist") else "Acumulación",
                 "TER Anual (%)": data["ter"], 
                 "Rentabilidad (1A %)": f"+{data.get('return_1y', 10.0):.1f}%",
                 "Patrimonio (M€)": data["aum"], 
@@ -900,6 +1040,7 @@ elif st.session_state.stage == 'analyzer':
                 "ETF": data["name"], 
                 "Ticker": data["ticker"], 
                 "Categoría": data["category"], 
+                "Modalidad": "Distribución" if data.get("is_dist") else "Acumulación",
                 "TER (%)": data["ter"], 
                 "Rentabilidad (1A %)": f"+{data.get('return_1y', 10.0):.1f}%",
                 "Patrimonio (M€)": data["aum"], 
@@ -916,20 +1057,20 @@ elif st.session_state.stage == 'analyzer':
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
         st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas", "💻 Tecnología", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas / Metales", "💻 Tecnología & IA", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
         
         with tab1:
             st.subheader("Renta Variable Global")
             st.markdown("- **Objetivo:** Diversificación global en países desarrollados.")
         with tab2:
             st.subheader("Alto Dividendo")
-            st.markdown("- **Objetivo:** Empresas maduras con pagos estables.")
+            st.markdown("- **Objetivo:** Empresas maduras con pagos estables y cobro periódico de cupones.")
         with tab3:
-            st.subheader("Materias Primas")
-            st.markdown("- **Objetivo:** Exposición física a oro y commodities.")
+            st.subheader("Materias Primas y Metales")
+            st.markdown("- **Objetivo:** Exposición física a Oro, Plata y Cesta de Commodities como cobertura contra inflación.")
         with tab4:
-            st.subheader("Tecnología")
-            st.markdown("- **Objetivo:** Innovación, IA y software.")
+            st.subheader("Tecnología, IA & Semiconductores")
+            st.markdown("- **Objetivo:** Innovación, Inteligencia Artificial, Software y Ciberseguridad.")
         with tab5:
             st.subheader("Renovables y Utilities")
             st.markdown("- **Objetivo:** Transición energética y eléctricas defensivas.")
@@ -954,27 +1095,47 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
-            st.markdown("### 📁 Biblioteca de Fondos Indexados Disponibles")
-            st.markdown("Selecciona directamente un fondo de nuestra biblioteca verificada para ver su análisis completo, comisiones y simulador:")
+            st.markdown("### 📁 Biblioteca Completa de Fondos Indexados (Acumulación y Distribución)")
+            st.markdown("Selecciona un fondo de la biblioteca ordenada para analizar sus métricas, ver equivalencias y simular rentabilidades:")
             
-            fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"] + [f"{data['name']} (ISIN: {data['ticker']}) - [TER: {data['ter']}%]" for data in FUND_DB.values()]
-            selected_fund_choice = st.selectbox("Biblioteca de Fondos Indexados", options=fund_options)
+            fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"]
+            for data in FUND_DB.values():
+                tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
+                fund_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
+
+            selected_index = 0
+            if default_input:
+                for idx, opt in enumerate(fund_options):
+                    if default_input.upper() in opt.upper():
+                        selected_index = idx
+                        break
+
+            selected_fund_choice = st.selectbox("Biblioteca de Fondos Indexados", options=fund_options, index=selected_index)
             
             if not selected_fund_choice.startswith("--"):
-                # Extraer el ISIN de la opción seleccionada
                 user_input = selected_fund_choice.split("ISIN: ")[1].split(")")[0].strip()
             else:
                 user_input = ""
 
         elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Biblioteca de ETFs Disponibles")
-            st.markdown("Selecciona directamente un ETF de nuestra biblioteca para ver su cotización en tiempo real, comisiones y análisis:")
+            st.markdown("### 🌐 Biblioteca Completa de ETFs (Materias Primas, Tecnología, Metales, Distribución...)")
+            st.markdown("Selecciona un ETF de la biblioteca organizada para analizar su cotización, comisiones y equivalencias:")
             
-            etf_options = ["-- Selecciona un ETF de la biblioteca --"] + [f"{data['name']} (Ticker: {data['ticker']}) - [TER: {data['ter']}%]" for data in ETF_DB.values()]
-            selected_etf_choice = st.selectbox("Biblioteca de ETFs", options=etf_options)
+            etf_options = ["-- Selecciona un ETF de la biblioteca --"]
+            for data in ETF_DB.values():
+                tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
+                etf_options.append(f"[{data['category']}] {data['name']} (Ticker: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
+
+            selected_index_etf = 0
+            if default_input:
+                for idx, opt in enumerate(etf_options):
+                    if default_input.upper() in opt.upper():
+                        selected_index_etf = idx
+                        break
+
+            selected_etf_choice = st.selectbox("Biblioteca de ETFs", options=etf_options, index=selected_index_etf)
             
             if not selected_etf_choice.startswith("--"):
-                # Extraer el Ticker de la opción seleccionada
                 user_input = selected_etf_choice.split("Ticker: ")[1].split(")")[0].strip()
             else:
                 user_input = ""
@@ -1099,7 +1260,7 @@ elif st.session_state.stage == 'analyzer':
                     te_val = 0.05
                     age_val = 10
                     is_dist_fund = False
-                    cat_fund = "Fondo Indexado Global"
+                    cat_fund = "Renta Variable Global (MSCI World)"
 
                 score_fund = 4.2
                 grade_fund = get_letter_grade(score_fund)
@@ -1137,10 +1298,13 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 df_fund_data = {
-                    "Métrica del Fondo": ["ISIN / Ticker", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
-                    "Valor Actual": [fund_isin, f"+{ret_1y_fund:.1f}%", f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
+                    "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Índice", "Modalidad", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
+                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"+{ret_1y_fund:.1f}%", f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
                 }
                 st.table(pd.DataFrame(df_fund_data))
+
+                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS ---
+                render_asset_converter(cat_fund, fund_isin, is_dist_fund, "Fondo Indexado")
 
                 st.markdown("---")
                 st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
@@ -1265,7 +1429,7 @@ elif st.session_state.stage == 'analyzer':
                         etf_name = etf_ticker
                         curr_etf = 'EUR'
                     
-                    etf_cat = "Tiempo Real / Global"
+                    etf_cat = "Renta Variable Global (MSCI World)"
                     ter_etf = 0.20
                     aum_etf = 1000
                     repl_etf = "Física"
@@ -1329,10 +1493,13 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 df_etf_data = {
-                    "Métrica del ETF": ["Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [last_vol_display, avg_vol_display, f"+{ret_1y_etf:.1f}%", f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica del ETF": ["Categoría / Sector", "Modalidad", "Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
+                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", last_vol_display, avg_vol_display, f"+{ret_1y_etf:.1f}%", f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
+
+                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS ---
+                render_asset_converter(etf_cat, etf_ticker, is_dist_etf, "ETF")
 
                 st.markdown("---")
                 st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
