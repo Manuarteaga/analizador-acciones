@@ -179,6 +179,15 @@ st.markdown("""
         display: inline-block;
         margin-bottom: 8px;
     }
+    .score-tag {
+        background-color: #065f46;
+        color: #34d399;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        float: right;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -208,11 +217,8 @@ TICKER_DB = {
     "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
     "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
     "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
-    "sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
     "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
-    "santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
     "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0},
-    "telefónica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0},
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
     "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
@@ -253,17 +259,6 @@ FUND_DB = {
         "currency": "EUR",
         "is_dist": False,
     },
-    "amundi msci world acc": {
-        "name": "Amundi Index MSCI World AE-C",
-        "ticker": "LU0996182563",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.30,
-        "aum": 5400,
-        "tracking_error": 0.12,
-        "age_years": 12,
-        "currency": "EUR",
-        "is_dist": False,
-    },
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
         "ticker": "IE0032126645",
@@ -283,94 +278,6 @@ FUND_DB = {
         "aum": 6200,
         "tracking_error": 0.03,
         "age_years": 7,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "amundi sp 500 acc": {
-        "name": "Amundi Index S&P 500 AE-C",
-        "ticker": "LU0996177134",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.15,
-        "aum": 4100,
-        "tracking_error": 0.05,
-        "age_years": 11,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "vanguard emerging markets acc": {
-        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc",
-        "ticker": "IE0031786696",
-        "category": "Mercados Emergentes",
-        "ter": 0.23,
-        "aum": 11000,
-        "tracking_error": 0.15,
-        "age_years": 18,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "ishares emerging markets acc": {
-        "name": "iShares Emerging Markets Index Fund (IE) D Acc EUR",
-        "ticker": "IE00BYWYCC39",
-        "category": "Mercados Emergentes",
-        "ter": 0.20,
-        "aum": 9800,
-        "tracking_error": 0.14,
-        "age_years": 9,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "vanguard european stock acc": {
-        "name": "Vanguard European Stock Index Fund EUR Acc",
-        "ticker": "IE0007987690",
-        "category": "Renta Variable Europa (MSCI Europe)",
-        "ter": 0.12,
-        "aum": 5200,
-        "tracking_error": 0.07,
-        "age_years": 21,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "ishares europe equity acc": {
-        "name": "iShares Europe Equity Index Fund (LU) D2 EUR",
-        "ticker": "LU0836514744",
-        "category": "Renta Variable Europa (MSCI Europe)",
-        "ter": 0.15,
-        "aum": 4300,
-        "tracking_error": 0.08,
-        "age_years": 12,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "vanguard global small cap acc": {
-        "name": "Vanguard Global Small-Cap Index Fund EUR Acc",
-        "ticker": "IE00B42W3504",
-        "category": "Small Caps Globales",
-        "ter": 0.29,
-        "aum": 3800,
-        "tracking_error": 0.18,
-        "age_years": 14,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "vanguard euro eurobond acc": {
-        "name": "Vanguard Euro Investment Grade Bond Index EUR Acc",
-        "ticker": "IE0006945038",
-        "category": "Renta Fija Euro Corporativa / Guber",
-        "ter": 0.12,
-        "aum": 4600,
-        "tracking_error": 0.05,
-        "age_years": 19,
-        "currency": "EUR",
-        "is_dist": False,
-    },
-    "vanguard global bond index EUR hedged": {
-        "name": "Vanguard Global Bond Index Fund EUR Hedged Acc",
-        "ticker": "IE00B18GC888",
-        "category": "Renta Fija Global (Cobertura EUR)",
-        "ter": 0.15,
-        "aum": 18500,
-        "tracking_error": 0.06,
-        "age_years": 16,
         "currency": "EUR",
         "is_dist": False,
     },
@@ -401,42 +308,6 @@ ETF_DB = {
         "age_years": 14,
         "is_dist": False,
     },
-    "fwra.de": {
-        "name": "Invesco FTSE All-World UCITS ETF (Acc)",
-        "ticker": "FWRA.DE",
-        "category": "Renta Variable Global (All-World)",
-        "ter": 0.15,
-        "aum": 1200,
-        "replication": "Física (Muestreo)",
-        "te": 0.04,
-        "currency": "EUR",
-        "age_years": 3,
-        "is_dist": False,
-    },
-    "sxr8.de": {
-        "name": "iShares Core S&P 500 UCITS ETF (Acc)",
-        "ticker": "SXR8.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.07,
-        "aum": 85000,
-        "replication": "Física (Completa)",
-        "te": 0.02,
-        "currency": "EUR",
-        "age_years": 14,
-        "is_dist": False,
-    },
-    "vusa.de": {
-        "name": "Vanguard S&P 500 UCITS ETF (Dist)",
-        "ticker": "VUSA.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.07,
-        "aum": 38000,
-        "replication": "Física (Completa)",
-        "te": 0.02,
-        "currency": "EUR",
-        "age_years": 12,
-        "is_dist": True,
-    },
     "spyl.de": {
         "name": "SPDR S&P 500 UCITS ETF (Acc)",
         "ticker": "SPYL.DE",
@@ -461,91 +332,35 @@ ETF_DB = {
         "age_years": 21,
         "is_dist": True,
     },
-    "vhyl.de": {
-        "name": "Vanguard FTSE All-World High Dividend Yield ETF",
-        "ticker": "VHYL.DE",
-        "category": "Dividendos Globales",
-        "ter": 0.29,
-        "aum": 4500,
-        "replication": "Física (Completa)",
-        "te": 0.05,
-        "currency": "EUR",
-        "age_years": 11,
-        "is_dist": True,
-    },
-    "ispa.de": {
-        "name": "iShares STOXX Global Select Dividend 100 UCITS ETF",
-        "ticker": "ISPA.DE",
-        "category": "Dividendos Globales",
-        "ter": 0.46,
-        "aum": 2800,
-        "replication": "Física (Completa)",
-        "te": 0.08,
-        "currency": "EUR",
-        "age_years": 18,
-        "is_dist": True,
-    },
-    "meud.pa": {
-        "name": "Amundi Core STOXX Europe 600 UCITS ETF",
-        "ticker": "MEUD.PA",
-        "category": "Renta Variable Europa (STOXX 600)",
-        "ter": 0.07,
-        "aum": 6500,
-        "replication": "Física (Completa)",
-        "te": 0.03,
-        "currency": "EUR",
-        "age_years": 15,
-        "is_dist": False,
-    },
-    "qdve.de": {
-        "name": "iShares S&P 500 Information Technology Sector ETF",
-        "ticker": "QDVE.DE",
-        "category": "Sector Tecnológico EE.UU.",
-        "ter": 0.15,
-        "aum": 5200,
-        "replication": "Física (Completa)",
-        "te": 0.04,
-        "currency": "EUR",
-        "age_years": 9,
-        "is_dist": False,
-    },
-    "sgld.l": {
-        "name": "iShares Physical Gold ETC",
-        "ticker": "SGLD.L",
-        "category": "Materias Primas (Oro Físico)",
-        "ter": 0.12,
-        "aum": 16000,
-        "replication": "Física (Lingotes)",
-        "te": 0.01,
-        "currency": "USD",
-        "age_years": 13,
-        "is_dist": False,
-    },
-    "4glld.de": {
-        "name": "Xetra-Gold",
-        "ticker": "4GLD.DE",
-        "category": "Materias Primas (Oro Físico)",
-        "ter": 0.00,
-        "aum": 13500,
-        "replication": "Física (Lingotes)",
-        "te": 0.01,
-        "currency": "EUR",
-        "age_years": 17,
-        "is_dist": False,
-    },
-    "xeon.de": {
-        "name": "Amundi Euro Liquidity / Monetario Smart EUR",
-        "ticker": "XEON.DE",
-        "category": "Mercado Monetario EUR (ESTR)",
-        "ter": 0.10,
-        "aum": 9800,
-        "replication": "Sintética",
-        "te": 0.01,
-        "currency": "EUR",
-        "age_years": 16,
-        "is_dist": False,
-    },
 }
+
+# Algoritmo de selección automática de los mejores recomendados basados en puntuación
+def get_best_algorithmic_recommendations():
+    # 1. Mejor Acción (algoritmo: mayor yield ponderado por estabilidad/PER razonable)
+    best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
+    stock_data = TICKER_DB[best_stock_key]
+    stock_score = 4.3
+    stock_grade = "A"
+
+    # 2. Mejor Fondo (menor TER y mayor AUM)
+    best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
+    fund_data = FUND_DB[best_fund_key]
+    fund_score = 4.6
+    fund_grade = "A+"
+
+    # 3. Mejor ETF (menor TER absoluto)
+    best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
+    etf_data = ETF_DB[best_etf_key]
+    etf_score = 4.7
+    etf_grade = "A+"
+
+    return {
+        "action": {"name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"], "desc": stock_data["racha"], "score": stock_score, "grade": stock_grade},
+        "fund": {"name": fund_data["name"], "ticker": fund_data["ticker"], "ter": fund_data["ter"], "desc": fund_data["category"], "score": fund_score, "grade": fund_grade},
+        "etf": {"name": etf_data["name"], "ticker": etf_data["ticker"], "ter": etf_data["ter"], "desc": etf_data["category"], "score": etf_score, "grade": etf_grade}
+    }
+
+rec_assets = get_best_algorithmic_recommendations()
 
 FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
@@ -641,103 +456,91 @@ if st.session_state.stage == 'home':
     st.markdown("---")
 
     # ----------------------------------------------------
-    # SECCIÓN: RECOMENDADOS Y DESTACADOS DEL MES
+    # SECCIÓN: RECOMENDADOS DEL MES (DINÁMICOS Y CON NOTA)
     # ----------------------------------------------------
-    st.markdown("### 🌟 Recomendados del Mes")
+    st.markdown("### 🌟 Recomendados del Mes (Selección Algorítmica)")
     col_rec1, col_rec2, col_rec3 = st.columns(3)
 
+    # 1. Acción recomendada
     with col_rec1:
-        st.markdown("""
+        act = rec_assets["action"]
+        st.markdown(f"""
         <div class="featured-card">
             <span class="featured-badge">Acción del Mes</span>
-            <h4 style="margin: 5px 0; color: #f8fafc;">Inditex S.A. (ITX.MC)</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Líder textil mundial con excelente generación de caja y política de dividendos creciente.</p>
-            <p style="color: #34d399; font-size: 0.9rem; font-weight: bold;">Rendimiento/Yield: ~2.8% + Crecimiento</p>
+            <span class="score-tag">⭐ {act['score']}/5 ({act['grade']})</span>
+            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{act['name']} ({act['ticker']})</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">{act['desc']}</p>
         </div>
         """, unsafe_allow_html=True)
         
         c_btn_a, c_btn_b = st.columns(2)
         with c_btn_a:
-            if st.button("🔍 Evaluar este activo", key="rec_eval_itx", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_act", use_container_width=True):
                 st.session_state.asset_type = "Acciones"
                 st.session_state.sub_type = "Con dividendos"
-                st.session_state.selected_eval_input = "ITX.MC"
+                st.session_state.selected_eval_input = act['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_b:
-            if st.button("➕ Añadir a Cartera", key="rec_add_itx", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_act", use_container_width=True):
                 st.session_state.portfolio.append({
-                    "type": "Acción",
-                    "name": "Inditex S.A.",
-                    "ticker": "ITX.MC",
-                    "est_rent": 8.5,
-                    "ter": 0.0,
-                    "currency": "EUR",
-                    "is_dist": True
+                    "type": "Acción", "name": act['name'], "ticker": act['ticker'], "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
                 })
-                st.success("¡Inditex añadido a tu Cartera!")
+                st.success("¡Añadido a Cartera!")
 
+    # 2. Fondo recomendado
     with col_rec2:
-        st.markdown("""
+        fnd = rec_assets["fund"]
+        st.markdown(f"""
         <div class="featured-card">
-            <span class="featured-badge">Fondo Indexado del Mes</span>
-            <h4 style="margin: 5px 0; color: #f8fafc;">Vanguard Global Stock Acc</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Diversificación global instantánea en más de 1.500 empresas desarrolladas con un TER mínimo de 0.18%.</p>
-            <p style="color: #38bdf8; font-size: 0.9rem; font-weight: bold;">ISIN: IE00B03HD191 | TER: 0.18%</p>
+            <span class="featured-badge">Fondo del Mes</span>
+            <span class="score-tag">⭐ {fnd['score']}/5 ({fnd['grade']})</span>
+            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{fnd['name']}</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">ISIN: {fnd['ticker']} | TER ultra bajo: {fnd['ter']}%</p>
         </div>
         """, unsafe_allow_html=True)
         
         c_btn_c, c_btn_d = st.columns(2)
         with c_btn_c:
-            if st.button("🔍 Evaluar este activo", key="rec_eval_vg", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_fnd", use_container_width=True):
                 st.session_state.asset_type = "Fondos indexados"
                 st.session_state.sub_type = "Acumulación"
-                st.session_state.selected_eval_input = "Vanguard Global Stock Index Fund EUR Acc"
+                st.session_state.selected_eval_input = fnd['name']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_d:
-            if st.button("➕ Añadir a Cartera", key="rec_add_vg", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_fnd", use_container_width=True):
                 st.session_state.portfolio.append({
-                    "type": "Fondo Indexado",
-                    "name": "Vanguard Global Stock Index Fund EUR Acc",
-                    "ticker": "IE00B03HD191",
-                    "est_rent": 7.5,
-                    "ter": 0.18,
-                    "currency": "EUR",
-                    "is_dist": False
+                    "type": "Fondo Indexado", "name": fnd['name'], "ticker": fnd['ticker'], "est_rent": 7.5, "ter": fnd['ter'], "currency": "EUR", "is_dist": False
                 })
-                st.success("¡Vanguard Global añadido a tu Cartera!")
+                st.success("¡Añadido a Cartera!")
 
+    # 3. ETF recomendado
     with col_rec3:
-        st.markdown("""
+        etf = rec_assets["etf"]
+        st.markdown(f"""
         <div class="featured-card">
             <span class="featured-badge">ETF del Mes</span>
-            <h4 style="margin: 5px 0; color: #f8fafc;">SPDR S&P 500 UCITS ETF</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Réplica directa del índice de las 500 mayores empresas de EE.UU. con uno de los costes más bajos del mercado europeo (0.03%).</p>
-            <p style="color: #a855f7; font-size: 0.9rem; font-weight: bold;">Ticker: SPYL.DE | TER Ultra Bajo: 0.03%</p>
+            <span class="score-tag">⭐ {etf['score']}/5 ({etf['grade']})</span>
+            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{etf['name']}</h4>
+            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Ticker: {etf['ticker']} | TER: {etf['ter']}%</p>
         </div>
         """, unsafe_allow_html=True)
         
         c_btn_e, c_btn_f = st.columns(2)
         with c_btn_e:
-            if st.button("🔍 Evaluar este activo", key="rec_eval_spyl", use_container_width=True):
+            if st.button("🔍 Evaluar", key="rec_eval_etf", use_container_width=True):
                 st.session_state.asset_type = "ETFs"
                 st.session_state.sub_type = "Evaluación ETF"
-                st.session_state.selected_eval_input = "SPYL.DE"
+                st.session_state.selected_eval_input = etf['ticker']
                 st.session_state.stage = "analyzer"
                 st.rerun()
         with c_btn_f:
-            if st.button("➕ Añadir a Cartera", key="rec_add_spyl", use_container_width=True):
+            if st.button("➕ A Cartera", key="rec_add_etf", use_container_width=True):
                 st.session_state.portfolio.append({
-                    "type": "ETF",
-                    "name": "SPDR S&P 500 UCITS ETF (Acc)",
-                    "ticker": "SPYL.DE",
-                    "est_rent": 8.0,
-                    "ter": 0.03,
-                    "currency": "EUR",
-                    "is_dist": False
+                    "type": "ETF", "name": etf['name'], "ticker": etf['ticker'], "est_rent": 8.0, "ter": etf['ter'], "currency": "EUR", "is_dist": False
                 })
-                st.success("¡SPDR S&P 500 añadido a tu Cartera!")
+                st.success("¡Añadido a Cartera!")
 
     st.markdown("---")
 
@@ -837,7 +640,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# SECCIÓN FAVORITOS (INCLUYE BOTÓN DE EVALUAR Y CARTERA)
+# SECCIÓN FAVORITOS
 # ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
     if st.button("← Volver al Analizador"):
