@@ -215,8 +215,6 @@ if 'favorites' not in st.session_state:
     st.session_state.favorites = []
 if 'selected_eval_input' not in st.session_state:
     st.session_state.selected_eval_input = ""
-if 'custom_comparison_pair' not in st.session_state:
-    st.session_state.custom_comparison_pair = None
 
 def cargar_desde_url():
     if 'data_loaded' not in st.session_state:
@@ -368,33 +366,6 @@ ETF_DB = {
     },
 }
 
-COMPARISON_PAIRS = {
-    "MSCI World (Renta Variable Global)": {
-        "fund_name": "Vanguard Global Stock Index Fund EUR Acc",
-        "fund_isin": "IE00B03HD191",
-        "fund_ter": 0.18,
-        "etf_name": "iShares Core MSCI World UCITS ETF (Acc)",
-        "etf_ticker": "SWDA.L",
-        "etf_ter": 0.20,
-    },
-    "S&P 500 (Renta Variable EE.UU.)": {
-        "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
-        "fund_isin": "IE0032126645",
-        "fund_ter": 0.10,
-        "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
-        "etf_ticker": "SPYL.DE",
-        "etf_ter": 0.03,
-    },
-    "S&P 500 Ultra Bajo Coste (Fidelity vs SPDR)": {
-        "fund_name": "Fidelity S&P 500 Index Fund EUR P Acc",
-        "fund_isin": "IE00BYX5MX67",
-        "fund_ter": 0.06,
-        "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
-        "etf_ticker": "SPYL.DE",
-        "etf_ter": 0.03,
-    }
-}
-
 def get_best_single_monthly_recommendation():
     candidates = []
     best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
@@ -518,7 +489,7 @@ if st.session_state.stage == 'home':
             st.rerun()
 
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("⚔️ Comparador Directo: Fondo Indexado vs. ETF (Mismo Índice)", use_container_width=True):
+    if st.button("⚔️ Comparador Multiactivo (1 a 4 Fondos o ETFs)", use_container_width=True):
         st.session_state.stage = "comparator_view"
         st.rerun()
 
@@ -570,7 +541,7 @@ if st.session_state.stage == 'home':
             "1. ¿Qué objetivo estás buscando?",
             [
                 "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
-                "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
+                "Corto plazo (for reformas, imprevistos en el hogar o compra de coche)",
                 "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
             ]
         )
@@ -600,37 +571,64 @@ if st.session_state.stage == 'home':
                 st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
 
 # ----------------------------------------------------
-# SECCIÓN COMPARADOR FONDO VS ETF
+# SECCIÓN COMPARADOR MULTIACTIVO (1 A 4)
 # ----------------------------------------------------
 elif st.session_state.stage == 'comparator_view':
     if st.button("← Volver al Menú Principal"):
         reset_navigation()
         st.rerun()
 
-    st.title("⚔️ Comparador Directo: Fondo Indexado vs. ETF del Mismo Índice")
-    st.markdown("Compara el rendimiento final esperado, costes anuales (TER) y ganancias netas entre un Fondo Indexado y un ETF equivalente.")
+    st.title("⚔️ Comparador Multiactivo Avanzado (Fondos y ETFs)")
+    st.markdown("Selecciona de 1 a 4 activos, elige exactamente qué fondo o ETF comparar, ajusta los parámetros de inversión de cada uno y visualiza los resultados netos cara a cara.")
 
-    available_pairs = COMPARISON_PAIRS.copy()
-    if st.session_state.custom_comparison_pair:
-        available_pairs["⚡ Personalizada desde Evaluador"] = st.session_state.custom_comparison_pair
+    # Generar catálogo unificado combinando Fondos y ETFs para los selectores
+    master_catalog = {}
+    for k, d in FUND_DB.items():
+        master_catalog[f"📁 [Fondo] {d['name']} ({d['ticker']}) - TER: {d['ter']}%"] = {
+            "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "Fondo Indexado"
+        }
+    for k, d in ETF_DB.items():
+        master_catalog[f"🌐 [ETF] {d['name']} ({d['ticker']}) - TER: {d['ter']}%"] = {
+            "name": d['name'], "ticker": d['ticker'], "ter": d['ter'], "type": "ETF"
+        }
 
-    selected_pair_key = st.selectbox("Selecciona el Índice / Par a comparar:", list(available_pairs.keys()))
-    pair = available_pairs[selected_pair_key]
+    # Selector de cantidad de activos a comparar
+    num_compare = st.slider("Número de activos a comparar:", min_value=1, max_value=4, value=2)
 
     st.markdown("---")
-    st.markdown("### ⚙️ Configuración de la Inversión")
+    st.markdown("### ⚙️ Configuración y Selección de Activos")
 
-    col_cmp1, col_cmp2, col_cmp3, col_cmp4 = st.columns(4)
-    with col_cmp1:
-        inv_ini_cmp = st.number_input("Inversión Inicial (€)", min_value=0.0, value=2000.0, step=500.0)
-    with col_cmp2:
-        app_per_cmp = st.number_input("Aportación Mensual (€)", min_value=0.0, value=200.0, step=50.0)
-    with col_cmp3:
-        anos_cmp = st.slider("Plazo en Años", min_value=1, max_value=40, value=20)
-    with col_cmp4:
-        rent_bruta_cmp = st.slider("Rentabilidad Anual Estimada (%)", min_value=1.0, max_value=15.0, value=8.0, step=0.5)
+    selected_assets_config = []
+    cols_sel = st.columns(num_compare)
 
-    def calc_simulation(inv_ini, app_mensual, anos, rent_bruta, ter):
+    for i in range(num_compare):
+        with cols_sel[i]:
+            st.markdown(f"#### Activo {i+1}")
+            chosen_key = st.selectbox(
+                f"Selecciona activo {i+1}",
+                options=list(master_catalog.keys()),
+                index=i if i < len(master_catalog) else 0,
+                key=f"comp_sel_{i}"
+            )
+            asset_info = master_catalog[chosen_key]
+            
+            inv_ini_i = st.number_input(f"Inv. Inicial (€) [A{i+1}]", min_value=0.0, value=2000.0, step=500.0, key=f"comp_ini_{i}")
+            app_per_i = st.number_input(f"Aportación Mensual (€) [A{i+1}]", min_value=0.0, value=150.0, step=50.0, key=f"comp_app_{i}")
+            anos_i = st.slider(f"Plazo (Años) [A{i+1}]", min_value=1, max_value=40, value=20, key=f"comp_anos_{i}")
+            rent_i = st.slider(f"Rentabilidad Anual (%) [A{i+1}]", min_value=1.0, max_value=15.0, value=7.5, step=0.5, key=f"comp_rent_{i}")
+            
+            selected_assets_config.append({
+                "name": asset_info["name"],
+                "ticker": asset_info["ticker"],
+                "ter": asset_info["ter"],
+                "type": asset_info["type"],
+                "inv_ini": inv_ini_i,
+                "app_per": app_per_i,
+                "anos": anos_i,
+                "rent": rent_i
+            })
+
+    def calc_multisim(inv_ini, app_mensual, anos, rent_bruta, ter):
         periodos = anos * 12
         tasa_neta_anual = max(0.0, rent_bruta - ter)
         tasa_periodica = (tasa_neta_anual / 100.0) / 12.0
@@ -652,64 +650,38 @@ elif st.session_state.stage == 'comparator_view':
         
         return total_aportado, saldo, beneficio_bruto, beneficio_neto, capital_liquido
 
-    f_aport, f_saldo, f_bbruto, f_bneto, f_liq = calc_simulation(inv_ini_cmp, app_per_cmp, anos_cmp, rent_bruta_cmp, pair['fund_ter'])
-    e_aport, e_saldo, e_bbruto, e_bneto, e_liq = calc_simulation(inv_ini_cmp, app_per_cmp, anos_cmp, rent_bruta_cmp, pair['etf_ter'])
-
     st.markdown("---")
-    st.markdown("### 📊 Resultado de la Comparativa")
+    st.markdown("### 📊 Resultados Comparativos Finales")
 
-    c_box1, c_box2 = st.columns(2)
-    
-    with c_box1:
-        st.markdown(f"""
-        <div class="compare-box">
-            <h3 style="color: #38bdf8;">📁 Fondo Indexado</h3>
-            <h4>{pair['fund_name']}</h4>
-            <p><strong>ISIN/Ticker:</strong> {pair['fund_isin']} | <strong>TER:</strong> {pair['fund_ter']}%</p>
-            <hr style="border-color: #334155;">
-            <p>Capital Invertido: <strong>{f_aport:,.2f} €</strong></p>
-            <p>Capital Bruto Acumulado: <strong>{f_saldo:,.2f} €</strong></p>
-            <p>Beneficio Neto (Tras 19% IRPF): <strong>{f_bneto:,.2f} €</strong></p>
-            <h3 style="color: #34d399; margin-top: 15px;">Capital Líquido Final: {f_liq:,.2f} €</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("➕ Añadir Fondo a mi Cartera", key="add_f_comp", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": "Fondo Indexado", "name": pair['fund_name'], "ticker": pair['fund_isin'],
-                "est_rent": rent_bruta_cmp, "ter": pair['fund_ter'], "currency": "EUR", "is_dist": False
-            })
-            guardar_en_url()
-            st.success(f"¡Fondo {pair['fund_name']} añadido a tu Cartera!")
+    cols_res = st.columns(num_compare)
 
-    with c_box2:
-        st.markdown(f"""
-        <div class="compare-box">
-            <h3 style="color: #38bdf8;">🌐 ETF Equivalente</h3>
-            <h4>{pair['etf_name']}</h4>
-            <p><strong>Ticker:</strong> {pair['etf_ticker']} | <strong>TER:</strong> {pair['etf_ter']}%</p>
-            <hr style="border-color: #334155;">
-            <p>Capital Invertido: <strong>{e_aport:,.2f} €</strong></p>
-            <p>Capital Bruto Acumulado: <strong>{e_saldo:,.2f} €</strong></p>
-            <p>Beneficio Neto (Tras 19% IRPF): <strong>{e_bneto:,.2f} €</strong></p>
-            <h3 style="color: #34d399; margin-top: 15px;">Capital Líquido Final: {e_liq:,.2f} €</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        if st.button("➕ Añadir ETF a mi Cartera", key="add_e_comp", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": "ETF", "name": pair['etf_name'], "ticker": pair['etf_ticker'],
-                "est_rent": rent_bruta_cmp, "ter": pair['etf_ter'], "currency": "EUR", "is_dist": False
-            })
-            guardar_en_url()
-            st.success(f"¡ETF {pair['etf_name']} añadido a tu Cartera!")
-
-    diff_liq = abs(e_liq - f_liq)
-    st.markdown("<br>", unsafe_allow_html=True)
-    if e_liq > f_liq:
-        st.success(f"💡 **Conclusión:** El **ETF** genera **{diff_liq:,.2f} € más** de capital líquido final al cabo de {anos_cmp} años gracias a la menor comisión anual (TER del {pair['etf_ter']}% vs {pair['fund_ter']}%).")
-    elif f_liq > e_liq:
-        st.success(f"💡 **Conclusión:** El **Fondo Indexado** genera **{diff_liq:,.2f} € más** de capital líquido final al cabo de {anos_cmp} años debido a su menor comisión anual (TER del {pair['fund_ter']}% vs {pair['etf_ter']}%).")
-    else:
-        st.info("💡 **Conclusión:** Ambas opciones ofrecen un rendimiento líquido idéntico al compartir comisiones equivalentes.")
+    for i, cfg in enumerate(selected_assets_config):
+        aport, saldo, b_bruto, b_neto, liq = calc_multisim(
+            cfg["inv_ini"], cfg["app_per"], cfg["anos"], cfg["rent"], cfg["ter"]
+        )
+        
+        with cols_res[i]:
+            st.markdown(f"""
+            <div class="compare-box">
+                <h3 style="color: #38bdf8;">{cfg['type']}</h3>
+                <h4 style="font-size: 1rem; min-height: 40px;">{cfg['name']}</h4>
+                <p><strong>Ticker/ISIN:</strong> {cfg['ticker']} | <strong>TER:</strong> {cfg['ter']}%</p>
+                <hr style="border-color: #334155;">
+                <p>Plazo: <strong>{cfg['anos']} años</strong> | Rent. Est: <strong>{cfg['rent']}%</strong></p>
+                <p>Capital Invertido: <strong>{aport:,.2f} €</strong></p>
+                <p>Capital Bruto Acumulado: <strong>{saldo:,.2f} €</strong></p>
+                <p>Beneficio Neto (Tras 19% IRPF): <strong>{b_neto:,.2f} €</strong></p>
+                <h3 style="color: #34d399; margin-top: 15px;">Líquido Final: {liq:,.2f} €</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button(f"➕ Añadir a Cartera [A{i+1}]", key=f"add_comp_cartera_{i}", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": cfg['type'], "name": cfg['name'], "ticker": cfg['ticker'],
+                    "est_rent": cfg['rent'], "ter": cfg['ter'], "currency": "EUR", "is_dist": False
+                })
+                guardar_en_url()
+                st.success(f"¡{cfg['name']} añadido a tu Cartera!")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
