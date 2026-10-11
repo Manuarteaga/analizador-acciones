@@ -104,7 +104,7 @@ st.markdown("""
     @keyframes slideRightStream {
         0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
         50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #eab308, 0 0 22px #eab308; }
-        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
+        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 12px #eab308; }
     }
 
     .arrow-item-up {
@@ -522,7 +522,7 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    # 1. RECOMENDADO DEL MES (AHORA DELANTE DEL ASISTENTE INTERACTIVO)
+    # 1. RECOMENDADO DEL MES
     st.markdown("### 🌟 Recomendado del Mes")
     st.markdown(f"""
     <div class="featured-card">
