@@ -254,7 +254,7 @@ FUND_DB = {
     "vanguard global stock acc": {
         "name": "Vanguard Global Stock Index Fund EUR Acc",
         "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World)",
+        "category": "Renta Variable Global (MSCI World) [Acumulación]",
         "ter": 0.18,
         "aum": 23000,
         "tracking_error": 0.08,
@@ -266,7 +266,7 @@ FUND_DB = {
     "ishares developed world acc": {
         "name": "iShares Developed World Index Fund (IE) D Acc EUR",
         "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World)",
+        "category": "Renta Variable Global (MSCI World) [Acumulación]",
         "ter": 0.12,
         "aum": 25000,
         "tracking_error": 0.05,
@@ -278,7 +278,7 @@ FUND_DB = {
     "fidelity msci world acc": {
         "name": "Fidelity MSCI World Index Fund EUR P Acc",
         "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World)",
+        "category": "Renta Variable Global (MSCI World) [Acumulación]",
         "ter": 0.10,
         "aum": 8500,
         "tracking_error": 0.06,
@@ -290,7 +290,7 @@ FUND_DB = {
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
         "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500)",
+        "category": "Renta Variable EE.UU. (S&P 500) [Acumulación]",
         "ter": 0.10,
         "aum": 17000,
         "tracking_error": 0.03,
@@ -302,7 +302,7 @@ FUND_DB = {
     "fidelity us index acc": {
         "name": "Fidelity S&P 500 Index Fund EUR P Acc",
         "ticker": "IE00BYX5MX67",
-        "category": "Renta Variable EE.UU. (S&P 500)",
+        "category": "Renta Variable EE.UU. (S&P 500) [Acumulación]",
         "ter": 0.06,
         "aum": 6200,
         "tracking_error": 0.03,
@@ -315,7 +315,7 @@ FUND_DB = {
 
 ETF_DB = {
     "vwce.de": {
-        "name": "Vanguard FTSE All-World UCITS ETF (Acc)",
+        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]",
         "ticker": "VWCE.DE",
         "category": "Renta Variable Global (All-World)",
         "ter": 0.22,
@@ -328,7 +328,7 @@ ETF_DB = {
         "return_1y": 16.0
     },
     "swda.l": {
-        "name": "iShares Core MSCI World UCITS ETF (Acc)",
+        "name": "iShares Core MSCI World UCITS ETF [Acumulación]",
         "ticker": "SWDA.L",
         "category": "Renta Variable Global (MSCI World)",
         "ter": 0.20,
@@ -341,7 +341,7 @@ ETF_DB = {
         "return_1y": 15.7
     },
     "spyl.de": {
-        "name": "SPDR S&P 500 UCITS ETF (Acc)",
+        "name": "SPDR S&P 500 UCITS ETF [Acumulación]",
         "ticker": "SPYL.DE",
         "category": "Renta Variable EE.UU. (S&P 500)",
         "ter": 0.03,
@@ -354,9 +354,9 @@ ETF_DB = {
         "return_1y": 22.3
     },
     "eqqq.de": {
-        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF",
+        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]",
         "ticker": "EQQQ.DE",
-        "category": "Tecnología (NASDAQ-100)",
+        "category": "Tecnología / Nasdaq-100",
         "ter": 0.30,
         "aum": 11500,
         "replication": "Física (Completa)",
@@ -954,95 +954,30 @@ elif st.session_state.stage == 'analyzer':
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
-            st.markdown("### 🔍 Buscador Inteligente Múltiple de Fondos Indexados")
-            fund_query = st.text_input("Escribe una palabra clave, gestora o ISIN (ej. 'S&P 500', 'iShares', 'Vanguard'):", value=default_input).strip()
+            st.markdown("### 📁 Biblioteca de Fondos Indexados Disponibles")
+            st.markdown("Selecciona directamente un fondo de nuestra biblioteca verificada para ver su análisis completo, comisiones y simulador:")
             
-            user_input = ""
-            combined_options = {}
-
-            if fund_query:
-                q_clean = fund_query.lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                q_low = fund_query.lower()
-                
-                # 1. Búsqueda exhaustiva en catálogo verificado
-                for key, data in FUND_DB.items():
-                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
-                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
-                        combined_options[label_cat] = data['ticker']
-
-                # 2. Búsqueda en tiempo real con mayor alcance (max_results=30)
-                try:
-                    search_term = "S&P 500 Index Fund" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else fund_query
-                    results = yf.Search(search_term, max_results=30).quotes
-                    
-                    for item in results:
-                        sym = item.get('symbol')
-                        sname = item.get('shortname', item.get('longname', sym))
-                        ex = item.get('exchange', '')
-                        qtype = item.get('quoteType', '')
-                        
-                        if sym and (qtype in ['MUTUALFUND', 'INDEX', 'ETF'] or 'FUND' in sname.upper() or 'INDEX' in sname.upper() or '500' in sname or 'ACC' in sname.upper()):
-                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
-                            if sym not in combined_options.values():
-                                combined_options[label_rt] = sym
-                except Exception as e:
-                    pass
-
-                if combined_options:
-                    st.success(f"¡Se han encontrado {len(combined_options)} fondos disponibles para tu búsqueda!")
-                    selected_label = st.selectbox("Despliega y selecciona el fondo que deseas analizar:", options=["-- Selecciona un fondo de la lista --"] + list(combined_options.keys()))
-                    
-                    if not selected_label.startswith("--"):
-                        user_input = combined_options[selected_label]
-                else:
-                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente.")
-                    user_input = fund_query
+            fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"] + [f"{data['name']} (ISIN: {data['ticker']}) - [TER: {data['ter']}%]" for data in FUND_DB.values()]
+            selected_fund_choice = st.selectbox("Biblioteca de Fondos Indexados", options=fund_options)
+            
+            if not selected_fund_choice.startswith("--"):
+                # Extraer el ISIN de la opción seleccionada
+                user_input = selected_fund_choice.split("ISIN: ")[1].split(")")[0].strip()
+            else:
+                user_input = ""
 
         elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Buscador Inteligente Múltiple de ETFs")
-            search_query = st.text_input("Escribe una palabra clave, nombre o ticker (ej. 'S&P 500', 'SPYL.DE', 'World'):", value=default_input).strip()
+            st.markdown("### 🌐 Biblioteca de ETFs Disponibles")
+            st.markdown("Selecciona directamente un ETF de nuestra biblioteca para ver su cotización en tiempo real, comisiones y análisis:")
             
-            user_input = ""
-            combined_etf_options = {}
-
-            if search_query:
-                q_low = search_query.lower()
-                q_clean = q_low.replace("&", "and").replace("s&p", "sp").replace(" ", "")
-
-                # 1. Catálogo de ETFs
-                for key, data in ETF_DB.items():
-                    data_name_clean = data['name'].lower().replace("&", "and").replace("s&p", "sp").replace(" ", "")
-                    if q_low in data['name'].lower() or q_low in data['ticker'].lower() or q_low in key or q_clean in data_name_clean:
-                        label_cat = f"✨ [Catálogo Verificado] {data['name']} ({data['ticker']}) - TER: {data['ter']}%"
-                        combined_etf_options[label_cat] = data['ticker']
-
-                # 2. Búsqueda en tiempo real (max_results=30)
-                try:
-                    search_term = "S&P 500 ETF" if ("s&p" in q_low or "sp500" in q_clean or "500" in q_low) else search_query
-                    results = yf.Search(search_term, max_results=30).quotes
-                    
-                    for item in results:
-                        sym = item.get('symbol')
-                        sname = item.get('shortname', item.get('longname', sym))
-                        ex = item.get('exchange', '')
-                        
-                        if sym:
-                            label_rt = f"🌐 [Mercado Real] {sname} ({sym}) - [{ex}]"
-                            if sym not in combined_etf_options.values():
-                                combined_etf_options[label_rt] = sym
-                except Exception as e:
-                    pass
-
-                if combined_etf_options:
-                    st.success(f"¡Se han encontrado {len(combined_etf_options)} ETFs disponibles para tu búsqueda!")
-                    selected_label = st.selectbox("Despliega y selecciona el ETF de la lista:", options=["-- Selecciona un ETF de la lista --"] + list(combined_etf_options.keys()))
-                    
-                    if not selected_label.startswith("--"):
-                        user_input = combined_etf_options[selected_label]
-                else:
-                    st.warning("No se encontraron resultados automáticos. Usaremos el texto introducido directamente como Ticker.")
-                    user_input = search_query.upper()
+            etf_options = ["-- Selecciona un ETF de la biblioteca --"] + [f"{data['name']} (Ticker: {data['ticker']}) - [TER: {data['ter']}%]" for data in ETF_DB.values()]
+            selected_etf_choice = st.selectbox("Biblioteca de ETFs", options=etf_options)
+            
+            if not selected_etf_choice.startswith("--"):
+                # Extraer el Ticker de la opción seleccionada
+                user_input = selected_etf_choice.split("Ticker: ")[1].split(")")[0].strip()
+            else:
+                user_input = ""
 
         def get_stock_data(query):
             q_lower = query.lower().strip()
@@ -1059,7 +994,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Introduce una palabra clave o selecciona un activo para comenzar.")
+            st.info("👆 Selecciona un activo en el desplegable superior para comenzar.")
         else:
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -1134,7 +1069,7 @@ elif st.session_state.stage == 'analyzer':
                     st.error(f"Error al obtener datos: {e}")
 
             elif st.session_state.asset_type == "Fondos indexados":
-                matched_fund = next((data for key, data in FUND_DB.items() if data["name"].lower() in user_input.lower() or key in user_input.lower() or data["ticker"].lower() == user_input.lower()), None)
+                matched_fund = next((data for key, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
                 
                 if matched_fund:
                     fund_name = matched_fund["name"]
