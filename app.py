@@ -104,7 +104,7 @@ st.markdown("""
     @keyframes slideRightStream {
         0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
         50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #eab308, 0 0 22px #eab308; }
-        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
+        100% { left: 70px; opacity: 0; filter: blur(2px); text-shadow: 0 0 12px #eab308; }
     }
 
     .arrow-item-up {
@@ -190,6 +190,13 @@ st.markdown("""
         font-weight: bold;
         float: right;
     }
+    .compare-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -247,7 +254,7 @@ TICKER_DB = {
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
     "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los plans de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
 }
 
 FUND_DB = {
@@ -357,6 +364,34 @@ ETF_DB = {
         "age_years": 21,
         "is_dist": True,
     },
+}
+
+# PAREJAS DE COMPARACIÓN DIRECTA FONDO VS ETF
+COMPARISON_PAIRS = {
+    "MSCI World (Renta Variable Global)": {
+        "fund_name": "Vanguard Global Stock Index Fund EUR Acc",
+        "fund_isin": "IE00B03HD191",
+        "fund_ter": 0.18,
+        "etf_name": "iShares Core MSCI World UCITS ETF (Acc)",
+        "etf_ticker": "SWDA.L",
+        "etf_ter": 0.20,
+    },
+    "S&P 500 (Renta Variable EE.UU.)": {
+        "fund_name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
+        "fund_isin": "IE0032126645",
+        "fund_ter": 0.10,
+        "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
+        "etf_ticker": "SPYL.DE",
+        "etf_ter": 0.03,
+    },
+    "S&P 500 Ultra Bajo Coste (Fidelity vs SPDR)": {
+        "fund_name": "Fidelity S&P 500 Index Fund EUR P Acc",
+        "fund_isin": "IE00BYX5MX67",
+        "fund_ter": 0.06,
+        "etf_name": "SPDR S&P 500 UCITS ETF (Acc)",
+        "etf_ticker": "SPYL.DE",
+        "etf_ter": 0.03,
+    }
 }
 
 def get_best_single_monthly_recommendation():
@@ -481,6 +516,12 @@ if st.session_state.stage == 'home':
             st.session_state.stage = "sub_options"
             st.rerun()
 
+    # BOTÓN DE COMPARACIÓN FONDO VS ETF DEBAJO DE LOS TRES BOTONES
+    st.markdown("<br>", unsafe_allow_html=True)
+    if st.button("⚔️ Comparador Directo: Fondo Indexado vs. ETF (Mismo Índice)", use_container_width=True):
+        st.session_state.stage = "comparator_view"
+        st.rerun()
+
     st.markdown("---")
 
     # 1. CUESTIONARIO INTERACTIVO CON OPCIÓN HÍBRIDA EN LA PREGUNTA 1
@@ -557,6 +598,114 @@ if st.session_state.stage == 'home':
             })
             guardar_en_url()
             st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
+
+# ----------------------------------------------------
+# SECCIÓN COMPARADOR FONDO VS ETF
+# ----------------------------------------------------
+elif st.session_state.stage == 'comparator_view':
+    if st.button("← Volver al Menú Principal"):
+        reset_navigation()
+        st.rerun()
+
+    st.title("⚔️ Comparador Directo: Fondo Indexado vs. ETF del Mismo Índice")
+    st.markdown("Compara el rendimiento final esperado, costes anuales (TER) y ganancias netas entre un Fondo Indexado y un ETF equivalente.")
+
+    selected_pair_key = st.selectbox("Selecciona el Índice / Par a comparar:", list(COMPARISON_PAIRS.keys()))
+    pair = COMPARISON_PAIRS[selected_pair_key]
+
+    st.markdown("---")
+    st.markdown("### ⚙️ Configuración de la Inversión")
+
+    col_cmp1, col_cmp2, col_cmp3, col_cmp4 = st.columns(4)
+    with col_cmp1:
+        inv_ini_cmp = st.number_input("Inversión Inicial (€)", min_value=0.0, value=2000.0, step=500.0)
+    with col_cmp2:
+        app_per_cmp = st.number_input("Aportación Mensual (€)", min_value=0.0, value=200.0, step=50.0)
+    with col_cmp3:
+        anos_cmp = st.slider("Plazo en Años", min_value=1, max_value=40, value=20)
+    with col_cmp4:
+        rent_bruta_cmp = st.slider("Rentabilidad Anual Estimada (%)", min_value=1.0, max_value=15.0, value=8.0, step=0.5)
+
+    def calc_simulation(inv_ini, app_mensual, anos, rent_bruta, ter):
+        periodos = anos * 12
+        tasa_neta_anual = max(0.0, rent_bruta - ter)
+        tasa_periodica = (tasa_neta_anual / 100.0) / 12.0
+        
+        saldo = inv_ini
+        total_aportado = inv_ini
+        
+        for p in range(1, periodos + 1):
+            if p > 1:
+                saldo = saldo * (1 + tasa_periodica) + app_mensual
+                total_aportado += app_mensual
+            else:
+                saldo = saldo * (1 + tasa_periodica)
+                
+        beneficio_bruto = max(0.0, saldo - total_aportado)
+        impuestos = beneficio_bruto * 0.19
+        beneficio_neto = beneficio_bruto - impuestos
+        capital_liquido = total_aportado + beneficio_neto
+        
+        return total_aportado, saldo, beneficio_bruto, beneficio_neto, capital_liquido
+
+    f_aport, f_saldo, f_bbruto, f_bneto, f_liq = calc_simulation(inv_ini_cmp, app_per_cmp, anos_cmp, rent_bruta_cmp, pair['fund_ter'])
+    e_aport, e_saldo, e_bbruto, e_bneto, e_liq = calc_simulation(inv_ini_cmp, app_per_cmp, anos_cmp, rent_bruta_cmp, pair['etf_ter'])
+
+    st.markdown("---")
+    st.markdown("### 📊 Resultado de la Comparativa")
+
+    c_box1, c_box2 = st.columns(2)
+    
+    with c_box1:
+        st.markdown(f"""
+        <div class="compare-box">
+            <h3 style="color: #38bdf8;">📁 Fondo Indexado</h3>
+            <h4>{pair['fund_name']}</h4>
+            <p><strong>ISIN:</strong> {pair['fund_isin']} | <strong>TER:</strong> {pair['fund_ter']}%</p>
+            <hr style="border-color: #334155;">
+            <p>Capital Invertido: <strong>{f_aport:,.2f} €</strong></p>
+            <p>Capital Bruto Acumulado: <strong>{f_saldo:,.2f} €</strong></p>
+            <p>Beneficio Neto (Tras 19% IRPF): <strong>{f_bneto:,.2f} €</strong></p>
+            <h3 style="color: #34d399; margin-top: 15px;">Capital Líquido Final: {f_liq:,.2f} €</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("➕ Añadir Fondo a mi Cartera", key="add_f_comp", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": "Fondo Indexado", "name": pair['fund_name'], "ticker": pair['fund_isin'],
+                "est_rent": rent_bruta_cmp, "ter": pair['fund_ter'], "currency": "EUR", "is_dist": False
+            })
+            guardar_en_url()
+            st.success(f"¡Fondo {pair['fund_name']} añadido a tu Cartera!")
+
+    with c_box2:
+        st.markdown(f"""
+        <div class="compare-box">
+            <h3 style="color: #38bdf8;">🌐 ETF Equivalente</h3>
+            <h4>{pair['etf_name']}</h4>
+            <p><strong>Ticker:</strong> {pair['etf_ticker']} | <strong>TER:</strong> {pair['etf_ter']}%</p>
+            <hr style="border-color: #334155;">
+            <p>Capital Invertido: <strong>{e_aport:,.2f} €</strong></p>
+            <p>Capital Bruto Acumulado: <strong>{e_saldo:,.2f} €</strong></p>
+            <p>Beneficio Neto (Tras 19% IRPF): <strong>{e_bneto:,.2f} €</strong></p>
+            <h3 style="color: #34d399; margin-top: 15px;">Capital Líquido Final: {e_liq:,.2f} €</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("➕ Añadir ETF a mi Cartera", key="add_e_comp", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": "ETF", "name": pair['etf_name'], "ticker": pair['etf_ticker'],
+                "est_rent": rent_bruta_cmp, "ter": pair['etf_ter'], "currency": "EUR", "is_dist": False
+            })
+            guardar_en_url()
+            st.success(f"¡ETF {pair['etf_name']} añadido a tu Cartera!")
+
+    diff_liq = abs(e_liq - f_liq)
+    st.markdown("<br>", unsafe_allow_html=True)
+    if e_liq > f_liq:
+        st.success(f"💡 **Conclusión:** El **ETF** genera **{diff_liq:,.2f} € más** de capital líquido final al cabo de {anos_cmp} años gracias a la menor comisión anual (TER del {pair['etf_ter']}% vs {pair['fund_ter']}%).")
+    elif f_liq > e_liq:
+        st.success(f"💡 **Conclusión:** El **Fondo Indexado** genera **{diff_liq:,.2f} € más** de capital líquido final al cabo de {anos_cmp} años debido a su menor comisión anual (TER del {pair['fund_ter']}% vs {pair['etf_ter']}%).")
+    else:
+        st.info("💡 **Conclusión:** Ambas opciones ofrecen un rendimiento líquido idéntico al compartir comisiones equivalentes.")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
