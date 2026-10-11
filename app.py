@@ -161,7 +161,6 @@ st.markdown("""
         color: #ffffff;
     }
 
-    /* Estilos para el banner de recomendación del mes */
     .featured-card {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border: 1px solid #38bdf8;
@@ -196,11 +195,14 @@ if 'portfolio' not in st.session_state:
     st.session_state.portfolio = []
 if 'favorites' not in st.session_state:
     st.session_state.favorites = []
+if 'selected_eval_input' not in st.session_state:
+    st.session_state.selected_eval_input = ""
 
 def reset_navigation():
     st.session_state.stage = 'home'
     st.session_state.asset_type = None
     st.session_state.sub_type = None
+    st.session_state.selected_eval_input = ""
 
 TICKER_DB = {
     "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
@@ -653,17 +655,27 @@ if st.session_state.stage == 'home':
             <p style="color: #34d399; font-size: 0.9rem; font-weight: bold;">Rendimiento/Yield: ~2.8% + Crecimiento</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("➕ Añadir Inditex a Cartera", key="rec_add_itx", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": "Acción",
-                "name": "Inditex S.A.",
-                "ticker": "ITX.MC",
-                "est_rent": 8.5,
-                "ter": 0.0,
-                "currency": "EUR",
-                "is_dist": True
-            })
-            st.success("¡Inditex añadido a tu Cartera!")
+        
+        c_btn_a, c_btn_b = st.columns(2)
+        with c_btn_a:
+            if st.button("🔍 Evaluar este activo", key="rec_eval_itx", use_container_width=True):
+                st.session_state.asset_type = "Acciones"
+                st.session_state.sub_type = "Con dividendos"
+                st.session_state.selected_eval_input = "ITX.MC"
+                st.session_state.stage = "analyzer"
+                st.rerun()
+        with c_btn_b:
+            if st.button("➕ Añadir a Cartera", key="rec_add_itx", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": "Acción",
+                    "name": "Inditex S.A.",
+                    "ticker": "ITX.MC",
+                    "est_rent": 8.5,
+                    "ter": 0.0,
+                    "currency": "EUR",
+                    "is_dist": True
+                })
+                st.success("¡Inditex añadido a tu Cartera!")
 
     with col_rec2:
         st.markdown("""
@@ -674,17 +686,27 @@ if st.session_state.stage == 'home':
             <p style="color: #38bdf8; font-size: 0.9rem; font-weight: bold;">ISIN: IE00B03HD191 | TER: 0.18%</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("➕ Añadir Vanguard Global a Cartera", key="rec_add_vg", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": "Fondo Indexado",
-                "name": "Vanguard Global Stock Index Fund EUR Acc",
-                "ticker": "IE00B03HD191",
-                "est_rent": 7.5,
-                "ter": 0.18,
-                "currency": "EUR",
-                "is_dist": False
-            })
-            st.success("¡Vanguard Global añadido a tu Cartera!")
+        
+        c_btn_c, c_btn_d = st.columns(2)
+        with c_btn_c:
+            if st.button("🔍 Evaluar este activo", key="rec_eval_vg", use_container_width=True):
+                st.session_state.asset_type = "Fondos indexados"
+                st.session_state.sub_type = "Acumulación"
+                st.session_state.selected_eval_input = "Vanguard Global Stock Index Fund EUR Acc"
+                st.session_state.stage = "analyzer"
+                st.rerun()
+        with c_btn_d:
+            if st.button("➕ Añadir a Cartera", key="rec_add_vg", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": "Fondo Indexado",
+                    "name": "Vanguard Global Stock Index Fund EUR Acc",
+                    "ticker": "IE00B03HD191",
+                    "est_rent": 7.5,
+                    "ter": 0.18,
+                    "currency": "EUR",
+                    "is_dist": False
+                })
+                st.success("¡Vanguard Global añadido a tu Cartera!")
 
     with col_rec3:
         st.markdown("""
@@ -695,37 +717,67 @@ if st.session_state.stage == 'home':
             <p style="color: #a855f7; font-size: 0.9rem; font-weight: bold;">Ticker: SPYL.DE | TER Ultra Bajo: 0.03%</p>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("➕ Añadir SPDR S&P 500 a Cartera", key="rec_add_spyl", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": "ETF",
-                "name": "SPDR S&P 500 UCITS ETF (Acc)",
-                "ticker": "SPYL.DE",
-                "est_rent": 8.0,
-                "ter": 0.03,
-                "currency": "EUR",
-                "is_dist": False
-            })
-            st.success("¡SPDR S&P 500 añadido a tu Cartera!")
+        
+        c_btn_e, c_btn_f = st.columns(2)
+        with c_btn_e:
+            if st.button("🔍 Evaluar este activo", key="rec_eval_spyl", use_container_width=True):
+                st.session_state.asset_type = "ETFs"
+                st.session_state.sub_type = "Evaluación ETF"
+                st.session_state.selected_eval_input = "SPYL.DE"
+                st.session_state.stage = "analyzer"
+                st.rerun()
+        with c_btn_f:
+            if st.button("➕ Añadir a Cartera", key="rec_add_spyl", use_container_width=True):
+                st.session_state.portfolio.append({
+                    "type": "ETF",
+                    "name": "SPDR S&P 500 UCITS ETF (Acc)",
+                    "ticker": "SPYL.DE",
+                    "est_rent": 8.0,
+                    "ter": 0.03,
+                    "currency": "EUR",
+                    "is_dist": False
+                })
+                st.success("¡SPDR S&P 500 añadido a tu Cartera!")
 
     st.markdown("---")
 
     # ----------------------------------------------------
-    # SECCIÓN: CARRUSEL / FEED DE NOTICIAS DE LA BOLSA
+    # SECCIÓN: NOTICIAS CON ENLACES REALES
     # ----------------------------------------------------
     st.markdown("### 📰 Noticias del Mercado Bursátil y Financiero")
     
     news_items = [
-        {"title": "Las bolsas europeas cierran al alza impulsadas por el sector tecnológico e industrial.", "source": "Mercados", "time": "Hace 2 horas"},
-        {"title": "La Reserva Federal evalúa la evolución de los tipos de interés tras los últimos datos de inflación.", "source": "Macroeconomía", "time": "Hace 4 horas"},
-        {"title": "El sector bancario europeo consolida resultados récord apoyado en el margen neto de intereses.", "source": "Banca", "time": "Hace 6 horas"},
-        {"title": "Los fondos indexados de renta variable global marcan máximos en volumen de entradas netas.", "source": "Inversión Pasiva", "time": "Hace 8 horas"}
+        {
+            "title": "Las bolsas europeas y el Ibex 35 cierran con repuntes impulsados por la banca y las grandes tecnológicas.",
+            "source": "elEconomista",
+            "time": "Hace 2 horas",
+            "url": "https://www.eleconomista.es/flash/20261011/"
+        },
+        {
+            "title": "S&P y el Banco de Inglaterra evalúan la evolución de los tipos de interés y el crecimiento económico.",
+            "source": "Mercados Internacionales",
+            "time": "Hace 4 horas",
+            "url": "https://www.eleconomista.es/tags/bolsa"
+        },
+        {
+            "title": "El sector bancario en España consolida resultados sólidos apoyado en el margen neto de intereses.",
+            "source": "Banca España",
+            "time": "Hace 6 horas",
+            "url": "https://www.eleconomista.es/"
+        },
+        {
+            "title": "Los fondos indexados y ETFs de renta variable global marcan máximos de suscripciones netas.",
+            "source": "Inversión Pasiva",
+            "time": "Hace 8 horas",
+            "url": "https://www.eleconomista.es/tags/expansion"
+        }
     ]
 
     col_n1, col_n2 = st.columns(2)
     for i, item in enumerate(news_items):
         target_col = col_n1 if i % 2 == 0 else col_n2
         with target_col:
-            st.info(f"**[{item['source']}]** {item['title']} _({item['time']})_")
+            st.info(f"**[{item['source']}]** {item['title']} _({item['time']})_\n\n🔗 [Leer noticia completa en la fuente]({item['url']})")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
@@ -785,7 +837,7 @@ elif st.session_state.stage == 'sub_options':
                 st.rerun()
 
 # ----------------------------------------------------
-# SECCIÓN FAVORITOS (INCLUYE BOTÓN PARA AÑADIR A CARTERA)
+# SECCIÓN FAVORITOS (INCLUYE BOTÓN DE EVALUAR Y CARTERA)
 # ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
     if st.button("← Volver al Analizador"):
@@ -799,13 +851,20 @@ elif st.session_state.stage == 'favorites_view':
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
-                col_fav1, col_fav2, col_fav3 = st.columns([2, 1, 1])
+                col_fav1, col_fav2, col_fav3, col_fav4 = st.columns([2, 1, 1, 1])
                 with col_fav1:
                     st.markdown(f"**Categoría / Detalles:** {fav.get('category', 'General')}")
                     st.markdown(f"**TER / Coste anual:** {fav.get('ter', 0.0)}%")
                     st.markdown(f"**Divisa:** {fav.get('currency', 'EUR')}")
                 with col_fav2:
-                    if st.button("➕ Añadir a mi Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
+                    if st.button("🔍 Evaluar", key=f"fav_eval_{idx}", use_container_width=True):
+                        st.session_state.asset_type = "Acciones" if fav['type'] == "Acción" else ("Fondos indexados" if fav['type'] == "Fondo Indexado" else "ETFs")
+                        st.session_state.sub_type = "Con dividendos" if fav['type'] == "Acción" else ("Acumulación" if fav['type'] == "Fondo Indexado" else "Evaluación ETF")
+                        st.session_state.selected_eval_input = fav['ticker']
+                        st.session_state.stage = "analyzer"
+                        st.rerun()
+                with col_fav3:
+                    if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
                             "type": fav['type'],
                             "name": fav['name'],
@@ -816,8 +875,8 @@ elif st.session_state.stage == 'favorites_view':
                             "is_dist": fav.get('is_dist', False)
                         })
                         st.success(f"¡{fav['name']} añadido a la Cartera!")
-                with col_fav3:
-                    if st.button("🗑️ Quitar de Favoritos", key=f"del_fav_{idx}", use_container_width=True):
+                with col_fav4:
+                    if st.button("🗑️ Quitar", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
                         st.rerun()
 
@@ -1000,6 +1059,7 @@ elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
         st.session_state.stage = 'sub_options'
         st.session_state.sub_type = None
+        st.session_state.selected_eval_input = ""
         st.rerun()
 
     def get_trend_chain_stream(hist_df):
@@ -1075,22 +1135,24 @@ elif st.session_state.stage == 'analyzer':
     else:
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
 
+        default_input = st.session_state.selected_eval_input
+
         if st.session_state.asset_type == "Acciones":
             stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
             selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
-            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value="").strip()
+            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value=default_input).strip()
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
             fund_options = ["-- Selecciona un fondo o escribe abajo --"] + [f"{data['name']} ({data['category']})" for data in FUND_DB.values()]
             selected_fund_option = st.selectbox("🔍 Buscador predictivo de Fondos", options=fund_options)
-            custom_fund_input = st.text_input("O introduce nombre o ISIN de fondo:", value="").strip()
+            custom_fund_input = st.text_input("O introduce nombre o ISIN de fondo:", value=default_input).strip()
             user_input = custom_fund_input if custom_fund_input else ("" if selected_fund_option.startswith("--") else selected_fund_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "ETFs":
             etf_options = ["-- Selecciona un ETF o escribe abajo --"] + [f"{data['name']} [{data['category']}] ({data['ticker']})" for data in ETF_DB.values()]
             selected_etf_option = st.selectbox("🌐 Buscador predictivo de ETFs", options=etf_options)
-            custom_etf_input = st.text_input("O introduce Ticker de ETF (ej. CSPX.AS, QQQ):", value="").strip()
+            custom_etf_input = st.text_input("O introduce Ticker de ETF (ej. CSPX.AS, QQQ):", value=default_input).strip()
             user_input = custom_etf_input.upper() if custom_etf_input else ("" if selected_etf_option.startswith("--") else selected_etf_option.split("(")[-1].replace(")", "").strip())
 
         def get_stock_data(query):
