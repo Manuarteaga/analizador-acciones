@@ -1,23 +1,9 @@
 import streamlit as st
-import extra_streamlit_components as stx
+import yfinance as yf
+import pandas as pd
+import io
 import json
-
-# Inicializar el gestor de almacenamiento local del navegador
-@st.cache_resource
-def get_cookie_or_local_manager():
-    return stx.CookieManager() # O el gestor de LocalStorage de la librería
-
-# Cargar automáticamente los datos del navegador al iniciar la app
-def load_persisted_data():
-    if 'data_loaded' not in st.session_state:
-        # Intentar leer del navegador
-        saved_favorites = st.query_params.get("favs", None)
-        saved_portfolio = st.query_params.get("port", None)
-        
-        # O utilizando LocalStorage
-        st.session_state.favorites = json.loads(saved_favorites) if saved_favorites else []
-        st.session_state.portfolio = json.loads(saved_portfolio) if saved_portfolio else []
-        st.session_state.data_loaded = True
+import urllib.parse
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
@@ -207,7 +193,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de Estados de Navegación, Cartera y Favoritos
+# Control de Estados y Persistencia en URL Nativa
 if 'stage' not in st.session_state:
     st.session_state.stage = 'home'
 if 'asset_type' not in st.session_state:
@@ -222,6 +208,30 @@ if 'favorites' not in st.session_state:
     st.session_state.favorites = []
 if 'selected_eval_input' not in st.session_state:
     st.session_state.selected_eval_input = ""
+
+# Cargar datos desde la URL si existen al iniciar
+def cargar_desde_url():
+    if 'data_loaded' not in st.session_state:
+        if "favs" in st.query_params:
+            try:
+                st.session_state.favorites = json.loads(st.query_params["favs"])
+            except:
+                st.session_state.favorites = []
+        if "port" in st.query_params:
+            try:
+                st.session_state.portfolio = json.loads(st.query_params["port"])
+            except:
+                st.session_state.portfolio = []
+        st.session_state.data_loaded = True
+
+def guardar_en_url():
+    try:
+        st.query_params["favs"] = json.dumps(st.session_state.favorites)
+        st.query_params["port"] = json.dumps(st.session_state.portfolio)
+    except:
+        pass
+
+cargar_desde_url()
 
 def reset_navigation():
     st.session_state.stage = 'home'
@@ -350,59 +360,33 @@ ETF_DB = {
     },
 }
 
-# Algoritmo para seleccionar el ÚNICO mejor activo global del mes entre todas las categorías
 def get_best_single_monthly_recommendation():
     candidates = []
-
-    # 1. Candidata Acción
     best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
     stock_data = TICKER_DB[best_stock_key]
     candidates.append({
-        "type_label": "Acción del Mes",
-        "asset_type": "Acciones",
-        "sub_type": "Con dividendos",
-        "name": best_stock_key.title() + " S.A.",
-        "ticker": stock_data["ticker"],
-        "desc": stock_data["racha"],
-        "score": 4.3,
-        "grade": "A",
-        "ter": 0.0,
-        "is_dist": True
+        "type_label": "Acción del Mes", "asset_type": "Acciones", "sub_type": "Con dividendos",
+        "name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"],
+        "desc": stock_data["racha"], "score": 4.3, "grade": "A", "ter": 0.0, "is_dist": True
     })
 
-    # 2. Candidato Fondo
     best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
     fund_data = FUND_DB[best_fund_key]
     candidates.append({
-        "type_label": "Fondo del Mes",
-        "asset_type": "Fondos indexados",
-        "sub_type": "Acumulación",
-        "name": fund_data["name"],
-        "ticker": fund_data["ticker"],
+        "type_label": "Fondo del Mes", "asset_type": "Fondos indexados", "sub_type": "Acumulación",
+        "name": fund_data["name"], "ticker": fund_data["ticker"],
         "desc": f"ISIN: {fund_data['ticker']} | TER ultra bajo: {fund_data['ter']}% ({fund_data['category']})",
-        "score": 4.6,
-        "grade": "A+",
-        "ter": fund_data["ter"],
-        "is_dist": False
+        "score": 4.6, "grade": "A+", "ter": fund_data["ter"], "is_dist": False
     })
 
-    # 3. Candidato ETF
     best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
     etf_data = ETF_DB[best_etf_key]
     candidates.append({
-        "type_label": "ETF del Mes",
-        "asset_type": "ETFs",
-        "sub_type": "Evaluación ETF",
-        "name": etf_data["name"],
-        "ticker": etf_data["ticker"],
+        "type_label": "ETF del Mes", "asset_type": "ETFs", "sub_type": "Evaluación ETF",
+        "name": etf_data["name"], "ticker": etf_data["ticker"],
         "desc": f"Ticker: {etf_data['ticker']} | TER: {etf_data['ter']}% ({etf_data['category']})",
-        "score": 4.7,
-        "grade": "A+",
-        "ter": etf_data["ter"],
-        "is_dist": False
+        "score": 4.7, "grade": "A+", "ter": etf_data["ter"], "is_dist": False
     })
-
-    # Devuelve el candidato con mayor puntuación absoluta global
     return max(candidates, key=lambda c: c["score"])
 
 top_asset = get_best_single_monthly_recommendation()
@@ -500,11 +484,8 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    # ----------------------------------------------------
-    # RECOMENDADO DEL MES (ÚNICO ACTIVO DESTACADO GLOBAL)
-    # ----------------------------------------------------
+    # RECOMENDADO DEL MES
     st.markdown("### 🌟 Recomendado del Mes")
-    
     st.markdown(f"""
     <div class="featured-card">
         <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
@@ -526,14 +507,28 @@ if st.session_state.stage == 'home':
         if st.button("➕ Añadir a mi Cartera", key="rec_add_single_top", use_container_width=True):
             st.session_state.portfolio.append({
                 "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
-                "name": top_asset['name'],
-                "ticker": top_asset['ticker'],
-                "est_rent": 8.0,
-                "ter": top_asset['ter'],
-                "currency": "EUR",
-                "is_dist": top_asset['is_dist']
+                "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
+                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist']
             })
+            guardar_en_url()
             st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
+
+    st.markdown("---")
+
+    # NUEVO CUESTIONARIO INTERACTIVO: ¿FONDO O ETF?
+    st.markdown("### 🧭 Asistor Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
+    with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=False):
+        q_horizon = st.radio("1. ¿Cuál es tu objetivo temporal principal?", ["Jubilación estricta a muy largo plazo (sin tocarlo)", "Híbrido: Jubilación pero con posibilidad de retirar para coche, casa o imprevistos"])
+        q_moves = st.radio("2. ¿Prevés hacer cambios de estrategia, rebalanceos o mover el dinero de activo en el futuro?", ["No, quiero comprar y mantener sin tocar nada durante décadas", "Sí, es probable que quiera mover posiciones o reestructurar"])
+        
+        if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
+            st.markdown("---")
+            if "Estricta" in q_horizon and "No" in q_moves:
+                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nAl no tocar el dinero en décadas y buscar máxima eficiencia sin comisiones altas, la diferencia de TER compensa con creces cualquier ventaja de traspaso.")
+            elif "Híbrido" in q_horizon or "Sí" in q_moves:
+                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nDado que buscas flexibilidad para retirar efectivo ante metas a medio plazo (coche, vivienda) o realizar rebalanceos, la ventaja fiscal del traspaso sin peaje en España te aportará mayor tranquilidad y control.")
+            else:
+                st.warning("🎯 **Opción Mixta Recomendada**\n\nDestina una parte intocable a ETFs de bajísimo coste para jubilación y otra parte flexible a fondos indexados para liquidez y proyectos.")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
@@ -622,22 +617,20 @@ elif st.session_state.stage == 'favorites_view':
                 with col_fav3:
                     if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
-                            "type": fav['type'],
-                            "name": fav['name'],
-                            "ticker": fav['ticker'],
-                            "est_rent": 7.5,
-                            "ter": fav.get('ter', 0.20),
-                            "currency": fav.get('currency', 'EUR'),
-                            "is_dist": fav.get('is_dist', False)
+                            "type": fav['type'], "name": fav['name'], "ticker": fav['ticker'],
+                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), "is_dist": fav.get('is_dist', False)
                         })
+                        guardar_en_url()
                         st.success(f"¡{fav['name']} añadido a la Cartera!")
                 with col_fav4:
                     if st.button("🗑️ Quitar", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
+                        guardar_en_url()
                         st.rerun()
 
         if st.button("🗑️ Vaciar Lista de Favoritos"):
             st.session_state.favorites = []
+            guardar_en_url()
             st.rerun()
 
 # ----------------------------------------------------
@@ -698,6 +691,7 @@ elif st.session_state.stage == 'portfolio_view':
                     st.markdown("<br>", unsafe_allow_html=True)
                     if st.button("🗑️ Quitar", key=f"del_{idx}"):
                         st.session_state.portfolio.pop(idx)
+                        guardar_en_url()
                         st.rerun()
 
                 f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
@@ -806,6 +800,7 @@ elif st.session_state.stage == 'portfolio_view':
 
             if st.button("🗑️ Vaciar Cartera Completa"):
                 st.session_state.portfolio = []
+                guardar_en_url()
                 st.rerun()
 
 # ----------------------------------------------------
@@ -909,7 +904,6 @@ elif st.session_state.stage == 'analyzer':
                     try:
                         results = yf.Search(fund_query, max_results=8).quotes
                         fund_results = [r for r in results if r.get('quoteType') == 'MUTUALFUND' or 'FUND' in r.get('longname', '').upper() or 'INDEX' in r.get('longname', '').upper()]
-                        
                         if not fund_results:
                             fund_results = results
 
@@ -937,7 +931,6 @@ elif st.session_state.stage == 'analyzer':
                     try:
                         results = yf.Search(search_query, max_results=8).quotes
                         etf_results = [r for r in results if r.get('quoteType') == 'ETF' or 'ETF' in r.get('longname', '').upper() or 'ETF' in r.get('shortname', '').upper()]
-                        
                         if not etf_results:
                             etf_results = results
                         
@@ -1012,25 +1005,18 @@ elif st.session_state.stage == 'analyzer':
                     with col_n2:
                         if st.button("⭐ Añadir a Favoritos", use_container_width=True):
                             st.session_state.favorites.append({
-                                "type": "Acción",
-                                "name": name,
-                                "ticker": ticker_input,
-                                "ter": 0.0,
-                                "currency": info.get('currency', 'EUR'),
-                                "category": "Renta Variable (Acción)"
+                                "type": "Acción", "name": name, "ticker": ticker_input,
+                                "ter": 0.0, "currency": info.get('currency', 'EUR'), "category": "Renta Variable (Acción)"
                             })
+                            guardar_en_url()
                             st.success("¡Añadido a Favoritos!")
                     with col_n3:
                         if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
-                                "type": "Acción",
-                                "name": name,
-                                "ticker": ticker_input,
-                                "est_rent": 8.0,
-                                "ter": 0.0,
-                                "currency": info.get('currency', 'EUR'),
-                                "is_dist": True
+                                "type": "Acción", "name": name, "ticker": ticker_input,
+                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True
                             })
+                            guardar_en_url()
                             st.success(f"¡{name} añadido a tu Cartera!")
 
                     st.markdown(f"""
@@ -1094,25 +1080,18 @@ elif st.session_state.stage == 'analyzer':
                 with col_f2:
                     if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_fund"):
                         st.session_state.favorites.append({
-                            "type": "Fondo Indexado",
-                            "name": fund_name,
-                            "ticker": fund_isin,
-                            "ter": ter_val,
-                            "currency": curr_fund,
-                            "category": cat_fund
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "ter": ter_val, "currency": curr_fund, "category": cat_fund
                         })
+                        guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
                     if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
-                            "type": "Fondo Indexado",
-                            "name": fund_name,
-                            "ticker": fund_isin,
-                            "est_rent": 7.5,
-                            "ter": ter_val,
-                            "currency": curr_fund,
-                            "is_dist": is_dist_fund
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
                         })
+                        guardar_en_url()
                         st.success(f"¡{fund_name} añadido a tu Cartera!")
 
                 st.markdown(f"""
@@ -1291,25 +1270,18 @@ elif st.session_state.stage == 'analyzer':
                 with col_e2:
                     if st.button("⭐ Añadir a Favoritos", use_container_width=True, key="fav_etf"):
                         st.session_state.favorites.append({
-                            "type": "ETF",
-                            "name": etf_name,
-                            "ticker": etf_ticker,
-                            "ter": ter_etf,
-                            "currency": curr_etf,
-                            "category": etf_cat
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
+                            "ter": ter_etf, "currency": curr_etf, "category": etf_cat
                         })
+                        guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_e3:
                     if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
-                            "type": "ETF",
-                            "name": etf_name,
-                            "ticker": etf_ticker,
-                            "est_rent": 7.5,
-                            "ter": ter_etf,
-                            "currency": curr_etf,
-                            "is_dist": is_dist_etf
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
+                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
                         })
+                        guardar_en_url()
                         st.success(f"¡{etf_name} añadido a tu Cartera!")
 
                 st.markdown(f"""
