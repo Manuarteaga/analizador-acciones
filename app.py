@@ -165,15 +165,15 @@ st.markdown("""
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         border: 1px solid #38bdf8;
         border-radius: 12px;
-        padding: 18px;
+        padding: 22px;
         margin-bottom: 10px;
     }
     .featured-badge {
         background-color: #0284c7;
         color: white;
-        padding: 3px 10px;
+        padding: 4px 12px;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
         display: inline-block;
@@ -182,9 +182,9 @@ st.markdown("""
     .score-tag {
         background-color: #065f46;
         color: #34d399;
-        padding: 2px 8px;
+        padding: 3px 10px;
         border-radius: 6px;
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         font-weight: bold;
         float: right;
     }
@@ -334,29 +334,62 @@ ETF_DB = {
     },
 }
 
-def get_best_algorithmic_recommendations():
+# Algoritmo para seleccionar el ÚNICO mejor activo global del mes entre todas las categorías
+def get_best_single_monthly_recommendation():
+    candidates = []
+
+    # 1. Candidata Acción
     best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
     stock_data = TICKER_DB[best_stock_key]
-    stock_score = 4.3
-    stock_grade = "A"
+    candidates.append({
+        "type_label": "Acción del Mes",
+        "asset_type": "Acciones",
+        "sub_type": "Con dividendos",
+        "name": best_stock_key.title() + " S.A.",
+        "ticker": stock_data["ticker"],
+        "desc": stock_data["racha"],
+        "score": 4.3,
+        "grade": "A",
+        "ter": 0.0,
+        "is_dist": True
+    })
 
+    # 2. Candidato Fondo
     best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
     fund_data = FUND_DB[best_fund_key]
-    fund_score = 4.6
-    fund_grade = "A+"
+    candidates.append({
+        "type_label": "Fondo del Mes",
+        "asset_type": "Fondos indexados",
+        "sub_type": "Acumulación",
+        "name": fund_data["name"],
+        "ticker": fund_data["ticker"],
+        "desc": f"ISIN: {fund_data['ticker']} | TER ultra bajo: {fund_data['ter']}% ({fund_data['category']})",
+        "score": 4.6,
+        "grade": "A+",
+        "ter": fund_data["ter"],
+        "is_dist": False
+    })
 
+    # 3. Candidato ETF
     best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
     etf_data = ETF_DB[best_etf_key]
-    etf_score = 4.7
-    etf_grade = "A+"
+    candidates.append({
+        "type_label": "ETF del Mes",
+        "asset_type": "ETFs",
+        "sub_type": "Evaluación ETF",
+        "name": etf_data["name"],
+        "ticker": etf_data["ticker"],
+        "desc": f"Ticker: {etf_data['ticker']} | TER: {etf_data['ter']}% ({etf_data['category']})",
+        "score": 4.7,
+        "grade": "A+",
+        "ter": etf_data["ter"],
+        "is_dist": False
+    })
 
-    return {
-        "action": {"name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"], "desc": stock_data["racha"], "score": stock_score, "grade": stock_grade},
-        "fund": {"name": fund_data["name"], "ticker": fund_data["ticker"], "ter": fund_data["ter"], "desc": fund_data["category"], "score": fund_score, "grade": fund_grade},
-        "etf": {"name": etf_data["name"], "ticker": etf_data["ticker"], "ter": etf_data["ter"], "desc": etf_data["category"], "score": etf_score, "grade": etf_grade}
-    }
+    # Devuelve el candidato con mayor puntuación absoluta global
+    return max(candidates, key=lambda c: c["score"])
 
-rec_assets = get_best_algorithmic_recommendations()
+top_asset = get_best_single_monthly_recommendation()
 
 FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
@@ -452,128 +485,39 @@ if st.session_state.stage == 'home':
     st.markdown("---")
 
     # ----------------------------------------------------
-    # RECOMENDADOS DEL MES
+    # RECOMENDADO DEL MES (ÚNICO ACTIVO DESTACADO GLOBAL)
     # ----------------------------------------------------
-    st.markdown("### 🌟 Recomendados del Mes")
-    col_rec1, col_rec2, col_rec3 = st.columns(3)
-
-    with col_rec1:
-        act = rec_assets["action"]
-        st.markdown(f"""
-        <div class="featured-card">
-            <span class="featured-badge">Acción del Mes</span>
-            <span class="score-tag">⭐ {act['score']}/5 ({act['grade']})</span>
-            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{act['name']} ({act['ticker']})</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">{act['desc']}</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c_btn_a, c_btn_b = st.columns(2)
-        with c_btn_a:
-            if st.button("🔍 Evaluar acción", key="rec_eval_act", use_container_width=True):
-                st.session_state.asset_type = "Acciones"
-                st.session_state.sub_type = "Con dividendos"
-                st.session_state.selected_eval_input = act['ticker']
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c_btn_b:
-            if st.button("➕ Añadir a cartera", key="rec_add_act", use_container_width=True):
-                st.session_state.portfolio.append({
-                    "type": "Acción", "name": act['name'], "ticker": act['ticker'], "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True
-                })
-                st.success("¡Añadido a Cartera!")
-
-    with col_rec2:
-        fnd = rec_assets["fund"]
-        st.markdown(f"""
-        <div class="featured-card">
-            <span class="featured-badge">Fondo del Mes</span>
-            <span class="score-tag">⭐ {fnd['score']}/5 ({fnd['grade']})</span>
-            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{fnd['name']}</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">ISIN: {fnd['ticker']} | TER ultra bajo: {fnd['ter']}%</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c_btn_c, c_btn_d = st.columns(2)
-        with c_btn_c:
-            if st.button("🔍 Evaluar Fondo Indexado", key="rec_eval_fnd", use_container_width=True):
-                st.session_state.asset_type = "Fondos indexados"
-                st.session_state.sub_type = "Acumulación"
-                st.session_state.selected_eval_input = fnd['name']
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c_btn_d:
-            if st.button("➕ Añadir a cartera", key="rec_add_fnd", use_container_width=True):
-                st.session_state.portfolio.append({
-                    "type": "Fondo Indexado", "name": fnd['name'], "ticker": fnd['ticker'], "est_rent": 7.5, "ter": fnd['ter'], "currency": "EUR", "is_dist": False
-                })
-                st.success("¡Añadido a Cartera!")
-
-    with col_rec3:
-        etf = rec_assets["etf"]
-        st.markdown(f"""
-        <div class="featured-card">
-            <span class="featured-badge">ETF del Mes</span>
-            <span class="score-tag">⭐ {etf['score']}/5 ({etf['grade']})</span>
-            <h4 style="margin: 8px 0 5px 0; color: #f8fafc;">{etf['name']}</h4>
-            <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 10px;">Ticker: {etf['ticker']} | TER: {etf['ter']}%</p>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        c_btn_e, c_btn_f = st.columns(2)
-        with c_btn_e:
-            if st.button("🔍 Evaluar ETF", key="rec_eval_etf", use_container_width=True):
-                st.session_state.asset_type = "ETFs"
-                st.session_state.sub_type = "Evaluación ETF"
-                st.session_state.selected_eval_input = etf['ticker']
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c_btn_f:
-            if st.button("➕ Añadir a cartera", key="rec_add_etf", use_container_width=True):
-                st.session_state.portfolio.append({
-                    "type": "ETF", "name": etf['name'], "ticker": etf['ticker'], "est_rent": 8.0, "ter": etf['ter'], "currency": "EUR", "is_dist": False
-                })
-                st.success("¡Añadido a Cartera!")
-
-    st.markdown("---")
-
-    # ----------------------------------------------------
-    # NOTICIAS CON ENLACES REALES
-    # ----------------------------------------------------
-    st.markdown("### 📰 Noticias del Mercado Bursátil y Financiero")
+    st.markdown("### 🌟 Recomendado del Mes")
     
-    news_items = [
-        {
-            "title": "Las bolsas europeas y el Ibex 35 cierran con repuntes impulsados por la banca y las grandes tecnológicas.",
-            "source": "elEconomista",
-            "time": "Hace 2 horas",
-            "url": "https://www.eleconomista.es/flash/20261011/"
-        },
-        {
-            "title": "S&P y el Banco de Inglaterra evalúan la evolución de los tipos de interés y el crecimiento económico.",
-            "source": "Mercados Internacionales",
-            "time": "Hace 4 horas",
-            "url": "https://www.eleconomista.es/tags/bolsa"
-        },
-        {
-            "title": "El sector bancario en España consolida resultados sólidos apoyado en el margen neto de intereses.",
-            "source": "Banca España",
-            "time": "Hace 6 horas",
-            "url": "https://www.eleconomista.es/"
-        },
-        {
-            "title": "Los fondos indexados y ETFs de renta variable global marcan máximos de suscripciones netas.",
-            "source": "Inversión Pasiva",
-            "time": "Hace 8 horas",
-            "url": "https://www.eleconomista.es/tags/expansion"
-        }
-    ]
-
-    col_n1, col_n2 = st.columns(2)
-    for i, item in enumerate(news_items):
-        target_col = col_n1 if i % 2 == 0 else col_n2
-        with target_col:
-            st.info(f"**[{item['source']}]** {item['title']} _({item['time']})_\n\n🔗 [Leer noticia completa en la fuente]({item['url']})")
+    st.markdown(f"""
+    <div class="featured-card">
+        <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
+        <span class="score-tag">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
+        <h3 style="margin: 10px 0 6px 0; color: #f8fafc;">{top_asset['name']}</h3>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">{top_asset['desc']}</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_top_a, col_top_b = st.columns(2)
+    with col_top_a:
+        if st.button(f"🔍 Evaluar {top_asset['name']}", key="rec_eval_single_top", use_container_width=True, type="primary"):
+            st.session_state.asset_type = top_asset['asset_type']
+            st.session_state.sub_type = top_asset['sub_type']
+            st.session_state.selected_eval_input = top_asset['ticker']
+            st.session_state.stage = "analyzer"
+            st.rerun()
+    with col_top_b:
+        if st.button("➕ Añadir a mi Cartera", key="rec_add_single_top", use_container_width=True):
+            st.session_state.portfolio.append({
+                "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
+                "name": top_asset['name'],
+                "ticker": top_asset['ticker'],
+                "est_rent": 8.0,
+                "ter": top_asset['ter'],
+                "currency": "EUR",
+                "is_dist": top_asset['is_dist']
+            })
+            st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
