@@ -208,6 +208,17 @@ st.markdown("""
         align-items: center;
         gap: 8px;
     }
+    .converter-score-tag {
+        background-color: #065f46;
+        color: #34d399;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        display: inline-block;
+        border: 1px solid #059669;
+        margin-left: 4px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -929,17 +940,17 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
-    # FUNCIÓN CONVERTIDORA / EQUIVALENCIAS EN TIEMPO REAL CON NOTAS
+    # FUNCIÓN CONVERTIDORA / EQUIVALENCIAS EN TIEMPO REAL CON BADGE DESTACADO EN LA NOTA
     def render_asset_converter(current_category, current_ticker, current_is_dist, current_asset_type):
         st.markdown(f"""
         <div class="converter-card">
             <div class="converter-title">🔄 Convertidor y Buscador de Alternativas Equivalentes</div>
             <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
-                ¿Sabías que un mismo índice puede comprarse en versión <b>Fondo Indexado</b> o <b>ETF</b>, y que puedes elegir entre acumular dividendos o cobrarlos? Aquí tienes sus equivalentes exactos junto con su nota de calidad:
+                ¿Sabías que un mismo índice puede comprarse en versión <b>Fondo Indexado</b> o <b>ETF</b>, y que puedes elegir entre acumular dividendos o cobrarlos? Aquí tienes sus equivalentes exactos junto con su nota de calidad destacada:
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -973,7 +984,7 @@ elif st.session_state.stage == 'analyzer':
                 for item in equi_funds_acc:
                     nota_val = item.get('score', 4.3)
                     st.markdown(f"• **{item['name']}**")
-                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** | ⭐ **{nota_val}/5**")
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
                     if st.button(f"🔍 Evaluar Fondo Acc", key=f"conv_f_acc_{item['ticker']}"):
                         st.session_state.asset_type = "Fondos indexados"
                         st.session_state.sub_type = "Acumulación"
@@ -988,7 +999,7 @@ elif st.session_state.stage == 'analyzer':
                 for item in equi_funds_dist:
                     nota_val = item.get('score', 4.3)
                     st.markdown(f"• **{item['name']}**")
-                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** | ⭐ **{nota_val}/5**")
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
                     if st.button(f"🔍 Evaluar Fondo Dist", key=f"conv_f_dist_{item['ticker']}"):
                         st.session_state.asset_type = "Fondos indexados"
                         st.session_state.sub_type = "Acumulación"
@@ -1005,7 +1016,7 @@ elif st.session_state.stage == 'analyzer':
                     tipo_str = "Distribución" if item['is_dist'] else "Acumulación"
                     nota_val = item.get('score', 4.5)
                     st.markdown(f"• **{item['name']}**")
-                    st.markdown(f"  Ticker: `{item['ticker']}` | TER: **{item['ter']}%** | ⭐ **{nota_val}/5** ({tipo_str})")
+                    st.markdown(f"  Ticker: `{item['ticker']}` | TER: **{item['ter']}%** ({tipo_str}) <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
                     if st.button(f"🔍 Evaluar ETF", key=f"conv_etf_{item['ticker']}"):
                         st.session_state.asset_type = "ETFs"
                         st.session_state.sub_type = "Evaluación ETF"
