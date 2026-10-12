@@ -220,7 +220,7 @@ st.markdown("""
         margin-left: 4px;
     }
 
-    /* Estilos para barras de desglose geográfico y holdings */
+    /* Estilos para barras de desglose geográfico */
     .geo-bar-container {
         display: flex;
         width: 100%;
@@ -309,89 +309,187 @@ TICKER_DB = {
 }
 
 FUND_DB = {
+    # --- RENTA VARIABLE GLOBAL (MSCI WORLD / ALL-WORLD) ---
     "vanguard global stock acc": {
-        "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
-        "desc": "Fondo indexado de referencia global que replica el índice MSCI World, invirtiendo en más de 1.500 empresas de gran y mediana capitalización en países desarrollados.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "name": "Vanguard Global Stock Index Fund EUR Acc",
+        "ticker": "IE00B03HD191",
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
         "holdings": [{"name": "Apple", "weight": 4.8}, {"name": "Microsoft", "weight": 4.5}, {"name": "NVIDIA", "weight": 3.6}, {"name": "Amazon", "weight": 2.6}, {"name": "Alphabet (Google)", "weight": 2.2}]
     },
     "vanguard global stock dist": {
-        "name": "Vanguard Global Stock Index Fund EUR Dist", "ticker": "IE00B03HD209",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
-        "desc": "Versión de distribución del fondo global MSCI World, ideal para inversores que prefieren el cobro periódico de dividendos en cuenta.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "name": "Vanguard Global Stock Index Fund EUR Dist",
+        "ticker": "IE00B03HD209",
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
         "holdings": [{"name": "Apple", "weight": 4.8}, {"name": "Microsoft", "weight": 4.5}, {"name": "NVIDIA", "weight": 3.6}, {"name": "Amazon", "weight": 2.6}, {"name": "Alphabet (Google)", "weight": 2.2}]
     },
     "ishares developed world acc": {
-        "name": "iShares Developed World Index Fund (IE) D Acc EUR", "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
-        "desc": "Fondo indexado de BlackRock enfocado en mercados desarrollados globales con un TER muy competitivo del 0.12%.",
-        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0},
+        "name": "iShares Developed World Index Fund (IE) D Acc EUR",
+        "ticker": "IE00BD0NCM55",
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
         "holdings": [{"name": "Apple", "weight": 4.9}, {"name": "Microsoft", "weight": 4.6}, {"name": "NVIDIA", "weight": 3.5}, {"name": "Amazon", "weight": 2.5}, {"name": "Meta", "weight": 1.7}]
     },
     "fidelity msci world acc": {
-        "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9, "score": 4.7,
-        "desc": "Uno de los fondos globales más económicos del mercado europeo para replicar el índice MSCI World.",
-        "geo": {"EE. UU.": 71.8, "Japón": 6.1, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.4, "Otros": 3.9},
+        "name": "Fidelity MSCI World Index Fund EUR P Acc",
+        "ticker": "IE00BYX5NX33",
+        "category": "Renta Variable Global (MSCI World)",
+        "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9, "score": 4.7,
         "holdings": [{"name": "Apple", "weight": 4.8}, {"name": "Microsoft", "weight": 4.5}, {"name": "NVIDIA", "weight": 3.6}, {"name": "Amazon", "weight": 2.6}, {"name": "Alphabet", "weight": 2.2}]
     },
+
+    # --- S&P 500 / EE.UU. ---
     "vanguard sp 500 acc": {
-        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
-        "desc": "Fondo indexado histórico que replica el comportamiento de las 500 empresas más grandes de Estados Unidos.",
-        "geo": {"EE. UU.": 100.0},
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
+        "ticker": "IE0032126645",
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
         "holdings": [{"name": "Apple", "weight": 6.5}, {"name": "Microsoft", "weight": 6.2}, {"name": "NVIDIA", "weight": 5.0}, {"name": "Amazon", "weight": 3.7}, {"name": "Alphabet", "weight": 3.1}]
     },
+    "vanguard sp 500 dist": {
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist",
+        "ticker": "IE0032126868",
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7,
+        "holdings": [{"name": "Apple", "weight": 6.5}, {"name": "Microsoft", "weight": 6.2}, {"name": "NVIDIA", "weight": 5.0}, {"name": "Amazon", "weight": 3.7}, {"name": "Alphabet", "weight": 3.1}]
+    },
+    "fidelity us index acc": {
+        "name": "Fidelity S&P 500 Index Fund EUR P Acc",
+        "ticker": "IE00BYX5MX67",
+        "category": "Renta Variable EE.UU. (S&P 500)",
+        "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5, "score": 4.9,
+        "holdings": [{"name": "Apple", "weight": 6.5}, {"name": "Microsoft", "weight": 6.2}, {"name": "NVIDIA", "weight": 5.0}, {"name": "Amazon", "weight": 3.7}, {"name": "Alphabet", "weight": 3.1}]
+    },
+
+    # --- TECNOLOGÍA ---
+    "ishares us technology acc": {
+        "name": "iShares US Technology Index Fund EUR Acc",
+        "ticker": "IE00B1W33F31",
+        "category": "Tecnología",
+        "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5, "score": 4.3,
+        "holdings": [{"name": "Microsoft", "weight": 16.5}, {"name": "Apple", "weight": 15.8}, {"name": "NVIDIA", "weight": 14.2}, {"name": "Broadcom", "weight": 4.5}, {"name": "Adobe", "weight": 3.1}]
+    },
+
+    # --- MERCADOS EMERGENTES Y OTROS SECTORES ---
     "vanguard emerging markets acc": {
-        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "ticker": "IE0031786696",
-        "category": "Mercados Emergentes", "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1,
-        "desc": "Exposición diversificada a economías en desarrollo como China, India, Taiwán, Brasil y Corea del Sur.",
-        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0},
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc",
+        "ticker": "IE0031786696",
+        "category": "Mercados Emergentes",
+        "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1,
         "holdings": [{"name": "Taiwan Semiconductor (TSMC)", "weight": 8.5}, {"name": "Tencent Holdings", "weight": 4.2}, {"name": "Alibaba Group", "weight": 2.8}, {"name": "Samsung Electronics", "weight": 3.5}, {"name": "Reliance Industries", "weight": 1.5}]
+    },
+    "vanguard emerging markets dist": {
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Dist",
+        "ticker": "IE0031786142",
+        "category": "Mercados Emergentes",
+        "ter": 0.23, "aum": 3200, "tracking_error": 0.12, "age_years": 15, "currency": "EUR", "is_dist": True, "return_1y": 9.2, "score": 4.0,
+        "holdings": [{"name": "Taiwan Semiconductor (TSMC)", "weight": 8.5}, {"name": "Tencent Holdings", "weight": 4.2}, {"name": "Alibaba Group", "weight": 2.8}, {"name": "Samsung Electronics", "weight": 3.5}, {"name": "Reliance Industries", "weight": 1.5}]
+    },
+    "vanguard european stock acc": {
+        "name": "Vanguard European Stock Index Fund EUR Acc",
+        "ticker": "IE0007987690",
+        "category": "Renta Variable Europa",
+        "ter": 0.12, "aum": 7800, "tracking_error": 0.06, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 12.1, "score": 4.4,
+        "holdings": [{"name": "ASML Holding", "weight": 3.5}, {"name": "Nestlé", "weight": 2.8}, {"name": "LVMH", "weight": 2.2}, {"name": "Novartis", "weight": 2.1}, {"name": "Shell", "weight": 2.0}]
+    },
+    "vanguard global bond index acc": {
+        "name": "Vanguard Global Bond Index Fund EUR Hedged Acc",
+        "ticker": "IE00B1FT8033",
+        "category": "Renta Fija / Bonos Globales",
+        "ter": 0.15, "aum": 19500, "tracking_error": 0.04, "age_years": 13, "currency": "EUR", "is_dist": False, "return_1y": 4.2, "score": 4.2,
+        "holdings": [{"name": "US Treasury Bond", "weight": 15.0}, {"name": "Japan Government Bond", "weight": 8.5}, {"name": "UK Treasury", "weight": 4.2}, {"name": "German Bund", "weight": 6.0}, {"name": "French OAT", "weight": 4.5}]
     }
 }
 
 ETF_DB = {
+    # --- RENTA VARIABLE GLOBAL ---
     "vwce.de": {
-        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]", "ticker": "VWCE.DE",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
+        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]",
+        "ticker": "VWCE.DE", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 7, "is_dist": False, "return_1y": 16.0, "score": 4.8,
-        "desc": "Incluye tanto países desarrollados como mercados emergentes (más de 3.700 valores en todo el mundo).",
-        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
+        "holdings": [{"name": "Apple", "weight": 4.2}, {"name": "Microsoft", "weight": 4.0}, {"name": "NVIDIA", "weight": 3.2}, {"name": "Amazon", "weight": 2.3}, {"name": "Alphabet", "weight": 1.9}]
+    },
+    "vwrl.as": {
+        "name": "Vanguard FTSE All-World UCITS ETF [Distribución]",
+        "ticker": "VWRL.AS", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 11800,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8, "score": 4.7,
         "holdings": [{"name": "Apple", "weight": 4.2}, {"name": "Microsoft", "weight": 4.0}, {"name": "NVIDIA", "weight": 3.2}, {"name": "Amazon", "weight": 2.3}, {"name": "Alphabet", "weight": 1.9}]
     },
     "swda.l": {
-        "name": "iShares Core MSCI World UCITS ETF [Acumulación]", "ticker": "SWDA.L",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
+        "name": "iShares Core MSCI World UCITS ETF [Acumulación]",
+        "ticker": "SWDA.L", "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
         "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8,
-        "desc": "El ETF de mercados desarrollados globales más líquido y con mayor patrimonio en Europa.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
         "holdings": [{"name": "Apple", "weight": 4.8}, {"name": "Microsoft", "weight": 4.5}, {"name": "NVIDIA", "weight": 3.6}, {"name": "Amazon", "weight": 2.6}, {"name": "Alphabet", "weight": 2.2}]
     },
+
+    # --- S&P 500 / EE.UU. ---
     "spyl.de": {
-        "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
+        "name": "SPDR S&P 500 UCITS ETF [Acumulación]",
+        "ticker": "SPYL.DE", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
         "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9,
-        "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
-        "geo": {"EE. UU.": 100.0},
         "holdings": [{"name": "Apple", "weight": 6.5}, {"name": "Microsoft", "weight": 6.2}, {"name": "NVIDIA", "weight": 5.0}, {"name": "Amazon", "weight": 3.7}, {"name": "Alphabet", "weight": 3.1}]
     },
-    "exus.de": {
-        "name": "iShares MSCI World ex USA UCITS ETF", "ticker": "EXUS.DE",
-        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.20, "aum": 3400,
-        "replication": "Física", "te": 0.04, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 11.4, "score": 4.6,
-        "desc": "Ideal para complementar carteras: invierte en países desarrollados **excluyendo totalmente Estados Unidos** (Europa, Japón, Canadá, Australia).",
-        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5},
-        "holdings": [{"name": "ASML Holding", "weight": 2.2}, {"name": "Nestlé", "weight": 1.8}, {"name": "Toyota Motor", "weight": 1.6}, {"name": "Shell", "weight": 1.5}, {"name": "AstraZeneca", "weight": 1.4}]
+    "vusa.as": {
+        "name": "Vanguard S&P 500 UCITS ETF [Distribución]",
+        "ticker": "VUSA.AS", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
+        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8,
+        "holdings": [{"name": "Apple", "weight": 6.5}, {"name": "Microsoft", "weight": 6.2}, {"name": "NVIDIA", "weight": 5.0}, {"name": "Amazon", "weight": 3.7}, {"name": "Alphabet", "weight": 3.1}]
     },
+
+    # --- TECNOLOGÍA & IA & CIBERSEGURIDAD ---
+    "eqqq.de": {
+        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]",
+        "ticker": "EQQQ.DE", "category": "Tecnología", "ter": 0.30, "aum": 11500,
+        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5,
+        "holdings": [{"name": "Microsoft", "weight": 8.8}, {"name": "Apple", "weight": 8.5}, {"name": "NVIDIA", "weight": 7.5}, {"name": "Amazon", "weight": 5.2}, {"name": "Meta", "weight": 4.8}]
+    },
+    "sxrv.de": {
+        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]",
+        "ticker": "SXRV.DE", "category": "Tecnología", "ter": 0.33, "aum": 14200,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
+        "holdings": [{"name": "Microsoft", "weight": 8.8}, {"name": "Apple", "weight": 8.5}, {"name": "NVIDIA", "weight": 7.5}, {"name": "Amazon", "weight": 5.2}, {"name": "Meta", "weight": 4.8}]
+    },
+    "smh.de": {
+        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)",
+        "ticker": "SMH.DE", "category": "Tecnología", "ter": 0.35, "aum": 2100,
+        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4,
+        "holdings": [{"name": "NVIDIA", "weight": 19.5}, {"name": "Taiwan Semiconductor (TSMC)", "weight": 11.2}, {"name": "Broadcom", "weight": 8.5}, {"name": "ASML Holding", "weight": 6.8}, {"name": "AMD", "weight": 4.5}]
+    },
+
+    # --- MATERIAS PRIMAS Y METALES PRECIOSOS ---
+    "4gld.de": {
+        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)",
+        "ticker": "4GLD.DE", "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
+        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7,
+        "holdings": [{"name": "Lingotes de Oro Físico (99.9%)", "weight": 100.0}]
+    },
+    "isln.de": {
+        "name": "iShares Physical Silver ETC (Plata Física)",
+        "ticker": "ISLN.DE", "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
+        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3,
+        "holdings": [{"name": "Barras de Plata Física (99.9%)", "weight": 100.0}]
+    },
+    "exxy.de": {
+        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)",
+        "ticker": "EXXY.DE", "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
+        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1,
+        "holdings": [{"name": "Crude Oil / Energy", "weight": 35.0}, {"name": "Gold / Industrial Metals", "weight": 25.0}, {"name": "Corn & Wheat (Agriculture)", "weight": 25.0}, {"name": "Natural Gas", "weight": 15.0}]
+    },
+
+    # --- ALTO DIVIDENDO ---
+    "vhyd.de": {
+        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]",
+        "ticker": "VHYD.DE", "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
+        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5,
+        "holdings": [{"name": "JPMorgan Chase", "weight": 3.2}, {"name": "Exxon Mobil", "weight": 3.0}, {"name": "Broadcom", "weight": 2.8}, {"name": "Procter & Gamble", "weight": 2.5}, {"name": "Chevron", "weight": 2.2}]
+    },
+
+    # --- MERCADOS EMERGENTES ---
     "emim.l": {
-        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]", "ticker": "EMIM.L",
-        "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
+        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]",
+        "ticker": "EMIM.L", "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
         "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4,
-        "desc": "Exposición completa a más de 3.000 valores de países emergentes de gran, mediana y pequeña capitalización.",
-        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0},
         "holdings": [{"name": "Taiwan Semiconductor (TSMC)", "weight": 8.8}, {"name": "Tencent Holdings", "weight": 4.4}, {"name": "Alibaba Group", "weight": 2.9}, {"name": "Samsung Electronics", "weight": 3.6}, {"name": "Reliance Industries", "weight": 1.6}]
     }
 }
@@ -415,7 +513,7 @@ def render_geo_breakdown(geo_dict):
 
 def render_holdings_breakdown(holdings_list):
     st.markdown("**🏢 Principales Empresas Participadas (*Top Holdings*) y su Peso:**")
-    st.caption("ℹ️ El porcentaje representa qué proporción del patrimonio total del fondo o ETF está invertido en esa compañía específica.")
+    st.caption("ℹ️ El número representa el **porcentaje de importancia o participación** dentro del fondo/ETF; es decir, qué proporción del patrimonio total del fondo está invertido en esa compañía concreta.")
     
     colors_holdings = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"]
     
@@ -558,11 +656,12 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
+    # 1. RECOMENDADO DEL MES
     st.markdown("### 🌟 Recomendado del Mes")
     st.markdown(f"""
     <div class="featured-card">
         <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
-        <span style="background-color: #065f46; color: #34d399; padding: 3px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; float: right;">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
+        <span class="score-tag">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
         <h3 style="margin: 10px 0 6px 0; color: #f8fafc;">{top_asset['name']}</h3>
         <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">{top_asset['desc']}</p>
     </div>
@@ -581,11 +680,56 @@ if st.session_state.stage == 'home':
             st.session_state.portfolio.append({
                 "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
                 "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
-                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist'],
-                "category": "Renta Variable Global (MSCI World)"
+                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist']
             })
             guardar_en_url()
             st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
+
+    st.markdown("---")
+
+    # 2. CUESTIONARIO INTERACTIVO
+    st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
+    with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
+        q_knowledge = st.radio(
+            "0. ¿Tienes conocimientos sobre inversiones?",
+            [
+                "Sí, me he informado y tengo conocimientos sobre fondos indexados, ETFs e impuestos asociados",
+                "No, acabo de conocer este mundo y necesito consejo o información"
+            ]
+        )
+        
+        q_goal = st.radio(
+            "1. ¿Qué objetivo estás buscando?",
+            [
+                "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
+                "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
+                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
+            ]
+        )
+        
+        q_moves = st.radio(
+            "2. ¿Tienes pensado hacer cambios en tus inversiones, rebalanceos o cambiar de activos?",
+            [
+                "No lo sé, no sé qué es eso ni lo que implicaría",
+                "No, quiero comprar y mantener sin tocar nada durante décadas",
+                "Sí, es probable que quiera mover posiciones o reestructurar"
+            ]
+        )
+        
+        if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
+            st.markdown("---")
+            
+            if "No, acabo" in q_knowledge:
+                st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) un poco más bajas.")
+
+            if "Híbrido" in q_goal:
+                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER) para optimizar comisiones al máximo.\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) para poder retirar o mover capital sin penalización ni peaje fiscal inmediato en tus transacciones.")
+            elif "Corto plazo" in q_goal:
+                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo (coche, reformas, imprevistos), los **Fondos Indexados** son la opción más recomendable por su flexibilidad al reembolsar o cambiar de estrategia sin peaje fiscal inmediato.")
+            elif "Largo plazo" in q_goal and "No, quiero comprar" in q_moves:
+                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales (TER del 0.03% vs 0.18%) compensa con creces cualquier ventaja fiscal de traspaso.")
+            elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
+                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
 
 # ----------------------------------------------------
 # SECCIÓN SUBOPCIONES
@@ -655,14 +799,15 @@ elif st.session_state.stage == 'favorites_view':
     st.title("⭐ Mis Activos Favoritos")
 
     if not st.session_state.favorites:
-        st.info("No tienes ningún activo guardado en favoritos todavía.")
+        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos o ETFs y pulsa **'⭐ Añadir a Favoritos'** en sus informes.")
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
                 col_fav1, col_fav2, col_fav3, col_fav4 = st.columns([2, 1, 1, 1])
                 with col_fav1:
-                    st.markdown(f"**Categoría:** {fav.get('category', 'General')}")
-                    st.markdown(f"**TER:** {fav.get('ter', 0.0)}%")
+                    st.markdown(f"**Categoría / Detalles:** {fav.get('category', 'General')}")
+                    st.markdown(f"**TER / Coste anual:** {fav.get('ter', 0.0)}%")
+                    st.markdown(f"**Divisa:** {fav.get('currency', 'EUR')}")
                 with col_fav2:
                     if st.button("🔍 Evaluar", key=f"fav_eval_{idx}", use_container_width=True):
                         st.session_state.asset_type = "Acciones" if fav['type'] == "Acción" else ("Fondos indexados" if fav['type'] == "Fondo Indexado" else "ETFs")
@@ -674,19 +819,23 @@ elif st.session_state.stage == 'favorites_view':
                     if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
                             "type": fav['type'], "name": fav['name'], "ticker": fav['ticker'],
-                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'),
-                            "is_dist": fav.get('is_dist', False), "category": fav.get('category', 'General')
+                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), "is_dist": fav.get('is_dist', False)
                         })
                         guardar_en_url()
-                        st.success("¡Añadido a la Cartera!")
+                        st.success(f"¡{fav['name']} añadido a la Cartera!")
                 with col_fav4:
                     if st.button("🗑️ Quitar", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
                         guardar_en_url()
                         st.rerun()
 
+        if st.button("🗑️ Vaciar Lista de Favoritos"):
+            st.session_state.favorites = []
+            guardar_en_url()
+            st.rerun()
+
 # ----------------------------------------------------
-# SECCIÓN CARTERA CONSOLIDADA CON AUDITORÍA DE SOLAPAMIENTO
+# SECCIÓN CARTERA CONSOLIDADA
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
@@ -696,22 +845,8 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Añade fondos o ETFs desde sus informes para simularlos y detectar solapamientos geográficos.")
+        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
-        categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio]
-        has_msci_world = any("Global" in cat for cat in categories_in_portfolio)
-        has_sp500 = any("EE.UU. (S&P 500)" in cat for cat in categories_in_portfolio)
-
-        if has_msci_world and has_sp500:
-            st.warning("""
-            ⚠️ **¡Alerta de Solapamiento Geográfico Detectado!**  
-            Has incluido en tu cartera un fondo/ETF de **Renta Variable Global (MSCI World)** y al mismo tiempo un fondo/ETF de **EE. UU. (S&P 500)**.  
-            * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%, duplicando posiciones en los mismos gigantes tecnológicos (Apple, Microsoft, Nvidia, etc.).
-            * **💡 Alternativa recomendada:** Para diversificar correctamente sin repetir EE. UU., te sugerimos sustituir el S&P 500 o equilibrar tu cartera añadiendo un ETF de **Países Desarrollados Ex-EE. UU.** (como *iShares MSCI World ex USA - EXUS.DE*) para capturar Europa, Japón y Pacífico sin solapar tu fondo global.
-            """)
-        elif has_msci_world and len(categories_in_portfolio) > 1 and not has_sp500:
-            st.success("✅ **Buena diversificación:** Tu cartera combina activos globales sin duplicidades críticas en EE. UU.")
-
         st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
         c_p1, c_p2 = st.columns(2)
@@ -839,12 +974,23 @@ elif st.session_state.stage == 'portfolio_view':
             st.markdown("---")
             st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
 
-            m1, m2, m3, m4, m5 = st.columns(5)
-            m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
-            m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
-            m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
-            m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
-            m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
+            if has_dividend_asset:
+                div_neto_global = total_dividendos_brutos_acum * (1 - 0.19)
+                m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
+                m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
+                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
+                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
+                m6.metric("Total Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
+                m7.metric("Total Div. Netos", f"{div_neto_global:,.2f} €")
+            else:
+                m1, m2, m3, m4, m5 = st.columns(5)
+                m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
+                m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
+                m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
+                m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
+                m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
 
             st.markdown(f"""
             <div class="final-net-card">
@@ -868,116 +1014,733 @@ elif st.session_state.stage == 'analyzer':
         st.session_state.selected_eval_input = ""
         st.rerun()
 
-    def render_asset_converter(current_category, current_ticker):
+    def get_trend_chain_stream(hist_df):
+        if hist_df is None or len(hist_df) < 2:
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+        
+        closes = hist_df['Close'].dropna()
+        if len(closes) < 2:
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+
+        first_p = float(closes.iloc[0])
+        last_p = float(closes.iloc[-1])
+        pct_change = ((last_p - first_p) / first_p) * 100
+
+        if pd.isna(pct_change):
+            return '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Lateral</div>'
+
+        if pct_change >= 1.0:
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
+        elif pct_change <= -1.0:
+            return f'<div class="neon-stream-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+        else:
+            return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
+
+    # FUNCIÓN CONVERTIDORA / EQUIVALENCIAS EN TIEMPO REAL CON BADGE DESTACADO EN LA NOTA
+    def render_asset_converter(current_category, current_ticker, current_is_dist, current_asset_type):
         st.markdown(f"""
         <div class="converter-card">
             <div class="converter-title">🔄 Convertidor y Buscador de Alternativas Equivalentes</div>
             <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
-                Alternativas exactas para este índice junto con su nota de calidad destacada:
+                ¿Sabías que un mismo índice puede comprarse en versión <b>Fondo Indexado</b> o <b>ETF</b>, y que puedes elegir entre acumular dividendos o cobrarlos? Aquí tienes sus equivalentes exactos junto con su nota de calidad destacada:
             </p>
         </div>
         """, unsafe_allow_html=True)
 
-        equi_funds = [f for f in FUND_DB.values() if f['category'] == current_category and f['ticker'] != current_ticker]
-        equi_etfs = [e for e in ETF_DB.values() if e['category'] == current_category and e['ticker'] != current_ticker]
+        equi_funds_acc = []
+        equi_funds_dist = []
+        equi_etfs_acc = []
+        equi_etfs_dist = []
 
-        c1, c2 = st.columns(2)
-        with c1:
-            st.markdown("##### 📁 Fondos Indexados Equivalentes")
-            if equi_funds:
-                for item in equi_funds:
+        # Buscar en Fondos
+        for k, f in FUND_DB.items():
+            if f['category'] == current_category and f['ticker'] != current_ticker:
+                if f['is_dist']:
+                    equi_funds_dist.append(f)
+                else:
+                    equi_funds_acc.append(f)
+
+        # Buscar en ETFs
+        for k, e in ETF_DB.items():
+            if e['category'] == current_category and e['ticker'] != current_ticker:
+                if e['is_dist']:
+                    equi_etfs_dist.append(e)
+                else:
+                    equi_etfs_acc.append(e)
+
+        c_c1, c_c2, c_c3 = st.columns(3)
+
+        with c_c1:
+            st.markdown("##### 📥 Fondos (Acumulación)")
+            if equi_funds_acc:
+                for item in equi_funds_acc:
+                    nota_val = item.get('score', 4.3)
                     st.markdown(f"• **{item['name']}**")
-                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {item.get('score', 4.3)}/5</span>", unsafe_allow_html=True)
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
+                    if st.button(f"🔍 Evaluar Fondo Acc", key=f"conv_f_acc_{item['ticker']}"):
+                        st.session_state.asset_type = "Fondos indexados"
+                        st.session_state.sub_type = "Acumulación"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
             else:
-                st.caption("No hay más fondos en esta categoría.")
-        with c2:
-            st.markdown("##### 🌐 ETFs Equivalentes")
-            if equi_etfs:
-                for item in equi_etfs:
+                st.caption("No hay otros fondos de acumulación registrados en esta categoría.")
+
+        with c_c2:
+            st.markdown("##### 💰 Fondos (Distribución)")
+            if equi_funds_dist:
+                for item in equi_funds_dist:
+                    nota_val = item.get('score', 4.3)
                     st.markdown(f"• **{item['name']}**")
-                    st.markdown(f"  Ticker: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {item.get('score', 4.5)}/5</span>", unsafe_allow_html=True)
+                    st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
+                    if st.button(f"🔍 Evaluar Fondo Dist", key=f"conv_f_dist_{item['ticker']}"):
+                        st.session_state.asset_type = "Fondos indexados"
+                        st.session_state.sub_type = "Acumulación"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
             else:
-                st.caption("No hay ETFs directos en esta categoría.")
+                st.caption("No hay fondos de distribución en esta categoría.")
+
+        with c_c3:
+            st.markdown("##### 🌐 ETFs Equivalentes (Coste Ultra Bajo)")
+            all_etfs = equi_etfs_acc + equi_etfs_dist
+            if all_etfs:
+                for item in all_etfs:
+                    tipo_str = "Distribución" if item['is_dist'] else "Acumulación"
+                    nota_val = item.get('score', 4.5)
+                    st.markdown(f"• **{item['name']}**")
+                    st.markdown(f"  Ticker: `{item['ticker']}` | TER: **{item['ter']}%** ({tipo_str}) <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
+                    if st.button(f"🔍 Evaluar ETF", key=f"conv_etf_{item['ticker']}"):
+                        st.session_state.asset_type = "ETFs"
+                        st.session_state.sub_type = "Evaluación ETF"
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.rerun()
+            else:
+                st.caption("No se han encontrado ETFs equivalentes directos para esta categoría específica.")
 
     if st.session_state.asset_type == "Fondos indexados" and st.session_state.sub_type == "Ranking TER":
         st.title("🏆 Ranking de Fondos Indexados (Menor TER)")
-        ranking_data = [{"Fondo": data["name"], "ISIN": data["ticker"], "Categoría": data["category"], "Nota (⭐)": f"{data.get('score', 4.3)}/5", "TER Anual (%)": data["ter"]} for data in FUND_DB.values()]
-        st.dataframe(pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True), use_container_width=True)
+        ranking_data = [
+            {
+                "Fondo": data["name"], 
+                "ISIN": data["ticker"], 
+                "Categoría": data["category"], 
+                "Modalidad": "Distribución" if data.get("is_dist") else "Acumulación",
+                "Nota (⭐)": f"{data.get('score', 4.3)}/5",
+                "TER Anual (%)": data["ter"], 
+                "Rentabilidad (1A %)": f"+{data.get('return_1y', 10.0):.1f}%",
+                "Patrimonio (M€)": data["aum"], 
+                "Antigüedad (Años)": data["age_years"]
+            } 
+            for data in FUND_DB.values()
+        ]
+        df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
+        st.dataframe(df_ranking, use_container_width=True)
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER de la gestora.")
         if st.button("← Volver al menú de fondos"):
             st.session_state.sub_type = None
             st.rerun()
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Ranking ETFs":
-        st.title("🏆 Ranking de ETFs (Menor TER)")
-        ranking_etfs = [{"ETF": data["name"], "Ticker": data["ticker"], "Categoría": data["category"], "Nota (⭐)": f"{data.get('score', 4.5)}/5", "TER (%)": data["ter"]} for data in ETF_DB.values()]
-        st.dataframe(pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True), use_container_width=True)
+        st.title("🏆 Ranking de ETFs (Ordenados por menor TER)")
+        ranking_etfs = [
+            {
+                "ETF": data["name"], 
+                "Ticker": data["ticker"], 
+                "Categoría": data["category"], 
+                "Modalidad": "Distribución" if data.get("is_dist") else "Acumulación",
+                "Nota (⭐)": f"{data.get('score', 4.5)}/5",
+                "TER (%)": data["ter"], 
+                "Rentabilidad (1A %)": f"+{data.get('return_1y', 10.0):.1f}%",
+                "Patrimonio (M€)": data["aum"], 
+                "Réplica": data["replication"]
+            } 
+            for data in ETF_DB.values()
+        ]
+        df_etf_ranking = pd.DataFrame(ranking_etfs).sort_values(by="TER (%)", ascending=True).reset_index(drop=True)
+        st.dataframe(df_etf_ranking, use_container_width=True)
+        st.info("⚠️ **Aviso de Comisiones:** Los costes mostrados corresponden exclusivamente al TER.")
         if st.button("← Volver al menú de ETFs"):
             st.session_state.sub_type = None
             st.rerun()
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
         st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-        st.markdown("- **Globales:** Diversificación total en países desarrollados y emergentes.")
-        st.markdown("- **Ex-EE. UU. (Desarrollados):** Clave para evitar la sobrediversificación si ya tienes el S&P 500.")
-        if st.button("← Volver"):
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas / Metales", "💻 Tecnología & IA", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
+        
+        with tab1:
+            st.subheader("Renta Variable Global")
+            st.markdown("- **Objetivo:** Diversificación global en países desarrollados.")
+        with tab2:
+            st.subheader("Alto Dividendo")
+            st.markdown("- **Objetivo:** Empresas maduras con pagos estables y cobro periódico de cupones.")
+        with tab3:
+            st.subheader("Materias Primas y Metales")
+            st.markdown("- **Objetivo:** Exposición física a Oro, Plata y Cesta de Commodities como cobertura contra inflación.")
+        with tab4:
+            st.subheader("Tecnología, IA & Semiconductores")
+            st.markdown("- **Objetivo:** Innovación, Inteligencia Artificial, Software y Ciberseguridad.")
+        with tab5:
+            st.subheader("Renovables y Utilities")
+            st.markdown("- **Objetivo:** Transición energética y eléctricas defensivas.")
+        with tab6:
+            st.subheader("Emergentes")
+            st.markdown("- **Objetivo:** Crecimiento en economías en desarrollo.")
+
+        st.markdown("---")
+        if st.button("← Volver al menú de ETFs"):
             st.session_state.sub_type = None
             st.rerun()
 
     else:
         st.title(f"📈 Analizador: {st.session_state.asset_type} ({st.session_state.sub_type})")
+
         default_input = st.session_state.selected_eval_input
 
-        if st.session_state.asset_type == "Fondos indexados":
-            fund_options = ["-- Selecciona un fondo indexado --"] + [f"{data['name']} (ISIN: {data['ticker']})" for data in FUND_DB.values()]
-            sel_idx = 0
+        if st.session_state.asset_type == "Acciones":
+            stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
+            selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
+            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value=default_input).strip()
+            user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
+
+        elif st.session_state.asset_type == "Fondos indexados":
+            st.markdown("### 📁 Biblioteca Completa de Fondos Indexados (Acumulación y Distribución)")
+            st.markdown("Selecciona un fondo de la biblioteca ordenada para analizar sus métricas, ver equivalencias y simular rentabilidades:")
+            
+            fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"]
+            for data in FUND_DB.values():
+                tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
+                fund_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
+
+            selected_index = 0
             if default_input:
                 for idx, opt in enumerate(fund_options):
-                    if default_input.upper() in opt.upper(): sel_idx = idx; break
-            chosen = st.selectbox("Biblioteca de Fondos", options=fund_options, index=sel_idx)
-            user_input = chosen.split("ISIN: ")[1].split(")")[0].strip() if not chosen.startswith("--") else ""
+                    if default_input.upper() in opt.upper():
+                        selected_index = idx
+                        break
+
+            selected_fund_choice = st.selectbox("Biblioteca de Fondos Indexados", options=fund_options, index=selected_index)
+            
+            if not selected_fund_choice.startswith("--"):
+                user_input = selected_fund_choice.split("ISIN: ")[1].split(")")[0].strip()
+            else:
+                user_input = ""
+
         elif st.session_state.asset_type == "ETFs":
-            etf_options = ["-- Selecciona un ETF --"] + [f"{data['name']} (Ticker: {data['ticker']})" for data in ETF_DB.values()]
-            sel_idx_e = 0
+            st.markdown("### 🌐 Biblioteca Completa de ETFs (Materias Primas, Tecnología, Metales, Distribución...)")
+            st.markdown("Selecciona un ETF de la biblioteca organizada para analizar su cotización, comisiones y equivalencias:")
+            
+            etf_options = ["-- Selecciona un ETF de la biblioteca --"]
+            for data in ETF_DB.values():
+                tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
+                etf_options.append(f"[{data['category']}] {data['name']} (Ticker: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
+
+            selected_index_etf = 0
             if default_input:
                 for idx, opt in enumerate(etf_options):
-                    if default_input.upper() in opt.upper(): sel_idx_e = idx; break
-            chosen_etf = st.selectbox("Biblioteca de ETFs", options=etf_options, index=sel_idx_e)
-            user_input = chosen_etf.split("Ticker: ")[1].split(")")[0].strip() if not chosen_etf.startswith("--") else ""
-        else:
-            user_input = st.text_input("Introduce Ticker (ej. AAPL, ITX.MC):", value=default_input).strip().upper()
+                    if default_input.upper() in opt.upper():
+                        selected_index_etf = idx
+                        break
+
+            selected_etf_choice = st.selectbox("Biblioteca de ETFs", options=etf_options, index=selected_index_etf)
+            
+            if not selected_etf_choice.startswith("--"):
+                user_input = selected_etf_choice.split("Ticker: ")[1].split(")")[0].strip()
+            else:
+                user_input = ""
+
+        def get_stock_data(query):
+            q_lower = query.lower().strip()
+            for key, data in TICKER_DB.items():
+                if key in q_lower or data["ticker"].lower() == q_lower:
+                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", 4.0), data.get("per", 18.0), data.get("beta", 1.0), data.get("payout", 50.0)
+            return query.upper(), "Sin datos de racha previos.", 3.0, 4.0, 18.0, 1.0, 50.0
+
+        def get_letter_grade(score):
+            if score >= 4.5: return "A+"
+            elif score >= 4.0: return "A"
+            elif score >= 3.0: return "B"
+            elif score >= 2.0: return "C"
+            else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona un activo para ver su ficha técnica, desglose geográfico, principales empresas y alternativas.")
+            st.info("👆 Selecciona un activo en el desplegable superior para comenzar.")
         else:
-            if st.session_state.asset_type == "Fondos indexados":
-                matched = next((d for d in FUND_DB.values() if d["ticker"].upper() == user_input.upper()), None)
-            elif st.session_state.asset_type == "ETFs":
-                matched = next((d for d in ETF_DB.values() if d["ticker"].upper() == user_input.upper()), None)
-            else:
-                matched = None
-
-            if matched:
-                st.subheader(f"📊 Ficha Técnica: {matched['name']}")
-                st.markdown(f"**Descripción / Qué incluye:** {matched.get('desc', 'Sin descripción detallada.')}")
+            if st.session_state.asset_type == "Acciones":
+                stock_result = get_stock_data(user_input)
+                ticker_input, racha_info, est_div_growth, db_div_yield, db_per, db_beta, db_payout = stock_result
                 
-                if "geo" in matched:
-                    render_geo_breakdown(matched["geo"])
-                
-                if "holdings" in matched:
-                    render_holdings_breakdown(matched["holdings"])
+                try:
+                    stock = yf.Ticker(ticker_input)
+                    hist_price = stock.history(period="3mo")
+                    
+                    current_price = None
+                    if not hist_price.empty and 'Close' in hist_price.columns:
+                        valid_closes = hist_price['Close'].dropna()
+                        if not valid_closes.empty:
+                            current_price = float(valid_closes.iloc[-1])
 
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button("⭐ Añadir a Favoritos", use_container_width=True):
-                        st.session_state.favorites.append({"type": st.session_state.asset_type[:-1], "name": matched['name'], "ticker": matched['ticker'], "ter": matched['ter'], "currency": matched['currency'], "category": matched['category']})
+                    info = stock.info or {}
+                    name = info.get('longName', user_input.title())
+                    currency_symbol = '$' if info.get('currency') == 'USD' else '€'
+                    price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
+                    trend_html = get_trend_chain_stream(hist_price)
+
+                    per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
+                    pfcf_y = info.get('priceToFreeCashflow') or 18.0
+                    pb_y = info.get('priceToBook') or 3.0
+                    roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
+                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
+                    beta_val = info.get('beta') or db_beta
+                    raw_payout = info.get('payoutRatio')
+                    payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
+
+                    total_score = 4.0
+                    grade = get_letter_grade(total_score)
+                    deg = int((total_score / 5.0) * 360)
+                    progress_color = "#22c55e"
+
+                    col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
+                    with col_n1:
+                        st.subheader(f"📊 Informe: {name} ({ticker_input})")
+                    with col_n2:
+                        if st.button("⭐ Añadir a Favoritos", use_container_width=True):
+                            st.session_state.favorites.append({
+                                "type": "Acción", "name": name, "ticker": ticker_input,
+                                "ter": 0.0, "currency": info.get('currency', 'EUR'), "category": "Renta Variable (Acción)"
+                            })
+                            guardar_en_url()
+                            st.success("¡Añadido a Favoritos!")
+                    with col_n3:
+                        if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
+                            st.session_state.portfolio.append({
+                                "type": "Acción", "name": name, "ticker": ticker_input,
+                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True
+                            })
+                            guardar_en_url()
+                            st.success(f"¡{name} añadido a tu Cartera!")
+
+                    st.markdown(f"""
+                    <div class="score-container">
+                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                    df_metrics = pd.DataFrame({
+                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividendo Yield", "Payout Ratio", "Beta"],
+                        "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
+                    })
+                    st.table(df_metrics)
+
+                except Exception as e:
+                    st.error(f"Error al obtener datos: {e}")
+
+            elif st.session_state.asset_type == "Fondos indexados":
+                matched_fund = next((data for key, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
+                
+                if matched_fund:
+                    fund_name = matched_fund["name"]
+                    fund_isin = matched_fund["ticker"]
+                    ter_val = matched_fund["ter"]
+                    aum_val = matched_fund["aum"]
+                    te_val = matched_fund["tracking_error"]
+                    age_val = matched_fund["age_years"]
+                    curr_fund = matched_fund["currency"]
+                    is_dist_fund = matched_fund["is_dist"]
+                    cat_fund = matched_fund["category"]
+                    ret_1y_fund = matched_fund.get("return_1y", 15.0)
+                    score_fund = matched_fund.get("score", 4.2)
+                else:
+                    fund_isin = user_input.upper()
+                    ret_1y_fund = 12.5
+                    try:
+                        live_ticker = yf.Ticker(fund_isin)
+                        info_live = live_ticker.info or {}
+                        fund_name = info_live.get('longName', fund_isin)
+                        curr_fund = info_live.get('currency', 'EUR')
+                    except:
+                        fund_name = fund_isin
+                        curr_fund = 'EUR'
+
+                    ter_val = 0.18
+                    aum_val = 2500
+                    te_val = 0.05
+                    age_val = 10
+                    is_dist_fund = False
+                    cat_fund = "Renta Variable Global (MSCI World)"
+                    score_fund = 4.2
+
+                grade_fund = get_letter_grade(score_fund)
+                deg_fund = int((score_fund / 5.0) * 360)
+                color_fund = "#22c55e"
+                trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
+
+                col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
+                with col_f1:
+                    st.subheader(f"📊 Informe de Fondo: {fund_name}")
+                with col_f2:
+                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_fund"):
+                        st.session_state.favorites.append({
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "ter": ter_val, "currency": curr_fund, "category": cat_fund
+                        })
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
-                with col2:
-                    if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
-                        st.session_state.portfolio.append({"type": "Fondo Indexado" if st.session_state.asset_type=="Fondos indexados" else "ETF", "name": matched['name'], "ticker": matched['ticker'], "est_rent": 7.5, "ter": matched['ter'], "currency": matched['currency'], "is_dist": matched.get('is_dist', False), "category": matched['category']})
+                with col_f3:
+                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
+                        st.session_state.portfolio.append({
+                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
+                        })
                         guardar_en_url()
-                        st.success("¡Añadido a la Cartera!")
+                        st.success(f"¡{fund_name} añadido a tu Cartera!")
 
-                render_asset_converter(matched['category'], matched['ticker'])
-            else:
-                st.info(f"Mostrando datos estándar para el activo {user_input}.")
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                if matched_fund and "holdings" in matched_fund:
+                    def render_holdings_breakdown(holdings_list):
+                        st.markdown("**🏢 Principales Empresas Participadas (*Top Holdings*) y su Peso:**")
+                        st.caption("ℹ️ El porcentaje representa la participación o peso de la compañía dentro del patrimonio total del fondo.")
+                        colors_holdings = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"]
+                        bar_html = '<div class="geo-bar-container">'
+                        legend_html = '<div class="geo-legend">'
+                        for idx, item in enumerate(holdings_list):
+                            name = item["name"]
+                            weight = item["weight"]
+                            color = colors_holdings[idx % len(colors_holdings)]
+                            bar_html += f'<div style="width: {weight * 5}%; background-color: {color}; height: 100%;" title="{name}: {weight}%"></div>'
+                            legend_html += f'<div class="geo-legend-item"><div class="geo-dot" style="background-color: {color};"></div><span>{name} ({weight}%)</span></div>'
+                        bar_html += '</div>'
+                        legend_html += '</div>'
+                        st.markdown(bar_html + legend_html, unsafe_allow_html=True)
+                    
+                    render_holdings_breakdown(matched_fund["holdings"])
+
+                df_fund_data = {
+                    "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Índice", "Modalidad", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
+                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"+{ret_1y_fund:.1f}%", f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
+                }
+                st.table(pd.DataFrame(df_fund_data))
+
+                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS CON NOTAS ---
+                render_asset_converter(cat_fund, fund_isin, is_dist_fund, "Fondo Indexado")
+
+                st.markdown("---")
+                st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
+                toggle_f_sim = st.toggle("Activar calculadora individual de este fondo", value=False, key="tg_f_sim")
+
+                if toggle_f_sim:
+                    sel_b_f = st.selectbox("Selecciona tu Entidad Comercializadora", options=list(FUND_BROKER_PROFILES.keys()), key="sel_b_f")
+                    b_f_data = FUND_BROKER_PROFILES[sel_b_f]
+                    plan_f_free = st.checkbox("Plan de aportación automática sin comisión", value=b_f_data["supports_free_plans"], key="plan_f_free")
+
+                    cf1, cf2 = st.columns(2)
+                    with cf1:
+                        inv_i_f = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_f")
+                        app_p_f = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_f")
+                        freq_f = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_f")
+                    with cf2:
+                        anos_f = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_f")
+                        rent_f = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
+
+                    fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
+                    ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
+                    fspr = b_f_data["spread_percent"]
+                    ffx = 0.0 if curr_fund == "EUR" else b_f_data["fx_fee_percent"]
+
+                    per_ano_f = 12 if freq_f == "Mensual" else 1
+                    t_neta_f = rent_f - ter_val
+                    t_per_f = (t_neta_f / 100.0) / per_ano_f
+                    tot_per_f = anos_f * per_ano_f
+
+                    c_broker_i_f = (inv_i_f * (b_f_data["fee_percent"] / 100.0)) + b_f_data["fee_fixed"]
+                    c_spread_i_f = inv_i_f * (fspr / 100.0)
+                    c_fx_i_f = inv_i_f * (ffx / 100.0)
+                    c_ini_f = c_broker_i_f + c_spread_i_f + c_fx_i_f
+
+                    saldo_f = max(0.0, inv_i_f - c_ini_f)
+                    aport_f = inv_i_f
+                    a_broker_f = c_broker_i_f
+                    a_spread_f = c_spread_i_f
+                    a_fx_f = c_fx_i_f
+
+                    historial_f = []
+
+                    for p in range(1, tot_per_f + 1):
+                        if p > 1:
+                            cb = (app_p_f * (fpct / 100.0)) + ffix
+                            cs = app_p_f * (fspr / 100.0)
+                            cf = app_p_f * (ffx / 100.0)
+                            ct = cb + cs + cf
+
+                            net_app_f = max(0.0, app_p_f - ct)
+                            aport_f += app_p_f
+                            a_broker_f += cb
+                            a_spread_f += cs
+                            a_fx_f += cf
+                            saldo_f = saldo_f * (1 + t_per_f) + net_app_f
+                        else:
+                            saldo_f = saldo_f * (1 + t_per_f)
+
+                        if p % per_ano_f == 0:
+                            ano_act_f = p // per_ano_f
+                            c_tot_f = a_broker_f + a_spread_f + a_fx_f
+                            int_b_f = saldo_f - (aport_f - c_tot_f)
+                            
+                            historial_f.append({
+                                "Año": f"Año {ano_act_f}",
+                                "Capital Aportado Bruto (€)": round(aport_f, 2),
+                                "Comisiones Bróker (€)": round(a_broker_f, 2),
+                                "Coste Spread (€)": round(a_spread_f, 2),
+                                "Coste Cambio Divisa (€)": round(a_fx_f, 2),
+                                "Beneficio Neto (€)": round(max(0.0, int_b_f), 2),
+                                "Capital Total Neto (€)": round(saldo_f, 2)
+                            })
+
+                    df_sim_f = pd.DataFrame(historial_f)
+                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                        st.dataframe(df_sim_f, use_container_width=True)
+
+                    c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
+                    net_aport_f = aport_f - c_tot_acum_f
+                    bruto_f = max(0.0, saldo_f - net_aport_f)
+                    imp_f = bruto_f * 0.19
+                    neto_f = bruto_f - imp_f
+                    liquido_f = net_aport_f + neto_f
+
+                    fm1, fm2, fm3, fm4 = st.columns(4)
+                    fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
+                    fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
+                    fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
+                    fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
+
+                    st.markdown(f"""
+                    <div class="final-net-card">
+                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo</div>
+                        <div class="final-net-value">{liquido_f:,.2f} €</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            elif st.session_state.asset_type == "ETFs":
+                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
+                
+                if matched_etf:
+                    etf_name = matched_etf["name"]
+                    etf_ticker = matched_etf["ticker"]
+                    etf_cat = matched_etf["category"]
+                    ter_etf = matched_etf["ter"]
+                    aum_etf = matched_etf["aum"]
+                    repl_etf = matched_etf["replication"]
+                    te_etf = matched_etf["te"]
+                    curr_etf = matched_etf["currency"]
+                    age_etf = matched_etf["age_years"]
+                    is_dist_etf = matched_etf["is_dist"]
+                    ret_1y_etf = matched_etf.get("return_1y", 15.0)
+                    score_etf = matched_etf.get("score", 4.5)
+                else:
+                    etf_ticker = user_input.upper()
+                    ret_1y_etf = 12.5
+                    try:
+                        live_ticker = yf.Ticker(etf_ticker)
+                        info_live = live_ticker.info or {}
+                        etf_name = info_live.get('longName', etf_ticker)
+                        curr_etf = info_live.get('currency', 'EUR')
+                    except:
+                        etf_name = etf_ticker
+                        curr_etf = 'EUR'
+                    
+                    etf_cat = "Renta Variable Global (MSCI World)"
+                    ter_etf = 0.20
+                    aum_etf = 1000
+                    repl_etf = "Física"
+                    te_etf = 0.05
+                    age_etf = 5
+                    is_dist_etf = False
+                    score_etf = 4.2
+
+                etf_price = None
+                last_volume = None
+                avg_monthly_volume = None
+                etf_hist = None
+                try:
+                    etf_stock = yf.Ticker(etf_ticker)
+                    etf_hist = etf_stock.history(period="3mo")
+                    if not etf_hist.empty and 'Close' in etf_hist.columns:
+                        valid_c = etf_hist['Close'].dropna()
+                        if not valid_c.empty:
+                            etf_price = float(valid_c.iloc[-1])
+                        last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
+                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
+                except:
+                    pass
+
+                price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
+                last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
+                avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
+                trend_html_etf = get_trend_chain_stream(etf_hist)
+
+                grade_etf = get_letter_grade(score_etf)
+                deg_etf = int((score_etf / 5.0) * 360)
+                color_etf = "#22c55e"
+
+                col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
+                with col_e1:
+                    st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
+                with col_e2:
+                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_etf"):
+                        st.session_state.favorites.append({
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
+                            "ter": ter_etf, "currency": curr_etf, "category": etf_cat
+                        })
+                        guardar_en_url()
+                        st.success("¡Añadido a Favoritos!")
+                with col_e3:
+                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
+                        st.session_state.portfolio.append({
+                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
+                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
+                        })
+                        guardar_en_url()
+                        st.success(f"¡{etf_name} añadido a tu Cartera!")
+
+                st.markdown(f"""
+                <div class="score-container">
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                </div>
+                """, unsafe_allow_html=True)
+
+                if matched_etf and "holdings" in matched_etf:
+                    def render_holdings_breakdown(holdings_list):
+                        st.markdown("**🏢 Principales Empresas Participadas (*Top Holdings*) y su Peso:**")
+                        st.caption("ℹ️ El porcentaje representa la participación o peso de la compañía dentro del patrimonio total del ETF.")
+                        colors_holdings = ["#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"]
+                        bar_html = '<div class="geo-bar-container">'
+                        legend_html = '<div class="geo-legend">'
+                        for idx, item in enumerate(holdings_list):
+                            name = item["name"]
+                            weight = item["weight"]
+                            color = colors_holdings[idx % len(colors_holdings)]
+                            bar_html += f'<div style="width: {weight * 5}%; background-color: {color}; height: 100%;" title="{name}: {weight}%"></div>'
+                            legend_html += f'<div class="geo-legend-item"><div class="geo-dot" style="background-color: {color};"></div><span>{name} ({weight}%)</span></div>'
+                        bar_html += '</div>'
+                        legend_html += '</div>'
+                        st.markdown(bar_html + legend_html, unsafe_allow_html=True)
+                    
+                    render_holdings_breakdown(matched_etf["holdings"])
+
+                df_etf_data = {
+                    "Métrica del ETF": ["Categoría / Sector", "Modalidad", "Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
+                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", last_vol_display, avg_vol_display, f"+{ret_1y_etf:.1f}%", f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                }
+                st.table(pd.DataFrame(df_etf_data))
+
+                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS COM NOTAS ---
+                render_asset_converter(etf_cat, etf_ticker, is_dist_etf, "ETF")
+
+                st.markdown("---")
+                st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
+                toggle_e_sim = st.toggle("Activar calculadora individual de este ETF", value=False, key="tg_e_sim")
+
+                if toggle_e_sim:
+                    sel_b_e = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_e")
+                    b_e_data = ETF_BROKER_PROFILES[sel_b_e]
+                    plan_e_free = st.checkbox("Plan de aportación automática sin comisión", value=b_e_data["supports_free_plans"], key="plan_e_free")
+
+                    ce1, ce2 = st.columns(2)
+                    with ce1:
+                        inv_i_e = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_e")
+                        app_p_e = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_e")
+                        freq_e = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_e")
+                    with ce2:
+                        anos_e = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_e")
+                        rent_e = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_e")
+
+                    epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
+                    efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
+                    espr = b_e_data["spread_percent"]
+                    efx = 0.0 if curr_etf == "EUR" else b_e_data["fx_fee_percent"]
+
+                    per_ano_e = 12 if freq_e == "Mensual" else 1
+                    t_neta_e = rent_e - ter_etf
+                    t_per_e = (t_neta_e / 100.0) / per_ano_e
+                    tot_per_e = anos_e * per_ano_e
+
+                    c_broker_i_e = (inv_i_e * (b_e_data["fee_percent"] / 100.0)) + b_e_data["fee_fixed"]
+                    c_spread_i_e = inv_i_e * (espr / 100.0)
+                    c_fx_i_e = inv_i_e * (efx / 100.0)
+                    c_ini_e = c_broker_i_e + c_spread_i_e + c_fx_i_e
+
+                    saldo_e = max(0.0, inv_i_e - c_ini_e)
+                    aport_e = inv_i_e
+                    a_broker_e = c_broker_i_e
+                    a_spread_e = c_spread_i_e
+                    a_fx_e = c_fx_i_e
+
+                    historial_e = []
+
+                    for p in range(1, tot_per_e + 1):
+                        if p > 1:
+                            cb = (app_p_e * (epct / 100.0)) + efix
+                            cs = app_p_e * (espr / 100.0)
+                            cf = app_p_e * (efx / 100.0)
+                            ct = cb + cs + cf
+
+                            net_app_e = max(0.0, app_p_e - ct)
+                            aport_e += app_p_e
+                            a_broker_e += cb
+                            a_spread_e += cs
+                            a_fx_e += cf
+                            saldo_e = saldo_e * (1 + t_per_e) + net_app_e
+                        else:
+                            saldo_e = saldo_e * (1 + t_per_e)
+
+                        if p % per_ano_e == 0:
+                            ano_act_e = p // per_ano_e
+                            c_tot_e = a_broker_e + a_spread_e + a_fx_e
+                            int_b_e = saldo_e - (aport_e - c_tot_e)
+                            
+                            historial_e.append({
+                                "Año": f"Año {ano_act_e}",
+                                "Capital Aportado Bruto (€)": round(aport_e, 2),
+                                "Comisiones Bróker (€)": round(a_broker_e, 2),
+                                "Coste Spread (€)": round(a_spread_e, 2),
+                                "Coste Cambio Divisa (€)": round(a_fx_e, 2),
+                                "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
+                                "Capital Total Neto (€)": round(saldo_e, 2)
+                            })
+
+                    df_sim_e = pd.DataFrame(historial_e)
+                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                        st.dataframe(df_sim_e, use_container_width=True)
+
+                    c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
+                    net_aport_e = aport_e - c_tot_acum_e
+                    bruto_e = max(0.0, saldo_e - net_aport_e)
+                    imp_e = bruto_e * 0.19
+                    neto_e = bruto_e - imp_e
+                    liquido_e = net_aport_e + neto_e
+
+                    em1, em2, em3, em4 = st.columns(4)
+                    em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
+                    em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
+                    em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
+                    em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
+
+                    st.markdown(f"""
+                    <div class="final-net-card">
+                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF</div>
+                        <div class="final-net-value">{liquido_e:,.2f} €</div>
+                    </div>
+                    """, unsafe_allow_html=True)
