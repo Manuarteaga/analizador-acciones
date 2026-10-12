@@ -219,6 +219,35 @@ st.markdown("""
         border: 1px solid #059669;
         margin-left: 4px;
     }
+
+    /* Estilos para barras de desglose geográfico */
+    .geo-bar-container {
+        display: flex;
+        width: 100%;
+        height: 26px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin: 12px 0 8px 0;
+        border: 1px solid #334155;
+    }
+    .geo-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+        margin-bottom: 15px;
+    }
+    .geo-legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .geo-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -280,165 +309,204 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    # --- RENTA VARIABLE GLOBAL (MSCI WORLD / ALL-WORLD) ---
     "vanguard global stock acc": {
-        "name": "Vanguard Global Stock Index Fund EUR Acc",
-        "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6
+        "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
+        "desc": "Fondo indexado de referencia global que replica el índice MSCI World, invirtiendo en más de 1.500 empresas de gran y mediana capitalización en países desarrollados.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
     },
     "vanguard global stock dist": {
-        "name": "Vanguard Global Stock Index Fund EUR Dist",
-        "ticker": "IE00B03HD209",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5
+        "name": "Vanguard Global Stock Index Fund EUR Dist", "ticker": "IE00B03HD209",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
+        "desc": "Versión de distribución del fondo global MSCI World, ideal para inversores que prefieren el cobro periódico de dividendos en cuenta.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
     },
     "ishares developed world acc": {
-        "name": "iShares Developed World Index Fund (IE) D Acc EUR",
-        "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7
+        "name": "iShares Developed World Index Fund (IE) D Acc EUR", "ticker": "IE00BD0NCM55",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
+        "desc": "Fondo indexado de BlackRock enfocado en mercados desarrollados globales con un TER muy competitivo del 0.12%.",
+        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0}
     },
     "fidelity msci world acc": {
-        "name": "Fidelity MSCI World Index Fund EUR P Acc",
-        "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World)",
-        "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9, "score": 4.7
+        "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9, "score": 4.7,
+        "desc": "Uno de los fondos globales más económicos del mercado europeo para replicar el índice MSCI World.",
+        "geo": {"EE. UU.": 71.8, "Japón": 6.1, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.4, "Otros": 3.9}
     },
-
-    # --- S&P 500 / EE.UU. ---
     "vanguard sp 500 acc": {
-        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc",
-        "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
+        "desc": "Fondo indexado histórico que replica el comportamiento de las 500 empresas más grandes de Estados Unidos.",
+        "geo": {"EE. UU.": 100.0}
     },
     "vanguard sp 500 dist": {
-        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist",
-        "ticker": "IE0032126868",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist", "ticker": "IE0032126868",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7,
+        "desc": "Versión de distribución del fondo S&P 500 de Vanguard.",
+        "geo": {"EE. UU.": 100.0}
     },
     "fidelity us index acc": {
-        "name": "Fidelity S&P 500 Index Fund EUR P Acc",
-        "ticker": "IE00BYX5MX67",
-        "category": "Renta Variable EE.UU. (S&P 500)",
-        "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5, "score": 4.9
+        "name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5, "score": 4.9,
+        "desc": "Fondo indexado al S&P 500 con un coste bajísimo del 0.06%.",
+        "geo": {"EE. UU.": 100.0}
     },
-
-    # --- TECNOLOGÍA ---
     "ishares us technology acc": {
-        "name": "iShares US Technology Index Fund EUR Acc",
-        "ticker": "IE00B1W33F31",
-        "category": "Tecnología",
-        "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5, "score": 4.3
+        "name": "iShares US Technology Index Fund EUR Acc", "ticker": "IE00B1W33F31",
+        "category": "Tecnología", "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5, "score": 4.3,
+        "desc": "Fondo sectorial enfocado en gigantes tecnológicos de EE. UU.",
+        "geo": {"EE. UU.": 98.0, "Otros": 2.0}
     },
-
-    # --- MERCADOS EMERGENTES Y OTROS SECTORES ---
     "vanguard emerging markets acc": {
-        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc",
-        "ticker": "IE0031786696",
-        "category": "Mercados Emergentes",
-        "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "ticker": "IE0031786696",
+        "category": "Mercados Emergentes", "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1,
+        "desc": "Exposición diversificada a economías en desarrollo como China, India, Taiwán, Brasil y Corea del Sur.",
+        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0}
     },
     "vanguard emerging markets dist": {
-        "name": "Vanguard Emerging Markets Stock Index Fund EUR Dist",
-        "ticker": "IE0031786142",
-        "category": "Mercados Emergentes",
-        "ter": 0.23, "aum": 3200, "tracking_error": 0.12, "age_years": 15, "currency": "EUR", "is_dist": True, "return_1y": 9.2, "score": 4.0
+        "name": "Vanguard Emerging Markets Stock Index Fund EUR Dist", "ticker": "IE0031786142",
+        "category": "Mercados Emergentes", "ter": 0.23, "aum": 3200, "tracking_error": 0.12, "age_years": 15, "currency": "EUR", "is_dist": True, "return_1y": 9.2, "score": 4.0,
+        "desc": "Versión de distribución para mercados emergentes.",
+        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0}
     },
     "vanguard european stock acc": {
-        "name": "Vanguard European Stock Index Fund EUR Acc",
-        "ticker": "IE0007987690",
-        "category": "Renta Variable Europa",
-        "ter": 0.12, "aum": 7800, "tracking_error": 0.06, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 12.1, "score": 4.4
+        "name": "Vanguard European Stock Index Fund EUR Acc", "ticker": "IE0007987690",
+        "category": "Renta Variable Europa", "ter": 0.12, "aum": 7800, "tracking_error": 0.06, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 12.1, "score": 4.4,
+        "desc": "Fondo indexado enfocado en el mercado europeo (Reino Unido, Francia, Suiza, Alemania, etc.).",
+        "geo": {"Reino Unido": 23.0, "Francia": 17.5, "Suiza": 14.5, "Alemania": 13.5, "Otros": 31.5}
     },
     "vanguard global bond index acc": {
-        "name": "Vanguard Global Bond Index Fund EUR Hedged Acc",
-        "ticker": "IE00B1FT8033",
-        "category": "Renta Fija / Bonos Globales",
-        "ter": 0.15, "aum": 19500, "tracking_error": 0.04, "age_years": 13, "currency": "EUR", "is_dist": False, "return_1y": 4.2, "score": 4.2
+        "name": "Vanguard Global Bond Index Fund EUR Hedged Acc", "ticker": "IE00B1FT8033",
+        "category": "Renta Fija / Bonos Globales", "ter": 0.15, "aum": 19500, "tracking_error": 0.04, "age_years": 13, "currency": "EUR", "is_dist": False, "return_1y": 4.2, "score": 4.2,
+        "desc": "Cartera diversificada de bonos globales cubiertos a euros.",
+        "geo": {"EE. UU.": 45.0, "Europa": 30.0, "Japón": 12.0, "Otros": 13.0}
     }
 }
 
 ETF_DB = {
-    # --- RENTA VARIABLE GLOBAL ---
     "vwce.de": {
-        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]",
-        "ticker": "VWCE.DE", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
-        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 7, "is_dist": False, "return_1y": 16.0, "score": 4.8
+        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]", "ticker": "VWCE.DE",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 7, "is_dist": False, "return_1y": 16.0, "score": 4.8,
+        "desc": "Incluye tanto países desarrollados como mercados emergentes (más de 3.700 valores en todo el mundo).",
+        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0}
     },
     "vwrl.as": {
-        "name": "Vanguard FTSE All-World UCITS ETF [Distribución]",
-        "ticker": "VWRL.AS", "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 11800,
-        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8, "score": 4.7
+        "name": "Vanguard FTSE All-World UCITS ETF [Distribución]", "ticker": "VWRL.AS",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 11800,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8, "score": 4.7,
+        "desc": "Versión de distribución del FTSE All-World.",
+        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0}
     },
     "swda.l": {
-        "name": "iShares Core MSCI World UCITS ETF [Acumulación]",
-        "ticker": "SWDA.L", "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
-        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8
+        "name": "iShares Core MSCI World UCITS ETF [Acumulación]", "ticker": "SWDA.L",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
+        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8,
+        "desc": "El ETF de mercados desarrollados globales más líquido y con mayor patrimonio en Europa.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
     },
-
-    # --- S&P 500 / EE.UU. ---
     "spyl.de": {
-        "name": "SPDR S&P 500 UCITS ETF [Acumulación]",
-        "ticker": "SPYL.DE", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
-        "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9
+        "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
+        "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9,
+        "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
+        "geo": {"EE. UU.": 100.0}
     },
     "vusa.as": {
-        "name": "Vanguard S&P 500 UCITS ETF [Distribución]",
-        "ticker": "VUSA.AS", "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
-        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8
+        "name": "Vanguard S&P 500 UCITS ETF [Distribución]", "ticker": "VUSA.AS",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
+        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8,
+        "desc": "ETF de distribución que replica el S&P 500.",
+        "geo": {"EE. UU.": 100.0}
     },
-
-    # --- TECNOLOGÍA & IA & CIBERSEGURIDAD ---
+    "exus.de": {
+        "name": "iShares MSCI World ex USA UCITS ETF", "ticker": "EXUS.DE",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.20, "aum": 3400,
+        "replication": "Física", "te": 0.04, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 11.4, "score": 4.6,
+        "desc": "Ideal para complementar carteras: invierte en países desarrollados **excluyendo totalmente Estados Unidos** (Europa, Japón, Canadá, Australia).",
+        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5}
+    },
     "eqqq.de": {
-        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]",
-        "ticker": "EQQQ.DE", "category": "Tecnología", "ter": 0.30, "aum": 11500,
-        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5
+        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]", "ticker": "EQQQ.DE",
+        "category": "Tecnología", "ter": 0.30, "aum": 11500,
+        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5,
+        "desc": "Exposición a las 100 mayores empresas no financieras cotizadas en el Nasdaq.",
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5}
     },
-    "cddx.de": {
-        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]",
-        "ticker": "SXRV.DE", "category": "Tecnología", "ter": 0.33, "aum": 14200,
-        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6
+    "sxrv.de": {
+        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]", "ticker": "SXRV.DE",
+        "category": "Tecnología", "ter": 0.33, "aum": 14200,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
+        "desc": "Versión de acumulación del Nasdaq 100.",
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5}
     },
     "smh.de": {
-        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)",
-        "ticker": "SMH.DE", "category": "Tecnología", "ter": 0.35, "aum": 2100,
-        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4
+        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)", "ticker": "SMH.DE",
+        "category": "Tecnología", "ter": 0.35, "aum": 2100,
+        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4,
+        "desc": "Enfocado en empresas de semiconductores, chips y cadena de suministro de IA.",
+        "geo": {"EE. UU.": 75.0, "Taiwán": 15.0, "Países Bajos": 8.0, "Otros": 2.0}
     },
-
-    # --- MATERIAS PRIMAS Y METALES PRECIOSOS ---
-    "4glld.de": {
-        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)",
-        "ticker": "4GLD.DE", "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
-        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7
+    "4gld.de": {
+        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)", "ticker": "4GLD.DE",
+        "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
+        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7,
+        "desc": "ETC respaldado por oro físico en bóvedas seguras.",
+        "geo": {"Oro Físico": 100.0}
     },
     "isln.de": {
-        "name": "iShares Physical Silver ETC (Plata Física)",
-        "ticker": "ISLN.DE", "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
-        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3
+        "name": "iShares Physical Silver ETC (Plata Física)", "ticker": "ISLN.DE",
+        "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
+        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3,
+        "desc": "ETC respaldado por plata física.",
+        "geo": {"Plata Física": 100.0}
     },
     "exxy.de": {
-        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)",
-        "ticker": "EXXY.DE", "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
-        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1
+        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)", "ticker": "EXXY.DE",
+        "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
+        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1,
+        "desc": "Cesta diversificada de materias primas (energía, agricultura, metales industriales).",
+        "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0}
     },
-
-    # --- ALTO DIVIDENDO ---
     "vhyd.de": {
-        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]",
-        "ticker": "VHYD.DE", "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
-        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5
+        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]", "ticker": "VHYD.DE",
+        "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
+        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5,
+        "desc": "Acciones de alta rentabilidad por dividendo a nivel global.",
+        "geo": {"EE. UU.": 42.0, "Europa": 28.0, "Reino Unido": 12.0, "Japón": 8.0, "Otros": 10.0}
     },
-
-    # --- MERCADOS EMERGENTES ---
     "emim.l": {
-        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]",
-        "ticker": "EMIM.L", "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
-        "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4
+        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]", "ticker": "EMIM.L",
+        "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
+        "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4,
+        "desc": "Exposición completa a más de 3.000 valores de países emergentes de gran, mediana y pequeña capitalización.",
+        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0}
     }
 }
+
+def render_geo_breakdown(geo_dict):
+    st.markdown("**🗺️ Desglose Geográfico Estimado:**")
+    colors = {
+        "EE. UU.": "#3b82f6", "China": "#ef4444", "India": "#f59e0b", "Taiwán": "#10b981", 
+        "Corea del Sur": "#8b5cf6", "Japón": "#ec4899", "Reino Unido": "#6366f1", "Europa": "#14b8a6", 
+        "Europa (Ex-UK)": "#06b6d4", "Canadá": "#84cc16", "Mercados Emergentes": "#f97316", 
+        "Brasil": "#eab308", "Oro Físico": "#fbbf24", "Plata Física": "#94a3b8", "Energía": "#f97316", 
+        "Agricultura": "#84cc16", "Metales Industriales": "#06b6d4", "Francia": "#3b82f6", "Suiza": "#ef4444", 
+        "Alemania": "#10b981", "Otros": "#64748b"
+    }
+    
+    bar_html = '<div class="geo-bar-container">'
+    legend_html = '<div class="geo-legend">'
+    
+    for country, pct in geo_dict.items():
+        color = colors.get(country, "#94a3b8")
+        bar_html += f'<div style="width: {pct}%; background-color: {color}; height: 100%;" title="{country}: {pct}%"></div>'
+        legend_html += f'<div class="geo-legend-item"><div class="geo-dot" style="background-color: {color};"></div><span>{country} ({pct}%)</span></div>'
+    
+    bar_html += '</div>'
+    legend_html += '</div>'
+    
+    st.markdown(bar_html + legend_html, unsafe_allow_html=True)
 
 def get_best_single_monthly_recommendation():
     candidates = []
@@ -588,7 +656,8 @@ if st.session_state.stage == 'home':
             st.session_state.portfolio.append({
                 "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
                 "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
-                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist']
+                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist'],
+                "category": "Renta Variable Global (MSCI World)"
             })
             guardar_en_url()
             st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
@@ -727,7 +796,8 @@ elif st.session_state.stage == 'favorites_view':
                     if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
                             "type": fav['type'], "name": fav['name'], "ticker": fav['ticker'],
-                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), "is_dist": fav.get('is_dist', False)
+                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), 
+                            "is_dist": fav.get('is_dist', False), "category": fav.get('category', 'General')
                         })
                         guardar_en_url()
                         st.success(f"¡{fav['name']} añadido a la Cartera!")
@@ -743,7 +813,7 @@ elif st.session_state.stage == 'favorites_view':
             st.rerun()
 
 # ----------------------------------------------------
-# SECCIÓN CARTERA CONSOLIDADA
+# SECCIÓN CARTERA CONSOLIDADA CON AUDITORÍA DE SOLAPAMIENTO
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Analizador"):
@@ -755,6 +825,21 @@ elif st.session_state.stage == 'portfolio_view':
     if not st.session_state.portfolio:
         st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
+        # --- AUDITORÍA DE SOLAPAMIENTO GEOGRÁFICO Y SUPRESIÓN DE REPETICIONES ---
+        categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio]
+        has_msci_world = any("Global" in cat for cat in categories_in_portfolio)
+        has_sp500 = any("EE.UU. (S&P 500)" in cat for cat in categories_in_portfolio)
+
+        if has_msci_world and has_sp500:
+            st.warning("""
+            ⚠️ **¡Alerta de Solapamiento Geográfico Detectado!**  
+            Has incluido en tu cartera un fondo/ETF de **Renta Variable Global (MSCI World)** y al mismo tiempo un fondo/ETF de **EE. UU. (S&P 500)**.  
+            * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%, duplicando posiciones en los mismos gigantes tecnológicos (Apple, Microsoft, Nvidia, etc.).
+            * **💡 Alternativa recomendada:** Para diversificar correctamente sin repetir EE. UU., te sugerimos sustituir el S&P 500 o equilibrar tu cartera añadiendo un ETF de **Países Desarrollados Ex-EE. UU.** (como *iShares MSCI World ex USA - EXUS.DE*) para capturar Europa, Japón y Pacífico sin solapar tu fondo global.
+            """)
+        elif has_msci_world and len(categories_in_portfolio) > 1 and not has_sp500:
+            st.success("✅ **Buena diversificación:** Tu cartera combina activos globales sin duplicidades críticas en EE. UU.")
+
         st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
         c_p1, c_p2 = st.columns(2)
@@ -940,7 +1025,7 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
@@ -1222,7 +1307,8 @@ elif st.session_state.stage == 'analyzer':
                         if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
                                 "type": "Acción", "name": name, "ticker": ticker_input,
-                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True
+                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True,
+                                "category": "Renta Variable (Acción)"
                             })
                             guardar_en_url()
                             st.success(f"¡{name} añadido a tu Cartera!")
@@ -1300,7 +1386,8 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund
+                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund,
+                            "category": cat_fund
                         })
                         guardar_en_url()
                         st.success(f"¡{fund_name} añadido a tu Cartera!")
@@ -1313,6 +1400,11 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                if matched_fund and "desc" in matched_fund:
+                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
+                if matched_fund and "geo" in matched_fund:
+                    render_geo_breakdown(matched_fund["geo"])
 
                 df_fund_data = {
                     "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Índice", "Modalidad", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
@@ -1496,7 +1588,8 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf
+                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf,
+                            "category": etf_cat
                         })
                         guardar_en_url()
                         st.success(f"¡{etf_name} añadido a tu Cartera!")
@@ -1509,6 +1602,11 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                if matched_etf and "desc" in matched_etf:
+                    st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
+                if matched_etf and "geo" in matched_etf:
+                    render_geo_breakdown(matched_etf["geo"])
 
                 df_etf_data = {
                     "Métrica del ETF": ["Categoría / Sector", "Modalidad", "Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
