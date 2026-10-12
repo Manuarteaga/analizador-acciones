@@ -313,73 +313,85 @@ FUND_DB = {
         "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
         "desc": "Fondo indexado de referencia global que replica el índice MSCI World, invirtiendo en más de 1.500 empresas de gran y mediana capitalización en países desarrollados.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Broadcom Inc.": 0.9}
     },
     "vanguard global stock dist": {
         "name": "Vanguard Global Stock Index Fund EUR Dist", "ticker": "IE00B03HD209",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
         "desc": "Versión de distribución del fondo global MSCI World, ideal para inversores que prefieren el cobro periódico de dividendos en cuenta.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Broadcom Inc.": 0.9}
     },
     "ishares developed world acc": {
         "name": "iShares Developed World Index Fund (IE) D Acc EUR", "ticker": "IE00BD0NCM55",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
         "desc": "Fondo indexado de BlackRock enfocado en mercados desarrollados globales con un TER muy competitivo del 0.12%.",
-        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0}
+        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.3, "Microsoft Corp.": 4.9, "NVIDIA Corp.": 4.2, "Amazon.com Inc.": 2.5, "Alphabet Inc.": 2.2, "Meta Platforms": 1.5, "Tesla Inc.": 1.1}
     },
     "fidelity msci world acc": {
         "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.10, "aum": 8500, "tracking_error": 0.06, "age_years": 8, "currency": "EUR", "is_dist": False, "return_1y": 15.9, "score": 4.7,
         "desc": "Uno de los fondos globales más económicos del mercado europeo para replicar el índice MSCI World.",
-        "geo": {"EE. UU.": 71.8, "Japón": 6.1, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.4, "Otros": 3.9}
+        "geo": {"EE. UU.": 71.8, "Japón": 6.1, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.4, "Otros": 3.9},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc.": 2.3, "Meta Platforms": 1.6}
     },
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
         "desc": "Fondo indexado histórico que replica el comportamiento de las 500 empresas más grandes de Estados Unidos.",
-        "geo": {"EE. UU.": 100.0}
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7, "Eli Lilly": 1.5}
     },
     "vanguard sp 500 dist": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist", "ticker": "IE0032126868",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7,
         "desc": "Versión de distribución del fondo S&P 500 de Vanguard.",
-        "geo": {"EE. UU.": 100.0}
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7}
     },
     "fidelity us index acc": {
         "name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5, "score": 4.9,
         "desc": "Fondo indexado al S&P 500 con un coste bajísimo del 0.06%.",
-        "geo": {"EE. UU.": 100.0}
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4}
     },
     "ishares us technology acc": {
         "name": "iShares US Technology Index Fund EUR Acc", "ticker": "IE00B1W33F31",
         "category": "Tecnología", "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5, "score": 4.3,
         "desc": "Fondo sectorial enfocado en gigantes tecnológicos de EE. UU.",
-        "geo": {"EE. UU.": 98.0, "Otros": 2.0}
+        "geo": {"EE. UU.": 98.0, "Otros": 2.0},
+        "holdings": {"Apple Inc.": 16.5, "Microsoft Corp.": 15.8, "NVIDIA Corp.": 14.2, "Broadcom Inc.": 4.5, "Adobe Inc.": 2.2, "Salesforce Inc.": 2.0}
     },
     "vanguard emerging markets acc": {
         "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "ticker": "IE0031786696",
         "category": "Mercados Emergentes", "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1,
         "desc": "Exposición diversificada a economías en desarrollo como China, India, Taiwán, Brasil y Corea del Sur.",
-        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0}
+        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0},
+        "holdings": {"Taiwan Semiconductor (TSMC)": 8.5, "Tencent Holdings": 4.2, "Alibaba Group": 2.8, "Samsung Electronics": 3.9, "Reliance Industries": 1.8, "Meituan": 1.1}
     },
     "vanguard emerging markets dist": {
         "name": "Vanguard Emerging Markets Stock Index Fund EUR Dist", "ticker": "IE0031786142",
         "category": "Mercados Emergentes", "ter": 0.23, "aum": 3200, "tracking_error": 0.12, "age_years": 15, "currency": "EUR", "is_dist": True, "return_1y": 9.2, "score": 4.0,
         "desc": "Versión de distribución para mercados emergentes.",
-        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0}
+        "geo": {"China": 27.5, "India": 18.2, "Taiwán": 17.8, "Corea del Sur": 12.5, "Brasil": 5.0, "Otros": 19.0},
+        "holdings": {"Taiwan Semiconductor (TSMC)": 8.5, "Tencent Holdings": 4.2, "Alibaba Group": 2.8, "Samsung Electronics": 3.9}
     },
     "vanguard european stock acc": {
         "name": "Vanguard European Stock Index Fund EUR Acc", "ticker": "IE0007987690",
         "category": "Renta Variable Europa", "ter": 0.12, "aum": 7800, "tracking_error": 0.06, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 12.1, "score": 4.4,
         "desc": "Fondo indexado enfocado en el mercado europeo (Reino Unido, Francia, Suiza, Alemania, etc.).",
-        "geo": {"Reino Unido": 23.0, "Francia": 17.5, "Suiza": 14.5, "Alemania": 13.5, "Otros": 31.5}
+        "geo": {"Reino Unido": 23.0, "Francia": 17.5, "Suiza": 14.5, "Alemania": 13.5, "Otros": 31.5},
+        "holdings": {"ASML Holding NV": 3.5, "Nestlé SA": 3.2, "LVMH Moët Hennessy": 2.8, "Novartis AG": 2.6, "Shell PLC": 2.5, "SAP SE": 2.2, "TotalEnergies": 1.9}
     },
     "vanguard global bond index acc": {
         "name": "Vanguard Global Bond Index Fund EUR Hedged Acc", "ticker": "IE00B1FT8033",
         "category": "Renta Fija / Bonos Globales", "ter": 0.15, "aum": 19500, "tracking_error": 0.04, "age_years": 13, "currency": "EUR", "is_dist": False, "return_1y": 4.2, "score": 4.2,
         "desc": "Cartera diversificada de bonos globales cubiertos a euros.",
-        "geo": {"EE. UU.": 45.0, "Europa": 30.0, "Japón": 12.0, "Otros": 13.0}
+        "geo": {"EE. UU.": 45.0, "Europa": 30.0, "Japón": 12.0, "Otros": 13.0},
+        "holdings": {"US Treasury Bond 3.8%": 4.5, "Japanese Government Bond 0.5%": 3.2, "UK Treasury Gilt 4.2%": 2.8, "German Bund 2.4%": 3.0}
     }
 }
 
@@ -389,98 +401,112 @@ ETF_DB = {
         "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 7, "is_dist": False, "return_1y": 16.0, "score": 4.8,
         "desc": "Incluye tanto países desarrollados como mercados emergentes (más de 3.700 valores en todo el mundo).",
-        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0}
+        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
+        "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Alphabet Inc.": 2.0, "Meta Platforms": 1.4}
     },
     "vwrl.as": {
         "name": "Vanguard FTSE All-World UCITS ETF [Distribución]", "ticker": "VWRL.AS",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 11800,
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8, "score": 4.7,
         "desc": "Versión de distribución del FTSE All-World.",
-        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0}
+        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
+        "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Alphabet Inc.": 2.0}
     },
     "swda.l": {
         "name": "iShares Core MSCI World UCITS ETF [Acumulación]", "ticker": "SWDA.L",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
         "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8,
         "desc": "El ETF de mercados desarrollados globales más líquido y con mayor patrimonio en Europa.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0}
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc.": 2.3}
     },
     "spyl.de": {
         "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
         "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9,
         "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
-        "geo": {"EE. UU.": 100.0}
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2}
     },
     "vusa.as": {
         "name": "Vanguard S&P 500 UCITS ETF [Distribución]", "ticker": "VUSA.AS",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
         "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8,
         "desc": "ETF de distribución que replica el S&P 500.",
-        "geo": {"EE. UU.": 100.0}
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2}
     },
     "exus.de": {
         "name": "iShares MSCI World ex USA UCITS ETF", "ticker": "EXUS.DE",
         "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.20, "aum": 3400,
         "replication": "Física", "te": 0.04, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 11.4, "score": 4.6,
         "desc": "Ideal para complementar carteras: invierte en países desarrollados **excluyendo totalmente Estados Unidos** (Europa, Japón, Canadá, Australia).",
-        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5}
+        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5},
+        "holdings": {"ASML Holding NV": 2.1, "Nestlé SA": 2.0, "Toyota Motor Corp.": 1.8, "LVMH": 1.7, "Shell PLC": 1.6, "Novartis AG": 1.5}
     },
     "eqqq.de": {
         "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]", "ticker": "EQQQ.DE",
         "category": "Tecnología", "ter": 0.30, "aum": 11500,
         "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5,
         "desc": "Exposición a las 100 mayores empresas no financieras cotizadas en el Nasdaq.",
-        "geo": {"EE. UU.": 98.5, "Otros": 1.5}
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
+        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2}
     },
     "sxrv.de": {
         "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]", "ticker": "SXRV.DE",
         "category": "Tecnología", "ter": 0.33, "aum": 14200,
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
         "desc": "Versión de acumulación del Nasdaq 100.",
-        "geo": {"EE. UU.": 98.5, "Otros": 1.5}
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
+        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5}
     },
     "smh.de": {
         "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)", "ticker": "SMH.DE",
         "category": "Tecnología", "ter": 0.35, "aum": 2100,
         "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4,
         "desc": "Enfocado en empresas de semiconductores, chips y cadena de suministro de IA.",
-        "geo": {"EE. UU.": 75.0, "Taiwán": 15.0, "Países Bajos": 8.0, "Otros": 2.0}
+        "geo": {"EE. UU.": 75.0, "Taiwán": 15.0, "Países Bajos": 8.0, "Otros": 2.0},
+        "holdings": {"NVIDIA Corp.": 20.5, "Taiwan Semiconductor (TSMC)": 13.0, "Broadcom Inc.": 8.5, "ASML Holding": 7.8, "AMD": 5.2, "Qualcomm": 4.1}
     },
     "4gld.de": {
         "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)", "ticker": "4GLD.DE",
         "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
         "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7,
         "desc": "ETC respaldado por oro físico en bóvedas seguras.",
-        "geo": {"Oro Físico": 100.0}
+        "geo": {"Oro Físico": 100.0},
+        "holdings": {"Lingotes de Oro Físico (999.9)": 100.0}
     },
     "isln.de": {
         "name": "iShares Physical Silver ETC (Plata Física)", "ticker": "ISLN.DE",
         "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
         "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3,
         "desc": "ETC respaldado por plata física.",
-        "geo": {"Plata Física": 100.0}
+        "geo": {"Plata Física": 100.0},
+        "holdings": {"Lingotes de Plata Física": 100.0}
     },
     "exxy.de": {
         "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)", "ticker": "EXXY.DE",
         "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
         "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1,
         "desc": "Cesta diversificada de materias primas (energía, agricultura, metales industriales).",
-        "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0}
+        "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0},
+        "holdings": {"Petróleo Crudo WTI / Brent": 22.0, "Gas Natural": 10.0, "Trigo y Maíz": 15.0, "Cobre y Aluminio": 18.0, "Oro y Otros": 15.0}
     },
     "vhyd.de": {
         "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]", "ticker": "VHYD.DE",
         "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
         "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5,
         "desc": "Acciones de alta rentabilidad por dividendo a nivel global.",
-        "geo": {"EE. UU.": 42.0, "Europa": 28.0, "Reino Unido": 12.0, "Japón": 8.0, "Otros": 10.0}
+        "geo": {"EE. UU.": 42.0, "Europa": 28.0, "Reino Unido": 12.0, "Japón": 8.0, "Otros": 10.0},
+        "holdings": {"JPMorgan Chase & Co.": 3.2, "Exxon Mobil Corp.": 3.0, "Johnson & Johnson": 2.7, "Procter & Gamble": 2.5, "Chevron Corp.": 2.2, "Pfizer": 1.9}
     },
     "emim.l": {
         "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]", "ticker": "EMIM.L",
         "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
         "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4,
         "desc": "Exposición completa a más de 3.000 valores de países emergentes de gran, mediana y pequeña capitalización.",
-        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0}
+        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0},
+        "holdings": {"Taiwan Semiconductor (TSMC)": 8.8, "Tencent Holdings": 4.5, "Samsung Electronics": 4.0, "Alibaba Group": 2.9, "Reliance Industries": 1.9}
     }
 }
 
@@ -507,6 +533,12 @@ def render_geo_breakdown(geo_dict):
     legend_html += '</div>'
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
+
+def render_holdings_breakdown(holdings_dict):
+    st.markdown("**🏢 Principales Empresas y Participación en el Fondo:**")
+    df_h = pd.DataFrame(list(holdings_dict.items()), columns=["Empresa / Activo", "Peso en la Cartera (%)"])
+    df_h["Peso en la Cartera (%)"] = df_h["Peso en la Cartera (%)"].apply(lambda x: f"{x:.2f}%")
+    st.dataframe(df_h, use_container_width=True, hide_index=True)
 
 def get_best_single_monthly_recommendation():
     candidates = []
@@ -1405,6 +1437,8 @@ elif st.session_state.stage == 'analyzer':
                     st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
+                if matched_fund and "holdings" in matched_fund:
+                    render_holdings_breakdown(matched_fund["holdings"])
 
                 df_fund_data = {
                     "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Índice", "Modalidad", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
@@ -1607,6 +1641,8 @@ elif st.session_state.stage == 'analyzer':
                     st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
                 if matched_etf and "geo" in matched_etf:
                     render_geo_breakdown(matched_etf["geo"])
+                if matched_etf and "holdings" in matched_etf:
+                    render_holdings_breakdown(matched_etf["holdings"])
 
                 df_etf_data = {
                     "Métrica del ETF": ["Categoría / Sector", "Modalidad", "Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
