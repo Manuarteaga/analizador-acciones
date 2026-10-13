@@ -1,36 +1,30 @@
 import streamlit as st
 
 st.set_page_config(
-    page_title="Mi Plataforma Financiera",
-    # MENÚ LATERAL FORZADO MANUALMENTE
-with st.sidebar:
-    st.image("https://img.icons8.com/color/96/stocks.png", width=60)
-    st.header("Navegación")
-    
-    # Enlaces manuales a tus páginas
-    st.page_link("app.py", label="🏠 Inicio", icon="🏠")
-    st.page_link("pages/1_📈_Analizador.py", label="Analizador Bursátil", icon="📈")
-    st.page_link("pages/2_💼_Mi_Cartera.py", label="Mi Cartera Consolidada", icon="💼")
-    )
-    st.divider()
+    page_title="Plataforma Financiera", 
+    page_icon="📈", 
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-st.title("📈 Mi Plataforma Financiera")
-st.write("Bienvenido a tu centro de control de inversiones.")
+# Menú lateral básico y seguro
+st.sidebar.title("Navegación")
+st.sidebar.page_link("app.py", label="🏠 Inicio")
+st.sidebar.page_link("pages/1_📈_Analizador.py", label="📈 Analizador Bursátil")
+st.sidebar.page_link("pages/2_💼_Mi_Cartera.py", label="💼 Mi Cartera Consolidada")
 
-st.info("👈 Utiliza el menú lateral izquierdo para navegar entre el Evaluador, la Proyección de Cartera y tu Cartera Real.")
+st.sidebar.divider()
 
-# Resumen rápido o bienvenida visual opcional
-st.markdown("### ¿Qué deseas hacer hoy?")
-col1, col2, col3 = st.columns(3)
+# Contenido de la página de inicio (app.py)
+st.title("📈 Plataforma Financiera Multifuente")
+st.markdown("Bienvenido a tu centro de control de inversiones.")
 
+st.info("👈 Utiliza el **menú lateral izquierdo** para moverte entre el **Analizador** y tu **Cartera Consolidada**.")
+
+col1, col2 = st.columns(2)
 with col1:
-    st.markdown("#### 🔍 Evaluador")
-    st.write("Busca y analiza acciones, fondos y ETFs con tus métricas.")
-
+    st.markdown("### 📈 1. Analizador Bursátil")
+    st.write("Busca acciones, fondos y ETFs, consulta métricas, evalúa el TER y descubre recomendaciones.")
 with col2:
-    st.markdown("#### 🔮 Proyección")
-    st.write("Simula cuánto dinero ganarás a largo plazo.")
-
-with col3:
-    st.markdown("#### 📊 Cartera Real")
-    st.write("Haz el seguimiento manual de tu patrimonio y dividendos.")
+    st.markdown("### 💼 2. Cartera Consolidada")
+    st.write("Gestiona tus activos añadidos, configura plazos, brókers y analiza el desglose anual y fiscal.")
