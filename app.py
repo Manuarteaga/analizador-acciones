@@ -883,7 +883,7 @@ elif st.session_state.stage == 'portfolio_view':
                 st.warning(f"""
                 ⚠️ **¡Alerta de Activos Duplicados Detectada!**  
                 Has añadido **{category_counts[dup_cat]} activos** de la misma categoría (**{dup_cat}**).  
-                * **El problema:** Estás invirtiendo en cái mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
+                * **El problema:** Estás invirtiendo en el mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
                 * **💡 Recomendación:** Unifica tu aportación en un solo activo de esa categoría que tenga menor coste.
                 """)
 
@@ -1289,7 +1289,7 @@ elif st.session_state.stage == 'analyzer':
         if st.session_state.asset_type == "Acciones":
             stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
             selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
-            custom_stock_input = st.text_input("O introduce Ticker (ej. AAPL, TSLA, ITX.MC):", value=default_input).strip()
+            custom_stock_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input).strip()
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
         elif st.session_state.asset_type == "Fondos indexados":
@@ -1309,8 +1309,11 @@ elif st.session_state.stage == 'analyzer':
                         break
 
             selected_fund_choice = st.selectbox("Biblioteca de Fondos Indexados", options=fund_options, index=selected_index)
+            custom_fund_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input if (default_input and selected_fund_choice.startswith("--")) else "").strip()
             
-            if not selected_fund_choice.startswith("--"):
+            if custom_fund_input:
+                user_input = custom_fund_input.upper()
+            elif not selected_fund_choice.startswith("--"):
                 user_input = selected_fund_choice.split("ISIN: ")[1].split(")")[0].strip()
             else:
                 user_input = ""
@@ -1332,8 +1335,11 @@ elif st.session_state.stage == 'analyzer':
                         break
 
             selected_etf_choice = st.selectbox("Biblioteca de ETFs", options=etf_options, index=selected_index_etf)
-            
-            if not selected_etf_choice.startswith("--"):
+            custom_etf_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input if (default_input and selected_etf_choice.startswith("--")) else "").strip()
+
+            if custom_etf_input:
+                user_input = custom_etf_input.upper()
+            elif not selected_etf_choice.startswith("--"):
                 user_input = selected_etf_choice.split("Ticker: ")[1].split(")")[0].strip()
             else:
                 user_input = ""
@@ -1353,7 +1359,7 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona un activo en el desplegable superior para comenzar.")
+            st.info("👆 Selecciona un activo en el desplegable superior o escríbelo en el buscador personalizado.")
         else:
             if st.session_state.asset_type == "Acciones":
                 stock_result = get_stock_data(user_input)
@@ -1449,7 +1455,7 @@ elif st.session_state.stage == 'analyzer':
                     try:
                         live_ticker = yf.Ticker(fund_isin)
                         info_live = live_ticker.info or {}
-                        fund_name = info_live.get('longName', fund_isin)
+                        fund_name = info_live.get('longName') or info_live.get('shortName') or fund_isin
                         curr_fund = info_live.get('currency', 'EUR')
                     except:
                         fund_name = fund_isin
@@ -1460,7 +1466,7 @@ elif st.session_state.stage == 'analyzer':
                     te_val = 0.05
                     age_val = 10
                     is_dist_fund = False
-                    cat_fund = "Renta Variable Global (MSCI World)"
+                    cat_fund = "Fondo Personalizado (Yahoo Finance)"
                     score_fund = 4.2
 
                 grade_fund = get_letter_grade(score_fund)
@@ -1499,7 +1505,7 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 if matched_fund and "desc" in matched_fund:
-                    st.markdown(f"**📖 Qué includes:** {matched_fund['desc']}")
+                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
                 if matched_fund and "holdings" in matched_fund:
@@ -1631,14 +1637,14 @@ elif st.session_state.stage == 'analyzer':
                     try:
                         live_ticker = yf.Ticker(etf_ticker)
                         info_live = live_ticker.info or {}
-                        etf_name = info_live.get('longName', etf_ticker)
+                        etf_name = info_live.get('longName') or info_live.get('shortName') or etf_ticker
                         curr_etf = info_live.get('currency', 'EUR')
                     except:
                         etf_name = etf_ticker
                         curr_etf = 'EUR'
                     
-                    etf_cat = "Renta Variable Global (MSCI World)"
-                    ter_etf = 0.20
+                    etf_cat = "ETF Personalizado / Materias Primas (Yahoo Finance)"
+                    ter_etf = 0.35
                     aum_etf = 1000
                     repl_etf = "Física"
                     te_etf = 0.05
