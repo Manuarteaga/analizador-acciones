@@ -3,7 +3,10 @@ import pandas as pd
 import json
 
 st.set_page_config(page_title="Mi Cartera Consolidada", page_icon="💼", layout="wide")
-
+page_icon="💼", 
+    layout="wide",
+    initial_sidebar_state="expanded"  # 👈 AÑADIR AQUÍ TAMBIÉN
+)
 st.title("💼 Simulador Global de Cartera Consolidada")
 
 # Inicializar estados por seguridad si se entra directo a esta página
