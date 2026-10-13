@@ -122,7 +122,7 @@ with tab_analizador:
         found_data = None
         ticker_to_fetch = user_query.upper()
         
-        # Búsqueda en bases de datos locales según la categoría seleccionada
+        # Búsqueda en bases de datos locales
         if asset_type == "Acciones":
             for k, v in TICKER_DB.items():
                 if user_query in k or user_query in v["name"].lower() or user_query == v["ticker"].lower():
@@ -144,7 +144,6 @@ with tab_analizador:
 
         st.markdown(f"**Buscando activo:** `{ticker_to_fetch}`")
         
-        # Intentar obtener datos de Yahoo Finance (o mostrar datos locales complementados con Yahoo)
         try:
             yf_obj = yf.Ticker(ticker_to_fetch)
             info = yf_obj.info or {}
@@ -164,14 +163,13 @@ with tab_analizador:
             col_m3.metric("Gastos (TER)", f"{ter:.2f}%")
             col_m4.metric("PER", f"{info.get('trailingPE', 0.0):.2f}" if info.get('trailingPE') else "N/D")
 
-            # Gráfico de evolución reciente si hay datos
             if not hist.empty:
                 st.markdown("#### Evolución Reciente (1 Mes)")
                 st.line_chart(hist['Close'])
 
-            c_btn1, c_btn2 = st.columns(2)
+            c_btn1, c_btn2, c_btn3 = st.columns(3)
             with c_btn1:
-                if st.button("➕ Añadir a mi Cartera Real", use_container_width=True):
+                if st.button("➕ Añadir a Cartera Real", use_container_width=True):
                     st.session_state.real_portfolio.append({
                         "ticker": ticker_to_fetch,
                         "name": long_name,
@@ -180,21 +178,29 @@ with tab_analizador:
                         "current_price": float(price) if price else 10.0,
                         "currency": currency
                     })
-                    st.success(f"Añadido {long_name} a la Cartera Real.")
+                    st.success(f"Añadido {long_name} a Cartera Real.")
             with c_btn2:
+                if st.button("➕ Añadir a Cartera Simulada", use_container_width=True):
+                    st.session_state.portfolio.append({
+                        "ticker": ticker_to_fetch,
+                        "name": long_name,
+                        "shares": 1.0,
+                        "price": float(price) if price else 10.0
+                    })
+                    st.success(f"Añadido {long_name} a Cartera Simulada.")
+            with c_btn3:
                 if st.button("⭐ Guardar en Favoritos", use_container_width=True):
                     st.session_state.favorites.append({"ticker": ticker_to_fetch, "name": long_name, "type": asset_type})
                     st.success(f"Añadido {long_name} a Favoritos.")
 
         except Exception as e:
-            # Si falla Yahoo pero está en nuestra BD local
             if found_data:
                 st.warning(f"No se pudo conectar con Yahoo Finance para cotización en vivo, mostrando datos de registro local.")
                 st.markdown(f"**Nombre:** {found_data['name']}")
                 st.markdown(f"**Categoría:** {found_data['category']}")
                 st.markdown(f"**TER:** {found_data['ter']}%")
             else:
-                st.error(f"No se ha encontrado ningún activo con el término `{user_query}` ni en la base de datos local ni en Yahoo Finance. Comprueba el ticker o ISIN.")
+                st.error(f"No se ha encontrado ningún activo con el término `{user_query}` ni en la base de datos local ni en Yahoo Finance.")
 
 # ----------------------------------------------------
 # 3. PESTAÑA: MI CARTERA REAL
@@ -282,6 +288,10 @@ with tab_cartera_real:
 # ----------------------------------------------------
 with tab_simulador:
     st.subheader("🧮 Simulador Proyectado de Cartera")
+    
+    if st.session_state.portfolio:
+        st.markdown("#### Activos en Cartera Simulada:")
+        st.dataframe(pd.DataFrame(st.session_state.portfolio), use_container_width=True)
     
     col_s1, col_s2 = st.columns(2)
     with col_s1:
