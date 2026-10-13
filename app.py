@@ -871,21 +871,50 @@ elif st.session_state.stage == 'portfolio_view':
     if not st.session_state.portfolio:
         st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
-        # --- AUDITORÍA DE SOLAPAMIENTO GEOGRÁFICO Y SUPRESIÓN DE REPETICIONES ---
-        categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio]
+                # --- AUDITORÍA DE SOLAPAMIENTO GEOGRÁFICO, CATEGORÍAS Y EMPRESAS (HOLDINGS) ---
+        categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
+        
+        # 1. Detección de Categorías Repetidas / Duplicadas
+        category_counts = pd.Series(categories_in_portfolio).value_counts()
+        duplicated_categories = category_counts[category_counts > 1].index.tolist()
+
+        if duplicated_categories:
+            for dup_cat in duplicated_categories:
+                st.warning(f"""
+                ⚠️ **¡Alerta de Activos Duplicados Detectada!**  
+                Has añadido **{category_counts[dup_cat]} activos** de la misma categoría (**{dup_cat}**).  
+                * **El problema:** Estás invirtiendo en el mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
+                * **💡 Recomendación:** Unifica tu aportación en un solo activo de esa categoría que tenga menor coste.
+                """)
+
+        # 2. Detección de Solapamiento por Empresas (Holdings) Clave (Ej. S&P 500 + Tecnología)
+        portfolio_tickers = [item.get('ticker', '').lower() for item in st.session_state.portfolio]
+        
+        # Comprobamos si hay mezcla de índices amplios (S&P500 / MSCI World) con fondos puramente tecnológicos o de semiconductores
+        has_broad_market = any(t in portfolio_tickers for t in ['spyl.de', 'vusa.as', 'swda.l', 'vwce.de', 'vwrl.as', 'ie0032126645', 'ie00b03hd191', 'ie00byx5nx33'])
+        has_tech_sector = any(t in portfolio_tickers for t in ['eqqq.de', 'sxrv.de', 'smh.de', 'ie00b1w33f31'])
+
+        if has_broad_market and has_tech_sector:
+            st.warning("""
+            ⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!**  
+            Has combinado un índice general de mercado (como **S&P 500 o MSCI World**) con un ETF sectorial de **Tecnología o Semiconductores**.  
+            * **El problema:** Los índices generales ya dedican un porcentaje altísimo de su cartera a **Apple, Microsoft, NVIDIA, Amazon y Alphabet**. Al añadir un fondo tecnológico específico, estás inflando artificialmente el peso de estas mismas 4 o 5 empresas en tu patrimonio total, asumiendo un riesgo de concentración muy elevado si el sector tecnológico corrige.
+            * **💡 Recomendación:** Asegúrate de que este solapamiento es intencionado (quieres apostar fuertemente por la tecnología) o equilibra tu cartera con activos descorrelacionados.
+            """)
+
+        # 3. Detección de Solapamiento Global / S&P 500
         has_msci_world = any("Global" in cat for cat in categories_in_portfolio)
-        has_sp500 = any("EE.UU. (S&P 500)" in cat for cat in categories_in_portfolio)
+        has_sp500 = any("S&P 500" in cat for cat in categories_in_portfolio)
 
         if has_msci_world and has_sp500:
             st.warning("""
             ⚠️ **¡Alerta de Solapamiento Geográfico Detectado!**  
             Has incluido en tu cartera un fondo/ETF de **Renta Variable Global (MSCI World)** y al mismo tiempo un fondo/ETF de **EE. UU. (S&P 500)**.  
-            * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%, duplicando posiciones en los mismos gigantes tecnológicos (Apple, Microsoft, Nvidia, etc.).
-            * **💡 Alternativa recomendada:** Para diversificar correctamente sin repetir EE. UU., te sugerimos sustituir el S&P 500 o equilibrar tu cartera añadiendo un ETF de **Países Desarrollados Ex-EE. UU.** (como *iShares MSCI World ex USA - EXUS.DE*) para capturar Europa, Japón y Pacífico sin solapar tu fondo global.
+            * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%.
+            * **💡 Alternativa recomendada:** Utiliza un ETF de **Países Desarrollados Ex-EE. UU.** (*EXUS.DE*) para capturar Europa y Japón sin solapar tu fondo global.
             """)
-        elif has_msci_world and len(categories_in_portfolio) > 1 and not has_sp500:
-            st.success("✅ **Buena diversificación:** Tu cartera combina activos globales sin duplicidades críticas en EE. UU.")
-
+        elif not duplicated_categories and not (has_msci_world and has_sp500) and not (has_broad_market and has_tech_sector):
+            st.success("✅ **Buena diversificación:** Tu cartera no presenta duplicidades ni solapamientos críticos de empresas.")
         st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
         c_p1, c_p2 = st.columns(2)
