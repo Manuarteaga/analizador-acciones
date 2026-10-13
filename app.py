@@ -871,7 +871,7 @@ elif st.session_state.stage == 'portfolio_view':
     if not st.session_state.portfolio:
         st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
-                # --- AUDITORÍA DE SOLAPAMIENTO GEOGRÁFICO, CATEGORÍAS Y EMPRESAS (HOLDINGS) ---
+        # --- AUDITORÍA DE SOLAPAMIENTO GEOGRÁFICO, CATEGORÍAS Y EMPRESAS (HOLDINGS) ---
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         
         # 1. Detección de Categorías Repetidas / Duplicadas
@@ -883,14 +883,13 @@ elif st.session_state.stage == 'portfolio_view':
                 st.warning(f"""
                 ⚠️ **¡Alerta de Activos Duplicados Detectada!**  
                 Has añadido **{category_counts[dup_cat]} activos** de la misma categoría (**{dup_cat}**).  
-                * **El problema:** Estás invirtiendo en el mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
+                * **El problema:** Estás invirtiendo en cái mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
                 * **💡 Recomendación:** Unifica tu aportación en un solo activo de esa categoría que tenga menor coste.
                 """)
 
         # 2. Detección de Solapamiento por Empresas (Holdings) Clave (Ej. S&P 500 + Tecnología)
         portfolio_tickers = [item.get('ticker', '').lower() for item in st.session_state.portfolio]
         
-        # Comprobamos si hay mezcla de índices amplios (S&P500 / MSCI World) con fondos puramente tecnológicos o de semiconductores
         has_broad_market = any(t in portfolio_tickers for t in ['spyl.de', 'vusa.as', 'swda.l', 'vwce.de', 'vwrl.as', 'ie0032126645', 'ie00b03hd191', 'ie00byx5nx33'])
         has_tech_sector = any(t in portfolio_tickers for t in ['eqqq.de', 'sxrv.de', 'smh.de', 'ie00b1w33f31'])
 
@@ -898,8 +897,8 @@ elif st.session_state.stage == 'portfolio_view':
             st.warning("""
             ⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!**  
             Has combinado un índice general de mercado (como **S&P 500 o MSCI World**) con un ETF sectorial de **Tecnología o Semiconductores**.  
-            * **El problema:** Los índices generales ya dedican un porcentaje altísimo de su cartera a **Apple, Microsoft, NVIDIA, Amazon y Alphabet**. Al añadir un fondo tecnológico específico, estás inflando artificialmente el peso de estas mismas 4 o 5 empresas en tu patrimonio total, asumiendo un riesgo de concentración muy elevado si el sector tecnológico corrige.
-            * **💡 Recomendación:** Asegúrate de que este solapamiento es intencionado (quieres apostar fuertemente por la tecnología) o equilibra tu cartera con activos descorrelacionados.
+            * **El problema:** Los índices generales ya dedican un porcentaje altísimo de su cartera a **Apple, Microsoft, NVIDIA, Amazon y Alphabet**. Al añadir un fondo tecnológico específico, estás inflando artificialmente el peso de estas mismas empresas.
+            * **💡 Recomendación:** Asegúrate de que este solapamiento es intencionado o equilibra tu cartera con activos descorrelacionados.
             """)
 
         # 3. Detección de Solapamiento Global / S&P 500
@@ -915,6 +914,7 @@ elif st.session_state.stage == 'portfolio_view':
             """)
         elif not duplicated_categories and not (has_msci_world and has_sp500) and not (has_broad_market and has_tech_sector):
             st.success("✅ **Buena diversificación:** Tu cartera no presenta duplicidades ni solapamientos críticos de empresas.")
+
         st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
         c_p1, c_p2 = st.columns(2)
@@ -941,7 +941,32 @@ elif st.session_state.stage == 'portfolio_view':
 
             currency_act = item.get('currency', 'EUR')
             
+            # Buscar métricas predefinidas del activo en las bases de datos para mostrarlas
+            ticker_key = item['ticker'].lower()
+            ter_val = item.get('ter', 0.20)
+            est_rent_val = float(item.get('est_rent', 7.5))
+            score_val = 4.5
+            
+            if ticker_key in FUND_DB:
+                score_val = FUND_DB[ticker_key].get('score', 4.5)
+            elif ticker_key in ETF_DB:
+                score_val = ETF_DB[ticker_key].get('score', 4.5)
+
             with st.expander(f"{idx+1}. {item['name']} ({item['ticker']}) - [{item['type']}]", expanded=True):
+                # Fila con Métricas Visuales y Botón de Evaluar
+                cm1, cm2, cm3, cm4 = st.columns([2, 1, 1, 1])
+                cm1.markdown(f"**Categoría:** {item.get('category', 'General')}")
+                cm2.markdown(f"**TER:** `{ter_val}%`")
+                cm3.markdown(f"**Nota:** ⭐ `{score_val}/5`")
+                with cm4:
+                    if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
+                        st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else "ETFs")
+                        st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else "Evaluación ETF")
+                        st.session_state.selected_eval_input = item['ticker']
+                        st.session_state.stage = "analyzer"
+                        st.rerun()
+
+                st.markdown("---")
                 col_b1, col_b2 = st.columns(2)
                 with col_b1:
                     sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
@@ -955,7 +980,7 @@ elif st.session_state.stage == 'portfolio_view':
                 with col_i2:
                     app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=100.0, step=50.0, key=f"p_app_{idx}")
                 with col_i3:
-                    rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=float(item.get('est_rent', 7.5)), step=0.5, key=f"p_rent_{idx}")
+                    rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=est_rent_val, step=0.5, key=f"p_rent_{idx}")
                 with col_i4:
                     st.markdown("<br>", unsafe_allow_html=True)
                     if st.button("🗑️ Quitar", key=f"del_{idx}"):
@@ -968,7 +993,6 @@ elif st.session_state.stage == 'portfolio_view':
                 f_spr = b_data["spread_percent"]
                 f_fx = 0.0 if currency_act == "EUR" else b_data["fx_fee_percent"]
 
-                ter_val = item.get('ter', 0.20)
                 periodos_ano = 12 if frecuencia_cartera == "Mensual" else 1
                 tasa_neta = rent_est - ter_val
                 tasa_periodica = (tasa_neta / 100.0) / periodos_ano
@@ -1120,7 +1144,6 @@ elif st.session_state.stage == 'analyzer':
         equi_etfs_acc = []
         equi_etfs_dist = []
 
-        # Buscar en Fondos
         for k, f in FUND_DB.items():
             if f['category'] == current_category and f['ticker'] != current_ticker:
                 if f['is_dist']:
@@ -1128,7 +1151,6 @@ elif st.session_state.stage == 'analyzer':
                 else:
                     equi_funds_acc.append(f)
 
-        # Buscar en ETFs
         for k, e in ETF_DB.items():
             if e['category'] == current_category and e['ticker'] != current_ticker:
                 if e['is_dist']:
@@ -1489,7 +1511,6 @@ elif st.session_state.stage == 'analyzer':
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
-                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS CON NOTAS ---
                 render_asset_converter(cat_fund, fund_isin, is_dist_fund, "Fondo Indexado")
 
                 st.markdown("---")
@@ -1693,7 +1714,6 @@ elif st.session_state.stage == 'analyzer':
                 }
                 st.table(pd.DataFrame(df_etf_data))
 
-                # --- MÓDULO CONVERTIDOR / EQUIVALENCIAS CON NOTAS ---
                 render_asset_converter(etf_cat, etf_ticker, is_dist_etf, "ETF")
 
                 st.markdown("---")
