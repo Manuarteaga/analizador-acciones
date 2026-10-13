@@ -47,7 +47,7 @@ import urllib.parse
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 page_icon="📈", 
-)
+
 st.markdown("""
 <style>
     .top-bar {
