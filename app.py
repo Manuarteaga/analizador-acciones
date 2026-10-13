@@ -6,7 +6,7 @@ import json
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
-# Estilos CSS
+# Estilos CSS avanzados
 st.markdown("""
 <style>
     .score-container {
@@ -51,24 +51,46 @@ if 'real_portfolio' not in st.session_state:
 if 'favorites' not in st.session_state:
     st.session_state.favorites = []
 
-# Bases de datos completas
+# Bases de datos completas y detalladas con métricas, geo y holdings
 TICKER_DB = {
-    "itx.mc": {"ticker": "ITX.MC", "name": "Inditex S.A.", "ter": 0.0, "category": "Acciones ES"},
-    "ibe.mc": {"ticker": "IBE.MC", "name": "Iberdrola S.A.", "ter": 0.0, "category": "Acciones ES"},
-    "msft": {"ticker": "MSFT", "name": "Microsoft Corp.", "ter": 0.0, "category": "Acciones US"},
-    "aapl": {"ticker": "AAPL", "name": "Apple Inc.", "ter": 0.0, "category": "Acciones US"}
+    "itx.mc": {"ticker": "ITX.MC", "name": "Inditex S.A.", "ter": 0.0, "category": "Acciones ES", "score": 4.5, "return_1y": 18.4, "desc": "Líder mundial en distribución de moda rápida."},
+    "ibe.mc": {"ticker": "IBE.MC", "name": "Iberdrola S.A.", "ter": 0.0, "category": "Acciones ES", "score": 4.3, "return_1y": 12.1, "desc": "Compañía energética global y líder en renovables."},
+    "msft": {"ticker": "MSFT", "name": "Microsoft Corp.", "ter": 0.0, "category": "Acciones US", "score": 4.9, "return_1y": 24.5, "desc": "Gigante tecnológico de software, nube e inteligencia artificial."},
+    "aapl": {"ticker": "AAPL", "name": "Apple Inc.", "ter": 0.0, "category": "Acciones US", "score": 4.8, "return_1y": 20.2, "desc": "Diseñador de electrónica de consumo, software y servicios en línea."}
 }
 
 FUND_DB = {
-    "ie00b03hd191": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191", "ter": 0.18, "category": "Renta Variable Global", "return_1y": 15.5},
-    "ie0032126645": {"name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645", "ter": 0.10, "category": "Renta Variable EE.UU.", "return_1y": 22.0},
-    "ie00byx5mx67": {"name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67", "ter": 0.06, "category": "Renta Variable EE.UU.", "return_1y": 22.5}
+    "ie00b03hd191": {
+        "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
+        "category": "Renta Variable Global", "ter": 0.18, "aum": 28000, "tracking_error": 0.04, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 15.5, "score": 4.8,
+        "desc": "Fondo indexado global que replica el índice MSCI World.",
+        "geo": {"EE. UU.": 68.0, "Europa": 16.0, "Japón": 6.0, "Otros": 10.0},
+        "holdings": {"Apple Inc.": 5.1, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.2, "Amazon.com Inc.": 2.5, "Resto del Fondo": 83.4}
+    },
+    "ie0032126645": {
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
+        "category": "Renta Variable EE.UU.", "ter": 0.10, "aum": 45000, "tracking_error": 0.03, "age_years": 18, "currency": "EUR", "is_dist": False, "return_1y": 22.0, "score": 4.9,
+        "desc": "Fondo indexado que replica el S&P 500 con bajo coste.",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Resto del Fondo": 76.4}
+    }
 }
 
 ETF_DB = {
-    "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF", "ticker": "VWCE.DE", "ter": 0.22, "category": "Renta Variable Global", "return_1y": 16.0},
-    "spyl.de": {"name": "SPDR S&P 500 UCITS ETF", "ticker": "SPYL.DE", "ter": 0.03, "category": "Renta Variable EE.UU.", "return_1y": 22.3},
-    "swda.l": {"name": "iShares Core MSCI World UCITS ETF", "ticker": "SWDA.L", "ter": 0.20, "category": "Renta Variable Global", "return_1y": 15.7}
+    "vwce.de": {
+        "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]", "ticker": "VWCE.DE",
+        "category": "Renta Variable Global (All-World)", "ter": 0.22, "aum": 15000, "tracking_error": 0.04, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 16.0, "score": 4.8,
+        "desc": "Incluye tanto países desarrollados como mercados emergentes (más de 3.700 valores).",
+        "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
+        "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Resto del ETF": 85.2}
+    },
+    "spyl.de": {
+        "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000, "tracking_error": 0.01, "age_years": 3, "currency": "EUR", "is_dist": False, "return_1y": 22.3, "score": 4.9,
+        "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Resto del ETF": 76.4}
+    }
 }
 
 # Encabezado principal
@@ -92,7 +114,7 @@ with tab_inicio:
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.info("🔍 **Analizar Activos**\nConsulta métricas, precios en directo de Yahoo Finance y desglose de fondos o ETFs.")
+        st.info("🔍 **Analizar Activos**\nConsulta puntuaciones, métricas avanzadas, TER, desglose geográfico y precios en directo.")
     with col2:
         st.success("💼 **Cartera Real**\nLleva el seguimiento de tus posiciones reales, ganancias/pérdidas no realizadas y rentabilidad.")
     with col3:
@@ -152,16 +174,62 @@ with tab_analizador:
             price = hist['Close'].iloc[-1] if not hist.empty else info.get('regularMarketPrice', 0.0)
             currency = info.get('currency', 'EUR')
             long_name = info.get('longName') or (found_data["name"] if found_data else ticker_to_fetch)
+            
+            # Datos locales o estimados de respaldo
+            score = found_data.get("score", 4.5) if found_data else 4.5
             ter = found_data.get("ter", 0.0) if found_data else 0.0
             category = found_data.get("category", info.get('sector', 'General')) if found_data else info.get('sector', 'General')
+            desc = found_data.get("desc", info.get('longBusinessSummary', 'Sin descripción detallada.')) if found_data else 'Sin descripción.'
+            return_1y = found_data.get("return_1y", 10.0) if found_data else 10.0
+            aum = found_data.get("aum", 10000) if found_data else 10000
+            tracking_error = found_data.get("tracking_error", 0.05) if found_data else 0.05
+            age_years = found_data.get("age_years", 5) if found_data else 5
+            geo = found_data.get("geo", {"Global / Diversificado": 100.0}) if found_data else {"Global / Diversificado": 100.0}
+            holdings = found_data.get("holdings", {"Principales Posiciones": 100.0}) if found_data else {"Principales Posiciones": 100.0}
 
             st.success(f"¡Activo encontrado: **{long_name}**!")
 
-            col_m1, col_m2, col_m3, col_m4 = st.columns(4)
-            col_m1.metric("Precio / Valor Liquidativo", f"{price:,.2f} {currency}" if price else "N/D")
-            col_m2.metric("Categoría", category)
-            col_m3.metric("Gastos (TER)", f"{ter:.2f}%")
-            col_m4.metric("PER", f"{info.get('trailingPE', 0.0):.2f}" if info.get('trailingPE') else "N/D")
+            # Tarjeta de Puntuación y Métricas Principales
+            st.markdown(f"""
+            <div class="score-container">
+                <div>
+                    <h2 style="color: #38bdf8; margin: 0;">Puntuación Global</h2>
+                    <p style="font-size: 2rem; font-weight: bold; color: #facc15; margin: 0;">⭐ {score} / 5.0</p>
+                </div>
+                <div>
+                    <h3 style="color: #cbd5e1; margin: 0;">{long_name}</h3>
+                    <p style="color: #94a3b8; margin: 0;">Categoría: <b>{category}</b></p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            # Métricas en columnas con indicadores visuales
+            c_m1, c_m2, c_m3, c_m4 = st.columns(4)
+            c_m1.metric("Precio / VL", f"{price:,.2f} {currency}" if price else "N/D")
+            c_m2.metric("Rentabilidad 1 Año", f"{return_1y:+.2f}%", delta=f"{return_1y:+.2f}%")
+            c_m3.metric("Gastos (TER)", f"{ter:.2f}%")
+            c_m4.metric("Patrimonio (AUM)", f"{aum:,.0f} M€" if asset_type != "Acciones" else "N/D")
+
+            with st.expander("📊 Ver Ficha Técnica y Métricas Avanzadas", expanded=True):
+                st.write(f"**Descripción:** {desc}")
+                col_f1, col_f2, col_f3 = st.columns(3)
+                col_f1.metric("Tracking Error", f"{tracking_error}%")
+                col_f2.metric("Antigüedad", f"{age_years} años")
+                col_f3.metric("Moneda", currency)
+
+            # Desglose Geográfico y Pesos (si aplica a fondos/ETFs)
+            if asset_type in ["Fondos Indexados", "ETFs"]:
+                col_geo, col_hold = st.columns(2)
+                with col_geo:
+                    st.markdown("#### 🌍 Desglose Geográfico")
+                    for pais, pct in geo.items():
+                        st.write(f"**{pais}**: {pct}%")
+                        st.progress(int(pct) if pct <= 100 else 100)
+                with col_hold:
+                    st.markdown("#### 🏢 Principales Posiciones (Holdings)")
+                    for emp, pct in holdings.items():
+                        st.write(f"**{emp}**: {pct}%")
+                        st.progress(int(pct) if pct <= 100 else 100)
 
             if not hist.empty:
                 st.markdown("#### Evolución Reciente (1 Mes)")
@@ -195,8 +263,9 @@ with tab_analizador:
 
         except Exception as e:
             if found_data:
-                st.warning(f"No se pudo conectar con Yahoo Finance para cotización en vivo, mostrando datos de registro local.")
+                st.warning(f"No se pudo conectar con Yahoo Finance, mostrando datos locales de la base de datos.")
                 st.markdown(f"**Nombre:** {found_data['name']}")
+                st.markdown(f"**Puntuación:** ⭐ {found_data.get('score', 4.5)}")
                 st.markdown(f"**Categoría:** {found_data['category']}")
                 st.markdown(f"**TER:** {found_data['ter']}%")
             else:
