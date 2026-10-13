@@ -51,21 +51,24 @@ if 'real_portfolio' not in st.session_state:
 if 'favorites' not in st.session_state:
     st.session_state.favorites = []
 
-# Bases de datos precargadas
+# Bases de datos completas
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "name": "Inditex S.A.", "ter": 0.0, "category": "Acciones ES"},
-    "iberdrola": {"ticker": "IBE.MC", "name": "Iberdrola S.A.", "ter": 0.0, "category": "Acciones ES"},
-    "microsoft": {"ticker": "MSFT", "name": "Microsoft Corp.", "ter": 0.0, "category": "Acciones US"}
+    "itx.mc": {"ticker": "ITX.MC", "name": "Inditex S.A.", "ter": 0.0, "category": "Acciones ES"},
+    "ibe.mc": {"ticker": "IBE.MC", "name": "Iberdrola S.A.", "ter": 0.0, "category": "Acciones ES"},
+    "msft": {"ticker": "MSFT", "name": "Microsoft Corp.", "ter": 0.0, "category": "Acciones US"},
+    "aapl": {"ticker": "AAPL", "name": "Apple Inc.", "ter": 0.0, "category": "Acciones US"}
 }
 
 FUND_DB = {
-    "IE00B03HD191": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191", "ter": 0.18, "category": "Renta Variable Global"},
-    "IE0032126645": {"name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645", "ter": 0.10, "category": "Renta Variable EE.UU."}
+    "ie00b03hd191": {"name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191", "ter": 0.18, "category": "Renta Variable Global", "return_1y": 15.5},
+    "ie0032126645": {"name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645", "ter": 0.10, "category": "Renta Variable EE.UU.", "return_1y": 22.0},
+    "ie00byx5mx67": {"name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67", "ter": 0.06, "category": "Renta Variable EE.UU.", "return_1y": 22.5}
 }
 
 ETF_DB = {
-    "VWCE.DE": {"name": "Vanguard FTSE All-World UCITS ETF", "ticker": "VWCE.DE", "ter": 0.22, "category": "Renta Variable Global"},
-    "SPYL.DE": {"name": "SPDR S&P 500 UCITS ETF", "ticker": "SPYL.DE", "ter": 0.03, "category": "Renta Variable EE.UU."}
+    "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF", "ticker": "VWCE.DE", "ter": 0.22, "category": "Renta Variable Global", "return_1y": 16.0},
+    "spyl.de": {"name": "SPDR S&P 500 UCITS ETF", "ticker": "SPYL.DE", "ter": 0.03, "category": "Renta Variable EE.UU.", "return_1y": 22.3},
+    "swda.l": {"name": "iShares Core MSCI World UCITS ETF", "ticker": "SWDA.L", "ter": 0.20, "category": "Renta Variable Global", "return_1y": 15.7}
 }
 
 # Encabezado principal
@@ -107,67 +110,91 @@ with tab_inicio:
         st.info("💡 **Sugerencia:** Para horizontes a menor plazo, prioriza **Fondos Indexados** por su flexibilidad para traspasar capital sin peaje fiscal inmediato en España.")
 
 # ----------------------------------------------------
-# 2. PESTAÑA: ANALIZADOR / BÚSQUEDA EN YAHOO FINANCE
+# 2. PESTAÑA: ANALIZADOR / BÚSQUEDA MULTIFUENTE Y YAHOO FINANCE
 # ----------------------------------------------------
 with tab_analizador:
     st.subheader("🔍 Buscador y Analizador Multifuente")
     
     asset_type = st.radio("Tipo de activo:", ["Acciones", "Fondos Indexados", "ETFs"], horizontal=True)
-    
-    user_query = st.text_input("Escribe el Ticker, ISIN o Nombre del activo:", placeholder="Ej. AAPL, ITX.MC, VWCE.DE, IE00B03HD191").strip()
+    user_query = st.text_input("Escribe el Ticker, ISIN o Nombre del activo:", placeholder="Ej. AAPL, ITX.MC, VWCE.DE, IE00B03HD191").strip().lower()
 
     if user_query:
-        # Búsqueda primero en biblioteca local, si no, consulta directa a Yahoo Finance
+        found_data = None
         ticker_to_fetch = user_query.upper()
-        asset_name = user_query.upper()
         
-        # Verificación en BD local
+        # Búsqueda en bases de datos locales según la categoría seleccionada
         if asset_type == "Acciones":
             for k, v in TICKER_DB.items():
-                if k in user_query.lower() or v["ticker"].lower() == user_query.lower():
+                if user_query in k or user_query in v["name"].lower() or user_query == v["ticker"].lower():
+                    found_data = v
                     ticker_to_fetch = v["ticker"]
-                    asset_name = v["name"]
+                    break
+        elif asset_type == "Fondos Indexados":
+            for k, v in FUND_DB.items():
+                if user_query in k or user_query in v["name"].lower() or user_query == v["ticker"].lower():
+                    found_data = v
+                    ticker_to_fetch = v["ticker"]
+                    break
         elif asset_type == "ETFs":
             for k, v in ETF_DB.items():
-                if k.lower() == user_query.lower() or v["ticker"].lower() == user_query.lower():
+                if user_query in k or user_query in v["name"].lower() or user_query == v["ticker"].lower():
+                    found_data = v
                     ticker_to_fetch = v["ticker"]
-                    asset_name = v["name"]
+                    break
 
-        st.markdown(f"**Consultando cotización e información para:** `{ticker_to_fetch}`")
+        st.markdown(f"**Buscando activo:** `{ticker_to_fetch}`")
         
+        # Intentar obtener datos de Yahoo Finance (o mostrar datos locales complementados con Yahoo)
         try:
-            data = yf.Ticker(ticker_to_fetch)
-            info = data.info or {}
-            hist = data.history(period="1mo")
+            yf_obj = yf.Ticker(ticker_to_fetch)
+            info = yf_obj.info or {}
+            hist = yf_obj.history(period="1mo")
             
             price = hist['Close'].iloc[-1] if not hist.empty else info.get('regularMarketPrice', 0.0)
             currency = info.get('currency', 'EUR')
-            long_name = info.get('longName') or asset_name
+            long_name = info.get('longName') or (found_data["name"] if found_data else ticker_to_fetch)
+            ter = found_data.get("ter", 0.0) if found_data else 0.0
+            category = found_data.get("category", info.get('sector', 'General')) if found_data else info.get('sector', 'General')
 
-            col_m1, col_m2, col_m3 = st.columns(3)
-            col_m1.metric("Precio en Tiempo Real", f"{price:,.2f} {currency}")
-            col_m2.metric("Sector / Categoría", info.get('sector', 'Índice / Fondo'))
-            col_m3.metric("PER / Múltiplo", f"{info.get('trailingPE', 0.0):.2f}" if info.get('trailingPE') else "N/D")
+            st.success(f"¡Activo encontrado: **{long_name}**!")
 
-            col_btn1, col_btn2 = st.columns(2)
-            with col_btn1:
+            col_m1, col_m2, col_m3, col_m4 = st.columns(4)
+            col_m1.metric("Precio / Valor Liquidativo", f"{price:,.2f} {currency}" if price else "N/D")
+            col_m2.metric("Categoría", category)
+            col_m3.metric("Gastos (TER)", f"{ter:.2f}%")
+            col_m4.metric("PER", f"{info.get('trailingPE', 0.0):.2f}" if info.get('trailingPE') else "N/D")
+
+            # Gráfico de evolución reciente si hay datos
+            if not hist.empty:
+                st.markdown("#### Evolución Reciente (1 Mes)")
+                st.line_chart(hist['Close'])
+
+            c_btn1, c_btn2 = st.columns(2)
+            with c_btn1:
                 if st.button("➕ Añadir a mi Cartera Real", use_container_width=True):
                     st.session_state.real_portfolio.append({
                         "ticker": ticker_to_fetch,
                         "name": long_name,
                         "shares": 1.0,
-                        "buy_price": float(price),
-                        "current_price": float(price),
+                        "buy_price": float(price) if price else 10.0,
+                        "current_price": float(price) if price else 10.0,
                         "currency": currency
                     })
-                    st.success(f"{long_name} añadido a tu Cartera Real.")
-            with col_btn2:
+                    st.success(f"Añadido {long_name} a la Cartera Real.")
+            with c_btn2:
                 if st.button("⭐ Guardar en Favoritos", use_container_width=True):
                     st.session_state.favorites.append({"ticker": ticker_to_fetch, "name": long_name, "type": asset_type})
-                    st.success(f"{long_name} añadido a Favoritos.")
+                    st.success(f"Añadido {long_name} a Favoritos.")
 
         except Exception as e:
-            st.error(f"No se pudieron recuperar los datos desde Yahoo Finance para `{ticker_to_fetch}`. Verifica el ticker introducido.")
+            # Si falla Yahoo pero está en nuestra BD local
+            if found_data:
+                st.warning(f"No se pudo conectar con Yahoo Finance para cotización en vivo, mostrando datos de registro local.")
+                st.markdown(f"**Nombre:** {found_data['name']}")
+                st.markdown(f"**Categoría:** {found_data['category']}")
+                st.markdown(f"**TER:** {found_data['ter']}%")
+            else:
+                st.error(f"No se ha encontrado ningún activo con el término `{user_query}` ni en la base de datos local ni en Yahoo Finance. Comprueba el ticker o ISIN.")
 
 # ----------------------------------------------------
 # 3. PESTAÑA: MI CARTERA REAL
@@ -176,9 +203,8 @@ with tab_cartera_real:
     st.subheader("💼 Gestión y Seguimiento de Cartera Real")
     
     if not st.session_state.real_portfolio:
-        st.info("Aún no has añadido posiciones reales. Utiliza el buscador para añadir activos o agrégalos manualmente abajo.")
+        st.info("Aún no tienes posiciones reales añadidas. Usa el buscador o añádelas manualmente abajo.")
     
-    # Formulario para entrada manual rápida
     with st.expander("➕ Añadir posición manualmente", expanded=False):
         with st.form("manual_add"):
             c1, c2, c3, c4 = st.columns(4)
@@ -204,8 +230,7 @@ with tab_cartera_real:
         total_valor_actual = 0.0
         
         rows = []
-        for idx, pos in enumerate(st.session_state.real_portfolio):
-            # Intentar actualizar precio en tiempo real
+        for pos in st.session_state.real_portfolio:
             try:
                 t_data = yf.Ticker(pos["ticker"])
                 h = t_data.history(period="1d")
@@ -266,7 +291,6 @@ with tab_simulador:
         anos = st.slider("Plazo de Inversión (Años)", min_value=1, max_value=40, value=20)
         rentabilidad_anual = st.slider("Rentabilidad Anual Estimada (%)", min_value=0.0, max_value=15.0, value=7.0, step=0.5)
 
-    # Cálculo abreviado de proyección
     meses = anos * 12
     r_mensual = (rentabilidad_anual / 100) / 12
     
