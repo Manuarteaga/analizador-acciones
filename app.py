@@ -1094,7 +1094,7 @@ st.set_page_config(page_title="Cartera Real", page_icon="📊", layout="wide")
 page_icon="💼", 
 layout="wide",
 initial_sidebar_state="expanded"  # 👈 AÑADIR AQUÍ TAMBIÉN
-)
+
 st.title("📊 Cartera Real & Seguimiento de Patrimonio")
 st.write("Control manual de tus inversiones con precios y variación de mercado.")
 
