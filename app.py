@@ -391,6 +391,27 @@ FUND_DB = {
         "desc": "Cartera diversificada de bonos globales cubiertos a euros.",
         "geo": {"EE. UU.": 45.0, "Europa": 30.0, "Japón": 12.0, "Otros": 13.0},
         "holdings": {"US Treasury Bond 3.8%": 4.5, "Japanese Government Bond 0.5%": 3.2, "German Bund 2.4%": 3.0, "UK Treasury Gilt 4.2%": 2.8, "Resto del Fondo": 86.5}
+    },
+    "axa court terme ac": {
+        "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
+        "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "tracking_error": 0.01, "age_years": 25, "currency": "EUR", "is_dist": False, "return_1y": 3.5, "score": 4.8,
+        "desc": "Fondo monetario de corto plazo en euros, ideal para aparcar liquidez con bajo riesgo y rentabilidad ligada a tipos del BCE.",
+        "geo": {"Zona Euro (Deuda Pública/Corto Plazo)": 100.0},
+        "holdings": {"Letras del Tesoro Francés y Alemán": 60.0, "Pagarés Bancarios AAA": 40.0}
+    },
+    "groupama tresorerie ic": {
+        "name": "Groupama Trésorerie IC (Fondo Monetario)", "ticker": "FR0000989626",
+        "category": "Fondos Monetarios", "ter": 0.12, "aum": 4200, "tracking_error": 0.01, "age_years": 20, "currency": "EUR", "is_dist": False, "return_1y": 3.6, "score": 4.8,
+        "desc": "Fondo monetario clásico en euros enfocado en la preservación del capital y alta liquidez.",
+        "geo": {"Zona Euro": 100.0},
+        "holdings": {"Activos Monetarios de Alta Calidad Crediticia": 100.0}
+    },
+    "pimco euro short-term fund": {
+        "name": "PIMCO Euro Short-Term Fund Institutional EUR Acc", "ticker": "IE00B11XZB05",
+        "category": "Fondos Monetarios", "ter": 0.25, "aum": 5100, "tracking_error": 0.02, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 3.8, "score": 4.7,
+        "desc": "Fondo de corto plazo de renta fija/monetario gestionado por PIMCO.",
+        "geo": {"Zona Euro": 90.0, "Otros": 10.0},
+        "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
     }
 }
 
@@ -517,7 +538,7 @@ def render_geo_breakdown(geo_dict):
         "Europa (Ex-UK)": "#06b6d4", "Canadá": "#84cc16", "Mercados Emergentes": "#f97316", 
         "Brasil": "#eab308", "Oro Físico": "#fbbf24", "Plata Física": "#94a3b8", "Energía": "#f97316", 
         "Agricultura": "#84cc16", "Metales Industriales": "#06b6d4", "Francia": "#3b82f6", "Suiza": "#ef4444", 
-        "Alemania": "#10b981", "Otros": "#64748b"
+        "Alemania": "#10b981", "Zona Euro": "#3b82f6", "Zona Euro (Deuda Pública/Corto Plazo)": "#3b82f6", "Otros": "#64748b"
     }
     
     bar_html = '<div class="geo-bar-container">'
@@ -655,7 +676,7 @@ with st.sidebar:
 # ----------------------------------------------------
 if st.session_state.stage == 'home':
     st.markdown("### ¿Qué tipo de activo quieres evaluar?")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         if st.button("📊 Acciones", use_container_width=True, type="primary"):
@@ -673,6 +694,13 @@ if st.session_state.stage == 'home':
         if st.button("🌐 ETFs", use_container_width=True, type="primary"):
             st.session_state.asset_type = "ETFs"
             st.session_state.stage = "sub_options"
+            st.rerun()
+
+    with col4:
+        if st.button("🏦 Fondos Monetarios", use_container_width=True, type="primary"):
+            st.session_state.asset_type = "Fondos Monetarios"
+            st.session_state.stage = "analyzer"
+            st.session_state.sub_type = "Biblioteca Monetarios"
             st.rerun()
 
     st.markdown("---")
@@ -745,9 +773,9 @@ if st.session_state.stage == 'home':
                 st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) un poco más bajas.")
 
             if "Híbrido" in q_goal:
-                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER) para optimizar comisiones al máximo.\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) para poder retirar o mover capital sin penalización ni peaje fiscal inmediato en tus transacciones.")
+                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER) para optimizar comisiones al máximo.\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) o **Fondos Monetarios** para poder retirar o mover capital sin penalización ni peaje fiscal inmediato en tus transacciones.")
             elif "Corto plazo" in q_goal:
-                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo (coche, reformas, imprevistos), los **Fondos Indexados** son la opción más recomendable por su flexibilidad al reembolsar o cambiar de estrategia sin peaje fiscal inmediato.")
+                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo o imprevistos (coche, reformas), los **Fondos Monetarios** y **Fondos Indexados** son la opción más recomendable por su seguridad y flexibilidad al reembolsar sin peaje fiscal inmediato.")
             elif "Largo plazo" in q_goal and "No, quiero comprar" in q_moves:
                 st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales (TER del 0.03% vs 0.18%) compensa con creces cualquier ventaja fiscal de traspaso.")
             elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
@@ -821,7 +849,7 @@ elif st.session_state.stage == 'favorites_view':
     st.title("⭐ Mis Activos Favoritos")
 
     if not st.session_state.favorites:
-        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos o ETFs y pulsa **'⭐ Añadir a Favoritos'** en sus informes.")
+        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos, monetarios o ETFs y pulsa **'⭐ Añadir a Favoritos'** en sus informes.")
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
@@ -832,8 +860,8 @@ elif st.session_state.stage == 'favorites_view':
                     st.markdown(f"**Divisa:** {fav.get('currency', 'EUR')}")
                 with col_fav2:
                     if st.button("🔍 Evaluar", key=f"fav_eval_{idx}", use_container_width=True):
-                        st.session_state.asset_type = "Acciones" if fav['type'] == "Acción" else ("Fondos indexados" if fav['type'] == "Fondo Indexado" else "ETFs")
-                        st.session_state.sub_type = "Con dividendos" if fav['type'] == "Acción" else ("Acumulación" if fav['type'] == "Fondo Indexado" else "Evaluación ETF")
+                        st.session_state.asset_type = "Acciones" if fav['type'] == "Acción" else ("Fondos indexados" if fav['type'] == "Fondo Indexado" else ("Fondos Monetarios" if fav['type'] == "Fondo Monetario" else "ETFs"))
+                        st.session_state.sub_type = "Con dividendos" if fav['type'] == "Acción" else ("Acumulación" if fav['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if fav['type'] == "Fondo Monetario" else "Evaluación ETF"))
                         st.session_state.selected_eval_input = fav['ticker']
                         st.session_state.stage = "analyzer"
                         st.rerun()
@@ -841,7 +869,7 @@ elif st.session_state.stage == 'favorites_view':
                     if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
                             "type": fav['type'], "name": fav['name'], "ticker": fav['ticker'],
-                            "est_rent": 7.5, "ter": fav.get('ter', 0.20), "currency": fav.get('currency', 'EUR'), 
+                            "est_rent": 3.5 if fav['type'] == "Fondo Monetario" else 7.5, "ter": fav.get('ter', 0.15), "currency": fav.get('currency', 'EUR'), 
                             "is_dist": fav.get('is_dist', False), "category": fav.get('category', 'General')
                         })
                         guardar_en_url()
@@ -868,7 +896,7 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
+        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         
@@ -953,8 +981,8 @@ elif st.session_state.stage == 'portfolio_view':
                 cm3.markdown(f"**Nota:** ⭐ `{score_val}/5`")
                 with cm4:
                     if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
-                        st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else "ETFs")
-                        st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else "Evaluación ETF")
+                        st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else ("Fondos Monetarios" if item['type'] == "Fondo Monetario" else "ETFs"))
+                        st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if item['type'] == "Fondo Monetario" else "Evaluación ETF"))
                         st.session_state.selected_eval_input = item['ticker']
                         st.session_state.stage = "analyzer"
                         st.rerun()
@@ -1094,7 +1122,7 @@ elif st.session_state.stage == 'portfolio_view':
 # ----------------------------------------------------
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
-        st.session_state.stage = 'sub_options'
+        st.session_state.stage = 'sub_options' if st.session_state.asset_type != "Fondos Monetarios" else 'home'
         st.session_state.sub_type = None
         st.session_state.selected_eval_input = ""
         st.rerun()
@@ -1153,15 +1181,15 @@ elif st.session_state.stage == 'analyzer':
         c_c1, c_c2, c_c3 = st.columns(3)
 
         with c_c1:
-            st.markdown("##### 📥 Fondos (Acumulación)")
+            st.markdown("##### 📥 Fondos (Acumulación / Monetarios)")
             if equi_funds_acc:
                 for item in equi_funds_acc:
                     nota_val = item.get('score', 4.3)
                     st.markdown(f"• **{item['name']}**")
                     st.markdown(f"  ISIN: `{item['ticker']}` | TER: **{item['ter']}%** <span class='converter-score-tag'>⭐ {nota_val}/5</span>", unsafe_allow_html=True)
                     if st.button(f"🔍 Evaluar Fondo Acc", key=f"conv_f_acc_{item['ticker']}"):
-                        st.session_state.asset_type = "Fondos indexados"
-                        st.session_state.sub_type = "Acumulación"
+                        st.session_state.asset_type = "Fondos indexados" if item['category'] != "Fondos Monetarios" else "Fondos Monetarios"
+                        st.session_state.sub_type = "Acumulación" if item['category'] != "Fondos Monetarios" else "Biblioteca Monetarios"
                         st.session_state.selected_eval_input = item['ticker']
                         st.rerun()
             else:
@@ -1213,7 +1241,7 @@ elif st.session_state.stage == 'analyzer':
                 "Patrimonio (M€)": data["aum"], 
                 "Antigüedad (Años)": data["age_years"]
             } 
-            for data in FUND_DB.values()
+            for data in FUND_DB.values() if data["category"] != "Fondos Monetarios"
         ]
         df_ranking = pd.DataFrame(ranking_data).sort_values(by="TER Anual (%)", ascending=True).reset_index(drop=True)
         st.dataframe(df_ranking, use_container_width=True)
@@ -1284,14 +1312,41 @@ elif st.session_state.stage == 'analyzer':
             custom_stock_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input).strip()
             user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
 
+        elif st.session_state.asset_type == "Fondos Monetarios":
+            st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
+            st.markdown("Selecciona un fondo monetario para aparcar liquidez con total seguridad y rentabilidad ligada a tipos:")
+            
+            monetary_options = ["-- Selecciona un fondo monetario --"]
+            for data in FUND_DB.values():
+                if data["category"] == "Fondos Monetarios":
+                    monetary_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [TER: {data['ter']}%]")
+
+            selected_index_m = 0
+            if default_input:
+                for idx, opt in enumerate(monetary_options):
+                    if default_input.upper() in opt.upper():
+                        selected_index_m = idx
+                        break
+
+            selected_monetary_choice = st.selectbox("Biblioteca de Fondos Monetarios", options=monetary_options, index=selected_index_m)
+            custom_monetary_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input if (default_input and selected_monetary_choice.startswith("--")) else "").strip()
+
+            if custom_monetary_input:
+                user_input = custom_monetary_input.upper()
+            elif not selected_monetary_choice.startswith("--"):
+                user_input = selected_monetary_choice.split("ISIN: ")[1].split(")")[0].strip()
+            else:
+                user_input = ""
+
         elif st.session_state.asset_type == "Fondos indexados":
             st.markdown("### 📁 Biblioteca Completa de Fondos Indexados (Acumulación y Distribución)")
             st.markdown("Selecciona un fondo de la biblioteca ordenada para analizar sus métricas, ver equivalencias y simular rentabilidades:")
             
             fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"]
             for data in FUND_DB.values():
-                tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
-                fund_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
+                if data["category"] != "Fondos Monetarios":
+                    tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
+                    fund_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [{tipo_tag}] [TER: {data['ter']}%]")
 
             selected_index = 0
             if default_input:
@@ -1426,7 +1481,7 @@ elif st.session_state.stage == 'analyzer':
                 except Exception as e:
                     st.error(f"Error al obtener datos: {e}")
 
-            elif st.session_state.asset_type == "Fondos indexados":
+            elif st.session_state.asset_type in ["Fondos indexados", "Fondos Monetarios"]:
                 matched_fund = next((data for key, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
                 
                 if matched_fund:
@@ -1443,7 +1498,7 @@ elif st.session_state.stage == 'analyzer':
                     score_fund = matched_fund.get("score", 4.2)
                 else:
                     fund_isin = user_input.upper()
-                    ret_1y_fund = 12.5
+                    ret_1y_fund = 3.5 if st.session_state.asset_type == "Fondos Monetarios" else 12.5
                     try:
                         live_ticker = yf.Ticker(fund_isin)
                         info_live = live_ticker.info or {}
@@ -1453,26 +1508,26 @@ elif st.session_state.stage == 'analyzer':
                         fund_name = fund_isin
                         curr_fund = 'EUR'
 
-                    ter_val = 0.18
+                    ter_val = 0.15 if st.session_state.asset_type == "Fondos Monetarios" else 0.18
                     aum_val = 2500
-                    te_val = 0.05
+                    te_val = 0.01
                     age_val = 10
                     is_dist_fund = False
-                    cat_fund = "Fondo Personalizado (Yahoo Finance)"
-                    score_fund = 4.2
+                    cat_fund = "Fondos Monetarios" if st.session_state.asset_type == "Fondos Monetarios" else "Fondo Personalizado"
+                    score_fund = 4.8 if st.session_state.asset_type == "Fondos Monetarios" else 4.2
 
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
                 color_fund = "#22c55e"
-                trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Pasivo</div>'
+                trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Estable</div>'
 
                 col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
                 with col_f1:
-                    st.subheader(f"📊 Informe de Fondo: {fund_name}")
+                    st.subheader(f"📊 Informe de {'Monetario' if cat_fund == 'Fondos Monetarios' else 'Fondo'}: {fund_name}")
                 with col_f2:
                     if st.button("⭐ Favoritos", use_container_width=True, key="fav_fund"):
                         st.session_state.favorites.append({
-                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
                             "ter": ter_val, "currency": curr_fund, "category": cat_fund
                         })
                         guardar_en_url()
@@ -1480,8 +1535,8 @@ elif st.session_state.stage == 'analyzer':
                 with col_f3:
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
-                            "type": "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "est_rent": 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund,
+                            "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
+                            "est_rent": 3.5 if cat_fund == 'Fondos Monetarios' else 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund,
                             "category": cat_fund
                         })
                         guardar_en_url()
@@ -1489,7 +1544,7 @@ elif st.session_state.stage == 'analyzer':
 
                 st.markdown(f"""
                 <div class="score-container">
-                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Pasiva</div></div>
+                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación de Seguridad</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
@@ -1504,12 +1559,12 @@ elif st.session_state.stage == 'analyzer':
                     render_holdings_breakdown(matched_fund["holdings"])
 
                 df_fund_data = {
-                    "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Índice", "Modalidad", "Rentabilidad (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Tracking Error", "Divisa"],
+                    "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Perfil", "Modalidad", "Rentabilidad Estimada (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Volatilidad / Tracking Error", "Divisa"],
                     "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"+{ret_1y_fund:.1f}%", f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
-                render_asset_converter(cat_fund, fund_isin, is_dist_fund, "Fondo Indexado")
+                render_asset_converter(cat_fund, fund_isin, is_dist_fund, cat_fund)
 
                 st.markdown("---")
                 st.subheader(f"🧮 Simulador de Interés Compuesto para: {fund_name}")
@@ -1526,8 +1581,8 @@ elif st.session_state.stage == 'analyzer':
                         app_p_f = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_f")
                         freq_f = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_f")
                     with cf2:
-                        anos_f = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_f")
-                        rent_f = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_f")
+                        anos_f = st.slider("Plazo (Años)", min_value=1, max_value=40, value=5 if cat_fund == "Fondos Monetarios" else 15, key="anos_f")
+                        rent_f = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=3.5 if cat_fund == "Fondos Monetarios" else 7.5, step=0.5, key="rent_f")
 
                     fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
                     ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
