@@ -11,7 +11,7 @@ with st.sidebar:
     st.page_link("app.py", label="🏠 Inicio", icon="🏠")
     st.page_link("pages/1_📈_Analizador.py", label="Analizador Bursátil", icon="📈")
     st.page_link("pages/2_💼_Mi_Cartera.py", label="Mi Cartera Consolidada", icon="💼")
-    
+    )
     st.divider()
 
 st.title("📈 Mi Plataforma Financiera")
