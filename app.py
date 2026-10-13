@@ -4,6 +4,7 @@ st.set_page_config(
     page_title="Mi Plataforma Financiera",
     page_icon="📈",
     layout="wide"
+    initial_sidebar_state="expanded"
 )
 
 st.title("📈 Mi Plataforma Financiera")
