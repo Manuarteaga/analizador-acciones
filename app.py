@@ -1478,6 +1478,108 @@ elif st.session_state.stage == 'analyzer':
                     })
                     st.table(df_metrics)
 
+                    st.markdown("---")
+                    st.subheader(f"🧮 Simulador de Interés Compuesto para: {name}")
+                    toggle_stock_sim = st.toggle("Activar calculadora individual de esta acción", value=False, key="tg_stock_sim")
+
+                    if toggle_stock_sim:
+                        sel_b_stock = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_stock")
+                        b_stock_data = ETF_BROKER_PROFILES[sel_b_stock]
+                        plan_stock_free = st.checkbox("Plan de aportación automática sin comisión", value=b_stock_data["supports_free_plans"], key="plan_stock_free")
+
+                        cs1, cs2 = st.columns(2)
+                        with cs1:
+                            inv_i_stock = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_stock")
+                            app_p_stock = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_stock")
+                            freq_stock = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_stock")
+                        with cs2:
+                            anos_stock = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_stock")
+                            rent_stock = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=8.0, step=0.5, key="rent_stock")
+
+                        spct = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_percent"]
+                        sfix = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_fixed"]
+                        sspr = b_stock_data["spread_percent"]
+                        sfx = 0.0 if info.get('currency', 'EUR') == 'EUR' else b_stock_data["fx_fee_percent"]
+
+                        per_ano_stock = 12 if freq_stock == "Mensual" else 1
+                        t_neta_stock = rent_stock - 0.0
+                        t_per_stock = (t_neta_stock / 100.0) / per_ano_stock
+                        tot_per_stock = anos_stock * per_ano_stock
+
+                        c_broker_i_stock = (inv_i_stock * (b_stock_data["fee_percent"] / 100.0)) + b_stock_data["fee_fixed"]
+                        c_spread_i_stock = inv_i_stock * (sspr / 100.0)
+                        c_fx_i_stock = inv_i_stock * (sfx / 100.0)
+                        c_ini_stock = c_broker_i_stock + c_spread_i_stock + c_fx_i_stock
+
+                        saldo_stock = max(0.0, inv_i_stock - c_ini_stock)
+                        aport_stock = inv_i_stock
+                        a_broker_stock = c_broker_i_stock
+                        a_spread_stock = c_spread_i_stock
+                        a_fx_stock = c_fx_i_stock
+
+                        div_bruto_stock_total = 0.0
+                        historial_stock = []
+
+                        for p in range(1, tot_per_stock + 1):
+                            if p > 1:
+                                cb = (app_p_stock * (spct / 100.0)) + sfix
+                                cs = app_p_stock * (sspr / 100.0)
+                                cf = app_p_stock * (sfx / 100.0)
+                                ct = cb + cs + cf
+
+                                net_app_stock = max(0.0, app_p_stock - ct)
+                                aport_stock += app_p_stock
+                                a_broker_stock += cb
+                                a_spread_stock += cs
+                                a_fx_stock += cf
+                                saldo_stock = saldo_stock * (1 + t_per_stock) + net_app_stock
+                            else:
+                                saldo_stock = saldo_stock * (1 + t_per_stock)
+
+                            if p % per_ano_stock == 0:
+                                ano_act_stock = p // per_ano_stock
+                                c_tot_stock = a_broker_stock + a_spread_stock + a_fx_stock
+                                int_b_stock = saldo_stock - (aport_stock - c_tot_stock)
+                                
+                                div_bruto_anual_s = saldo_stock * (div_y_val / 100.0)
+                                div_bruto_stock_total += div_bruto_anual_s
+
+                                historial_stock.append({
+                                    "Año": f"Año {ano_act_stock}",
+                                    "Capital Aportado Bruto (€)": round(aport_stock, 2),
+                                    "Comisiones Bróker (€)": round(a_broker_stock, 2),
+                                    "Coste Spread (€)": round(a_spread_stock, 2),
+                                    "Coste Cambio Divisa (€)": round(a_fx_stock, 2),
+                                    "Beneficio Neto (€)": round(max(0.0, int_b_stock), 2),
+                                    "Capital Total Neto (€)": round(saldo_stock, 2)
+                                })
+
+                        df_sim_stock = pd.DataFrame(historial_stock)
+                        with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                            st.dataframe(df_sim_stock, use_container_width=True)
+
+                        c_tot_acum_stock = a_broker_stock + a_spread_stock + a_fx_stock
+                        net_aport_stock = aport_stock - c_tot_acum_stock
+                        bruto_stock = max(0.0, saldo_stock - net_aport_stock)
+                        imp_stock = bruto_stock * 0.19
+                        neto_stock = bruto_stock - imp_stock
+                        liquido_stock = net_aport_stock + neto_stock
+                        div_neto_stock = div_bruto_stock_total * (1 - 0.19)
+
+                        sm1, sm2, sm3, sm4, sm5 = st.columns(5)
+                        sm1.metric("Capital Invertido Neto", f"{net_aport_stock:,.2f} €")
+                        sm2.metric("Costes Totales", f"{c_tot_acum_stock:,.2f} €")
+                        sm3.metric("Beneficio Bruto", f"{bruto_stock:,.2f} €")
+                        sm4.metric("Beneficio Neto (19%)", f"{neto_stock:,.2f} €")
+                        sm5.metric("Div. Netos Cobrados", f"{div_neto_stock:,.2f} €")
+
+                        st.markdown(f"""
+                        <div class="final-net-card">
+                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción</div>
+                            <div class="final-net-value">{liquido_stock:,.2f} €</div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
                 except Exception as e:
                     st.error(f"Error al obtener datos: {e}")
 
