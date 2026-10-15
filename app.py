@@ -413,7 +413,6 @@ FUND_DB = {
         "geo": {"Zona Euro": 90.0, "Otros": 10.0},
         "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
     },
-    # --- NUEVOS FONDOS AÑADIDOS ---
     "es0165185010": {
         "name": "Fondo Añadido 1 (ISIN: ES0165185010)", "ticker": "ES0165185010",
         "category": "Fondos / Renta Variable", "ter": 0.20, "aum": 1500, "tracking_error": 0.05, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 10.0, "score": 4.3,
@@ -768,7 +767,7 @@ if st.session_state.stage == 'home':
             [
                 "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
                 "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
-                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
+                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche or reforma)"
             ]
         )
         
