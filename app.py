@@ -1623,6 +1623,10 @@ elif st.session_state.stage == 'analyzer':
                 color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Estable</div>'
 
+                # Etiqueta de salud profesional basada en AUM y Antigüedad
+                salud_patrimonio = "🟢 Muy Sólido (>1.000M€)" if aum_val >= 1000 else "🟡 Moderado"
+                salud_historial = "🟢 Consolidado (>5 años)" if age_val >= 5 else "🟡 Fondo Joven"
+
                 col_f1, col_f2, col_f3 = st.columns([2, 1, 1])
                 with col_f1:
                     st.subheader(f"📊 Informe de {'Monetario' if cat_fund == 'Fondos Monetarios' else 'Fondo'}: {fund_name}")
@@ -1649,7 +1653,7 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_fund}deg; --progress-color: {color_fund};"><div class="progress-value">{score_fund:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación de Seguridad</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_fund}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_fund};">{grade_fund}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Antigüedad</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{age_val} Años</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Salud del Fondo</div><div style="font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 15px;">{salud_patrimonio}<br>{salud_historial}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1661,8 +1665,8 @@ elif st.session_state.stage == 'analyzer':
                     render_holdings_breakdown(matched_fund["holdings"])
 
                 df_fund_data = {
-                    "Métrica del Fondo": ["ISIN / Ticker", "Categoría / Perfil", "Modalidad", "Rentabilidad Estimada (1 Año)", "TER (Gastos Corrientes)", "Patrimonio (AUM)", "Volatilidad / Tracking Error", "Divisa"],
-                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"+{ret_1y_fund:.1f}%", f"{ter_val:.2f}% anual", f"{aum_val:,.0f} M€", f"{te_val:.2f}%", curr_fund]
+                    "Métrica Clave (Análisis Profesional)": ["ISIN / Identificador", "Categoría / Perfil", "Modalidad", "1. TER (Gastos Corrientes Anuales)", "2. Tracking Error (Desviación del Índice)", "3. Patrimonio Bajo Gestión (AUM)", "4. Antigüedad del Vehículo", "5. Rentabilidad Estimada (1 Año)", "Divisa"],
+                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"{ter_val:.2f}% anual", f"{te_val:.2f}%", f"{aum_val:,.0f} M€", f"{age_val} años", f"+{ret_1y_fund:.1f}%", curr_fund]
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
@@ -1826,6 +1830,9 @@ elif st.session_state.stage == 'analyzer':
                 deg_etf = int((score_etf / 5.0) * 360)
                 color_etf = "#22c55e"
 
+                salud_patrimonio_etf = "🟢 Muy Sólido (>1.000M€)" if aum_etf >= 1000 else "🟡 Moderado"
+                salud_historial_etf = "🟢 Consolidado (>5 años)" if age_etf >= 5 else "🟡 ETF Joven"
+
                 col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
                 with col_e1:
                     st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
@@ -1852,7 +1859,7 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display_etf}</div></div>
+                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Salud del ETF</div><div style="font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 15px;">{salud_patrimonio_etf}<br>{salud_historial_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1864,8 +1871,8 @@ elif st.session_state.stage == 'analyzer':
                     render_holdings_breakdown(matched_etf["holdings"])
 
                 df_etf_data = {
-                    "Métrica del ETF": ["Categoría / Sector", "Modalidad", "Volumen Última Sesión", "Volumen Medio Mensual", "Rentabilidad (1 Año)", "TER (Gastos Anuales)", "Patrimonio (AUM)", "Tipo de Réplica", "Tracking Error", "Divisa", "Antigüedad"],
-                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", last_vol_display, avg_vol_display, f"+{ret_1y_etf:.1f}%", f"{ter_etf:.2f}% anual", f"{aum_etf:,.0f} M€", repl_etf, f"{te_etf:.2f}%", curr_etf, f"{age_etf} años"]
+                    "Métrica Clave (Análisis Profesional)": ["Categoría / Sector", "Modalidad", "1. TER (Gastos Anuales)", "2. Tipo de Réplica", "3. Tracking Error", "4. Patrimonio (AUM)", "5. Antigüedad", "Precio Actual", "Volumen Medio Diario", "Divisa"],
+                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", f"{ter_etf:.2f}% anual", repl_etf, f"{te_etf:.2f}%", f"{aum_etf:,.0f} M€", f"{age_etf} años", price_display_etf, avg_vol_display, curr_etf]
                 }
                 st.table(pd.DataFrame(df_etf_data))
 
