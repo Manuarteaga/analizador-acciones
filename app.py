@@ -308,26 +308,33 @@ TICKER_DB = {
 }
 
 FUND_DB = {
-    "vanguard global stock acc": {
-        "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
-        "desc": "Fondo indexado de referencia global que replica el índice MSCI World, invirtiendo en más de 1.500 empresas de gran y mediana capitalización en países desarrollados.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
-        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Resto del Fondo": 78.2}
+    "axa court terme ac": {
+        "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
+        "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "tracking_error": 0.01, "age_years": 25, "currency": "EUR", "is_dist": False, "return_1y": 3.5, "score": 4.8,
+        "desc": "Fondo monetario de corto plazo en euros, ideal para aparcar liquidez con bajo riesgo y rentabilidad ligada a tipos del BCE.",
+        "geo": {"Zona Euro (Deuda Pública/Corto Plazo)": 100.0},
+        "holdings": {"Letras del Tesoro Francés y Alemán": 60.0, "Pagarés Bancarios AAA": 40.0}
     },
-    "vanguard global stock dist": {
-        "name": "Vanguard Global Stock Index Fund EUR Dist", "ticker": "IE00B03HD209",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
-        "desc": "Versión de distribución del fondo global MSCI World, ideal para inversores que prefieren el cobro periódico de dividendos en cuenta.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
-        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Resto del Fondo": 78.2}
+    "es0165185002": {
+        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase A - Acumulación)", "ticker": "ES0165185002",
+        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 210, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": False, "return_1y": 12.0, "score": 4.3,
+        "desc": "Fondo de fondos enfocado en renta variable global de alto dividendo a través de JPMorgan AM con reinversión automática de cupones.",
+        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
+        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
     },
-    "ishares developed world acc": {
-        "name": "iShares Developed World Index Fund (IE) D Acc EUR", "ticker": "IE00BD0NCM55",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
-        "desc": "Fondo indexado de BlackRock enfocado en mercados desarrollados globales con un TER muy competitivo del 0.12%.",
-        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0},
-        "holdings": {"Apple Inc.": 5.3, "Microsoft Corp.": 4.9, "NVIDIA Corp.": 4.2, "Amazon.com Inc.": 2.5, "Alphabet Inc.": 2.2, "Meta Platforms": 1.5, "Tesla Inc.": 1.1, "Resto del Fondo": 78.3}
+    "es0165185010": {
+        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase D - Distribución)", "ticker": "ES0165185010",
+        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 120, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": True, "return_1y": 11.8, "score": 4.2,
+        "desc": "Fondo de fondos que invierte en empresas de alto dividendo global a través de estrategias de JPMorgan AM con reparto periódico de dividendos.",
+        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
+        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
+    },
+    "es0165265002": {
+        "name": "MyInvestor Nasdaq 100 FI", "ticker": "ES0165265002",
+        "category": "Tecnología", "ter": 0.44, "aum": 143, "tracking_error": 0.10, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 25.9, "score": 4.4,
+        "desc": "Fondo indexado gestionado por Andbank Wealth Management que replica el comportamiento del índice Nasdaq-100 con la comisión total de gestión y depositaría tope del 0,59% TER.",
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
+        "holdings": {"ETFs y Futuros Nasdaq-100": 80.0, "Liquidez y Garantías": 20.0}
     },
     "fidelity msci world acc": {
         "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
@@ -336,20 +343,6 @@ FUND_DB = {
         "geo": {"EE. UU.": 71.8, "Japón": 6.1, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.4, "Otros": 3.9},
         "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc.": 2.3, "Meta Platforms": 1.6, "Resto del Fondo": 79.2}
     },
-    "vanguard sp 500 acc": {
-        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
-        "desc": "Fondo indexado histórico que replica el comportamiento de las 500 empresas más grandes de Estados Unidos.",
-        "geo": {"EE. UU.": 100.0},
-        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7, "Eli Lilly": 1.5, "Resto del Fondo": 67.6}
-    },
-    "vanguard sp 500 dist": {
-        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist", "ticker": "IE0032126868",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7,
-        "desc": "Versión de distribución del fondo S&P 500 de Vanguard.",
-        "geo": {"EE. UU.": 100.0},
-        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7, "Resto del Fondo": 69.1}
-    },
     "fidelity us index acc": {
         "name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 6200, "tracking_error": 0.03, "age_years": 7, "currency": "EUR", "is_dist": False, "return_1y": 22.5, "score": 4.9,
@@ -357,12 +350,33 @@ FUND_DB = {
         "geo": {"EE. UU.": 100.0},
         "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Resto del Fondo": 70.8}
     },
+    "groupama tresorerie ic": {
+        "name": "Groupama Trésorerie IC (Fondo Monetario)", "ticker": "FR0000989626",
+        "category": "Fondos Monetarios", "ter": 0.12, "aum": 4200, "tracking_error": 0.01, "age_years": 20, "currency": "EUR", "is_dist": False, "return_1y": 3.6, "score": 4.8,
+        "desc": "Fondo monetario clásico en euros enfocado en la preservación del capital y alta liquidez.",
+        "geo": {"Zona Euro": 100.0},
+        "holdings": {"Activos Monetarios de Alta Calidad Crediticia": 100.0}
+    },
+    "ishares developed world acc": {
+        "name": "iShares Developed World Index Fund (IE) D Acc EUR", "ticker": "IE00BD0NCM55",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.12, "aum": 25000, "tracking_error": 0.05, "age_years": 10, "currency": "EUR", "is_dist": False, "return_1y": 15.8, "score": 4.7,
+        "desc": "Fondo indexado de BlackRock enfocado en mercados desarrollados globales con un TER muy competitivo del 0.12%.",
+        "geo": {"EE. UU.": 72.0, "Japón": 6.0, "Reino Unido": 3.7, "Europa (Ex-UK)": 14.3, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.3, "Microsoft Corp.": 4.9, "NVIDIA Corp.": 4.2, "Amazon.com Inc.": 2.5, "Alphabet Inc.": 2.2, "Meta Platforms": 1.5, "Tesla Inc.": 1.1, "Resto del Fondo": 78.3}
+    },
     "ishares us technology acc": {
         "name": "iShares US Technology Index Fund EUR Acc", "ticker": "IE00B1W33F31",
         "category": "Tecnología", "ter": 0.20, "aum": 4300, "tracking_error": 0.09, "age_years": 11, "currency": "EUR", "is_dist": False, "return_1y": 28.5, "score": 4.3,
         "desc": "Fondo sectorial enfocado en gigantes tecnológicos de EE. UU.",
         "geo": {"EE. UU.": 98.0, "Otros": 2.0},
         "holdings": {"Apple Inc.": 16.5, "Microsoft Corp.": 15.8, "NVIDIA Corp.": 14.2, "Broadcom Inc.": 4.5, "Adobe Inc.": 2.2, "Salesforce Inc.": 2.0, "Resto del Fondo": 44.8}
+    },
+    "pimco euro short-term fund": {
+        "name": "PIMCO Euro Short-Term Fund Institutional EUR Acc", "ticker": "IE00B11XZB05",
+        "category": "Fondos Monetarios", "ter": 0.25, "aum": 5100, "tracking_error": 0.02, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 3.8, "score": 4.7,
+        "desc": "Fondo de corto plazo de renta fija/monetario gestionado por PIMCO.",
+        "geo": {"Zona Euro": 90.0, "Otros": 10.0},
+        "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
     },
     "vanguard emerging markets acc": {
         "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "ticker": "IE0031786696",
@@ -392,40 +406,33 @@ FUND_DB = {
         "geo": {"EE. UU.": 45.0, "Europa": 30.0, "Japón": 12.0, "Otros": 13.0},
         "holdings": {"US Treasury Bond 3.8%": 4.5, "Japanese Government Bond 0.5%": 3.2, "German Bund 2.4%": 3.0, "UK Treasury Gilt 4.2%": 2.8, "Resto del Fondo": 86.5}
     },
-    "axa court terme ac": {
-        "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
-        "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "tracking_error": 0.01, "age_years": 25, "currency": "EUR", "is_dist": False, "return_1y": 3.5, "score": 4.8,
-        "desc": "Fondo monetario de corto plazo en euros, ideal para aparcar liquidez con bajo riesgo y rentabilidad ligada a tipos del BCE.",
-        "geo": {"Zona Euro (Deuda Pública/Corto Plazo)": 100.0},
-        "holdings": {"Letras del Tesoro Francés y Alemán": 60.0, "Pagarés Bancarios AAA": 40.0}
+    "vanguard global stock acc": {
+        "name": "Vanguard Global Stock Index Fund EUR Acc", "ticker": "IE00B03HD191",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 23000, "tracking_error": 0.08, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 16.2, "score": 4.6,
+        "desc": "Fondo indexado de referencia global que replica el índice MSCI World, invirtiendo en más de 1.500 empresas de gran y mediana capitalización en países desarrollados.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Resto del Fondo": 78.2}
     },
-    "groupama tresorerie ic": {
-        "name": "Groupama Trésorerie IC (Fondo Monetario)", "ticker": "FR0000989626",
-        "category": "Fondos Monetarios", "ter": 0.12, "aum": 4200, "tracking_error": 0.01, "age_years": 20, "currency": "EUR", "is_dist": False, "return_1y": 3.6, "score": 4.8,
-        "desc": "Fondo monetario clásico en euros enfocado en la preservación del capital y alta liquidez.",
-        "geo": {"Zona Euro": 100.0},
-        "holdings": {"Activos Monetarios de Alta Calidad Crediticia": 100.0}
+    "vanguard global stock dist": {
+        "name": "Vanguard Global Stock Index Fund EUR Dist", "ticker": "IE00B03HD209",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.18, "aum": 8400, "tracking_error": 0.08, "age_years": 14, "currency": "EUR", "is_dist": True, "return_1y": 16.0, "score": 4.5,
+        "desc": "Versión de distribución del fondo global MSCI World, ideal para inversores que prefieren el cobro periódico de dividendos en cuenta.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Resto del Fondo": 78.2}
     },
-    "pimco euro short-term fund": {
-        "name": "PIMCO Euro Short-Term Fund Institutional EUR Acc", "ticker": "IE00B11XZB05",
-        "category": "Fondos Monetarios", "ter": 0.25, "aum": 5100, "tracking_error": 0.02, "age_years": 15, "currency": "EUR", "is_dist": False, "return_1y": 3.8, "score": 4.7,
-        "desc": "Fondo de corto plazo de renta fija/monetario gestionado por PIMCO.",
-        "geo": {"Zona Euro": 90.0, "Otros": 10.0},
-        "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
+    "vanguard sp 500 acc": {
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
+        "desc": "Fondo indexado histórico que replica el comportamiento de las 500 empresas más grandes de Estados Unidos.",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7, "Eli Lilly": 1.5, "Resto del Fondo": 67.6}
     },
-    "es0165185010": {
-        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase D - Distribución)", "ticker": "ES0165185010",
-        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 120, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": True, "return_1y": 11.8, "score": 4.2,
-        "desc": "Fondo de fondos que invierte en empresas de alto dividendo global a través de estrategias de JPMorgan AM con reparto periódico de dividendos.",
-        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
-        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
-    },
-    "es0165185002": {
-        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase A - Acumulación)", "ticker": "ES0165185002",
-        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 210, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": False, "return_1y": 12.0, "score": 4.3,
-        "desc": "Fondo de fondos enfocado en renta variable global de alto dividendo a través de JPMorgan AM con reinversión automática de cupones.",
-        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
-        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
+    "vanguard sp 500 dist": {
+        "name": "Vanguard U.S. 500 Stock Index Fund EUR Dist", "ticker": "IE0032126868",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 5100, "tracking_error": 0.03, "age_years": 20, "currency": "EUR", "is_dist": True, "return_1y": 22.2, "score": 4.7,
+        "desc": "Versión de distribución del fondo S&P 500 de Vanguard.",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Meta Platforms": 2.4, "Berkshire Hathaway": 1.7, "Resto del Fondo": 69.1}
     }
 }
 
@@ -492,7 +499,7 @@ ETF_DB = {
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
         "desc": "Versión de acumulación del Nasdaq 100.",
         "geo": {"EE. UU.": 98.5, "Otros": 1.5},
-        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Resto del ETF": 64.9}
+        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2, "Resto del ETF": 64.9}
     },
     "smh.de": {
         "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)", "ticker": "SMH.DE",
@@ -929,12 +936,12 @@ elif st.session_state.stage == 'portfolio_view':
         portfolio_tickers = [item.get('ticker', '').lower() for item in st.session_state.portfolio]
         
         has_broad_market = any(t in portfolio_tickers for t in ['spyl.de', 'vusa.as', 'swda.l', 'vwce.de', 'vwrl.as', 'ie0032126645', 'ie00b03hd191', 'ie00byx5nx33'])
-        has_tech_sector = any(t in portfolio_tickers for t in ['eqqq.de', 'sxrv.de', 'smh.de', 'ie00b1w33f31'])
+        has_tech_sector = any(t in portfolio_tickers for t in ['eqqq.de', 'sxrv.de', 'smh.de', 'ie00b1w33f31', 'es0165265002'])
 
         if has_broad_market and has_tech_sector:
             st.warning("""
             ⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!**  
-            Has combinado un índice general de mercado (como **S&P 500 o MSCI World**) con un ETF sectorial de **Tecnología o Semiconductores**.  
+            Has combinado un índice general de mercado (como **S&P 500 o MSCI World**) con un ETF o Fondo sectorial de **Tecnología o Semiconductores (ej. Nasdaq 100)**.  
             * **El problema:** Los índices generales ya dedican un porcentaje altísimo de su cartera a **Apple, Microsoft, NVIDIA, Amazon y Alphabet**. Al añadir un fondo tecnológico específico, estás inflando artificialmente el peso de estas mismas empresas.
             * **💡 Recomendación:** Asegúrate de que este solapamiento es intencionado o equilibra tu cartera con activos descorrelacionados.
             """)
@@ -1877,7 +1884,7 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 if matched_etf and "desc" in matched_etf:
-                    st.markdown(f"**📖 Qué includes:** {matched_etf['desc']}")
+                    st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
                 if matched_etf and "geo" in matched_etf:
                     render_geo_breakdown(matched_etf["geo"])
                 if matched_etf and "holdings" in matched_etf:
