@@ -296,15 +296,15 @@ def reset_navigation():
     st.session_state.selected_eval_input = ""
 
 TICKER_DB = {
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
     "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
     "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0},
+    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0},
+    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
+    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
+    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
-    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0}
+    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0}
 }
 
 FUND_DB = {
@@ -378,6 +378,13 @@ FUND_DB = {
         "geo": {"Zona Euro": 90.0, "Otros": 10.0},
         "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
     },
+    "ubs msci world ex usa usd i-a3 acc": {
+        "name": "UBS MSCI World ex USA USD I-A3 acc", "ticker": "LU2448026133",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.24, "aum": 820, "tracking_error": 0.06, "age_years": 3, "currency": "USD", "is_dist": False, "return_1y": 14.5, "score": 4.6,
+        "desc": "Fondo indexado institucional de UBS que replica el índice MSCI World ex USA, invirtiendo en mercados desarrollados globales excluyendo Estados Unidos.",
+        "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
+        "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.3, "Novartis AG": 1.1, "Royal Bank of Canada": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del Fondo": 90.5}
+    },
     "vanguard emerging markets acc": {
         "name": "Vanguard Emerging Markets Stock Index Fund EUR Acc", "ticker": "IE0031786696",
         "category": "Mercados Emergentes", "ter": 0.23, "aum": 11200, "tracking_error": 0.12, "age_years": 16, "currency": "EUR", "is_dist": False, "return_1y": 9.4, "score": 4.1,
@@ -437,6 +444,118 @@ FUND_DB = {
 }
 
 ETF_DB = {
+    "4gld.de": {
+        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)", "ticker": "4GLD.DE",
+        "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
+        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7,
+        "desc": "ETC respaldado por oro físico en bóvedas seguras.",
+        "geo": {"Oro Físico": 100.0},
+        "holdings": {"Lingotes de Oro Físico (999.9)": 100.0}
+    },
+    "amundi msci world ex usa ucits etf acc": {
+        "name": "Amundi MSCI World Ex USA UCITS ETF Acc", "ticker": "WEXE.DE",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.15, "aum": 673,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 2, "is_dist": False, "return_1y": 19.6, "score": 4.7,
+        "desc": "ETF ucits de Amundi que replica el índice MSCI World ex USA para países desarrollados excluyendo EE. UU.",
+        "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
+        "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.3, "Novartis AG": 1.1, "Royal Bank of Canada": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del ETF": 90.5}
+    },
+    "emim.l": {
+        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]", "ticker": "EMIM.L",
+        "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
+        "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4,
+        "desc": "Exposición completa a más de 3.000 valores de países emergentes de gran, mediana y pequeña capitalización.",
+        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0},
+        "holdings": {"Taiwan Semiconductor (TSMC)": 8.8, "Tencent Holdings": 4.5, "Samsung Electronics": 4.0, "Alibaba Group": 2.9, "Reliance Industries": 1.9, "Resto del ETF": 77.9}
+    },
+    "eqqq.de": {
+        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]", "ticker": "EQQQ.DE",
+        "category": "Tecnología", "ter": 0.30, "aum": 11500,
+        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5,
+        "desc": "Exposición a las 100 mayores empresas no financieras cotizadas en el Nasdaq.",
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
+        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2, "Resto del ETF": 60.7}
+    },
+    "exus.de": {
+        "name": "iShares MSCI World ex USA UCITS ETF", "ticker": "EXUS.DE",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.20, "aum": 3400,
+        "replication": "Física", "te": 0.04, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 11.4, "score": 4.6,
+        "desc": "Ideal para complementar carteras: invierte en países desarrollados **excluyendo totalmente Estados Unidos** (Europa, Japón, Canadá, Australia).",
+        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5},
+        "holdings": {"ASML Holding NV": 2.1, "Nestlé SA": 2.0, "Toyota Motor Corp.": 1.8, "LVMH": 1.7, "Shell PLC": 1.6, "Novartis AG": 1.5, "Resto del ETF": 89.3}
+    },
+    "exxy.de": {
+        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)", "ticker": "EXXY.DE",
+        "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
+        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1,
+        "desc": "Cesta diversificada de materias primas (energía, agricultura, metales industriales).",
+        "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0},
+        "holdings": {"Petróleo Crudo WTI / Brent": 22.0, "Cobre y Aluminio": 18.0, "Trigo y Maíz": 15.0, "Oro y Metales Preciosos": 15.0, "Gas Natural": 10.0, "Resto Cesta": 20.0}
+    },
+    "isln.de": {
+        "name": "iShares Physical Silver ETC (Plata Física)", "ticker": "ISLN.DE",
+        "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
+        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3,
+        "desc": "ETC respaldado por plata física.",
+        "geo": {"Plata Física": 100.0},
+        "holdings": {"Lingotes de Plata Física": 100.0}
+    },
+    "smh.de": {
+        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)", "ticker": "SMH.DE",
+        "category": "Tecnología", "ter": 0.35, "aum": 2100,
+        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4,
+        "desc": "Enfocado en empresas de semiconductores, chips y cadena de suministro de IA.",
+        "geo": {"EE. UU.": 75.0, "Taiwán": 15.0, "Países Bajos": 8.0, "Otros": 2.0},
+        "holdings": {"NVIDIA Corp.": 20.5, "Taiwan Semiconductor (TSMC)": 13.0, "Broadcom Inc.": 8.5, "ASML Holding": 7.8, "AMD": 5.2, "Qualcomm": 4.1, "Resto del ETF": 40.9}
+    },
+    "spyl.de": {
+        "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
+        "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9,
+        "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Resto del ETF": 73.2}
+    },
+    "swda.l": {
+        "name": "iShares Core MSCI World UCITS ETF [Acumulación]", "ticker": "SWDA.L",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
+        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8,
+        "desc": "El ETF de mercados desarrollados globales más líquido y con mayor patrimonio en Europa.",
+        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
+        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc.": 2.3, "Resto del ETF": 80.8}
+    },
+    "sxrv.de": {
+        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]", "ticker": "SXRV.DE",
+        "category": "Tecnología", "ter": 0.33, "aum": 14200,
+        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
+        "desc": "Versión de acumulación del Nasdaq 100.",
+        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
+        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2, "Resto del ETF": 64.9}
+    },
+    "ubs msci world ex usa ucits etf acc": {
+        "name": "UBS MSCI World ex USA UCITS ETF USD acc", "ticker": "WXUS.DE",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.09, "aum": 443,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "USD", "age_years": 2, "is_dist": False, "return_1y": 19.8, "score": 4.8,
+        "desc": "El ETF sobre el índice MSCI World ex USA con el TER más bajo del mercado (0.09% anual).",
+        "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
+        "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.2, "Royal Bank of Canada": 1.1, "Novartis AG": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del ETF": 90.6}
+    },
+    "vhyd.de": {
+        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]", "ticker": "VHYD.DE",
+        "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
+        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5,
+        "desc": "Acciones de alta rentabilidad por dividendo a nivel global.",
+        "geo": {"EE. UU.": 42.0, "Europa": 28.0, "Reino Unido": 12.0, "Japón": 8.0, "Otros": 10.0},
+        "holdings": {"JPMorgan Chase & Co.": 3.2, "Exxon Mobil Corp.": 3.0, "Johnson & Johnson": 2.7, "Procter & Gamble": 2.5, "Chevron Corp.": 2.2, "Pfizer": 1.9, "Resto del ETF": 84.5}
+    },
+    "vusa.as": {
+        "name": "Vanguard S&P 500 UCITS ETF [Distribución]", "ticker": "VUSA.AS",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
+        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8,
+        "desc": "ETF de distribución que replica el S&P 500.",
+        "geo": {"EE. UU.": 100.0},
+        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Resto del ETF": 73.2}
+    },
     "vwce.de": {
         "name": "Vanguard FTSE All-World UCITS ETF [Acumulación]", "ticker": "VWCE.DE",
         "category": "Renta Variable Global (MSCI World)", "ter": 0.22, "aum": 15000,
@@ -453,101 +572,13 @@ ETF_DB = {
         "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
         "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Alphabet Inc.": 2.0, "Resto del ETF": 83.2}
     },
-    "swda.l": {
-        "name": "iShares Core MSCI World UCITS ETF [Acumulación]", "ticker": "SWDA.L",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.20, "aum": 68000,
-        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 15.7, "score": 4.8,
-        "desc": "El ETF de mercados desarrollados globales más líquido y con mayor patrimonio en Europa.",
-        "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
-        "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc.": 2.3, "Resto del ETF": 80.8}
-    },
-    "spyl.de": {
-        "name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.03, "aum": 12000,
-        "replication": "Física (Completa)", "te": 0.01, "currency": "EUR", "age_years": 3, "is_dist": False, "return_1y": 22.3, "score": 4.9,
-        "desc": "El ETF del S&P 500 con el coste operativo más bajo de Europa (TER del 0.03%).",
-        "geo": {"EE. UU.": 100.0},
-        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Resto del ETF": 73.2}
-    },
-    "vusa.as": {
-        "name": "Vanguard S&P 500 UCITS ETF [Distribución]", "ticker": "VUSA.AS",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.07, "aum": 34000,
-        "replication": "Física (Completa)", "te": 0.02, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 22.1, "score": 4.8,
-        "desc": "ETF de distribución que replica el S&P 500.",
-        "geo": {"EE. UU.": 100.0},
-        "holdings": {"Apple Inc.": 7.1, "Microsoft Corp.": 6.8, "NVIDIA Corp.": 6.0, "Amazon.com Inc.": 3.7, "Alphabet Inc.": 3.2, "Resto del ETF": 73.2}
-    },
-    "exus.de": {
-        "name": "iShares MSCI World ex USA UCITS ETF", "ticker": "EXUS.DE",
-        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.20, "aum": 3400,
-        "replication": "Física", "te": 0.04, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 11.4, "score": 4.6,
-        "desc": "Ideal para complementar carteras: invierte en países desarrollados **excluyendo totalmente Estados Unidos** (Europa, Japón, Canadá, Australia).",
-        "geo": {"Japón": 22.0, "Reino Unido": 13.5, "Europa (Ex-UK)": 51.0, "Canadá": 8.0, "Otros": 5.5},
-        "holdings": {"ASML Holding NV": 2.1, "Nestlé SA": 2.0, "Toyota Motor Corp.": 1.8, "LVMH": 1.7, "Shell PLC": 1.6, "Novartis AG": 1.5, "Resto del ETF": 89.3}
-    },
-    "eqqq.de": {
-        "name": "Invesco EQQQ NASDAQ-100 UCITS ETF [Distribución]", "ticker": "EQQQ.DE",
-        "category": "Tecnología", "ter": 0.30, "aum": 11500,
-        "replication": "Física (Completa)", "te": 0.05, "currency": "EUR", "age_years": 21, "is_dist": True, "return_1y": 26.8, "score": 4.5,
-        "desc": "Exposición a las 100 mayores empresas no financieras cotizadas en el Nasdaq.",
-        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
-        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2, "Resto del ETF": 60.7}
-    },
-    "sxrv.de": {
-        "name": "iShares NASDAQ 100 UCITS ETF [Acumulación]", "ticker": "SXRV.DE",
-        "category": "Tecnología", "ter": 0.33, "aum": 14200,
-        "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 14, "is_dist": False, "return_1y": 27.1, "score": 4.6,
-        "desc": "Versión de acumulación del Nasdaq 100.",
-        "geo": {"EE. UU.": 98.5, "Otros": 1.5},
-        "holdings": {"Microsoft Corp.": 8.8, "Apple Inc.": 8.5, "NVIDIA Corp.": 8.2, "Amazon.com Inc.": 5.1, "Meta Platforms": 4.5, "Broadcom Inc.": 4.2, "Resto del ETF": 64.9}
-    },
-    "smh.de": {
-        "name": "VanEck Semiconductor UCITS ETF (Semiconductores & IA)", "ticker": "SMH.DE",
-        "category": "Tecnología", "ter": 0.35, "aum": 2100,
-        "replication": "Física (Completa)", "te": 0.08, "currency": "EUR", "age_years": 4, "is_dist": False, "return_1y": 42.0, "score": 4.4,
-        "desc": "Enfocado en empresas de semiconductores, chips y cadena de suministro de IA.",
-        "geo": {"EE. UU.": 75.0, "Taiwán": 15.0, "Países Bajos": 8.0, "Otros": 2.0},
-        "holdings": {"NVIDIA Corp.": 20.5, "Taiwan Semiconductor (TSMC)": 13.0, "Broadcom Inc.": 8.5, "ASML Holding": 7.8, "AMD": 5.2, "Qualcomm": 4.1, "Resto del ETF": 40.9}
-    },
-    "4gld.de": {
-        "name": "Xtrackers Physical Gold ETC (Oro Físico respaldado)", "ticker": "4GLD.DE",
-        "category": "Materias Primas / Metales", "ter": 0.12, "aum": 13500,
-        "replication": "Física (Custodia en Bóveda)", "te": 0.01, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 24.5, "score": 4.7,
-        "desc": "ETC respaldado por oro físico en bóvedas seguras.",
-        "geo": {"Oro Físico": 100.0},
-        "holdings": {"Lingotes de Oro Físico (999.9)": 100.0}
-    },
-    "isln.de": {
-        "name": "iShares Physical Silver ETC (Plata Física)", "ticker": "ISLN.DE",
-        "category": "Materias Primas / Metales", "ter": 0.20, "aum": 2800,
-        "replication": "Física", "te": 0.02, "currency": "EUR", "age_years": 11, "is_dist": False, "return_1y": 29.1, "score": 4.3,
-        "desc": "ETC respaldado por plata física.",
-        "geo": {"Plata Física": 100.0},
-        "holdings": {"Lingotes de Plata Física": 100.0}
-    },
-    "exxy.de": {
-        "name": "iShares Diversified Commodity Swap UCITS ETF (Cesta Materias Primas)", "ticker": "EXXY.DE",
-        "category": "Materias Primas / Metales", "ter": 0.19, "aum": 1900,
-        "replication": "Sintética", "te": 0.10, "currency": "EUR", "age_years": 8, "is_dist": False, "return_1y": 8.5, "score": 4.1,
-        "desc": "Cesta diversificada de materias primas (energía, agricultura, metales industriales).",
-        "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0},
-        "holdings": {"Petróleo Crudo WTI / Brent": 22.0, "Cobre y Aluminio": 18.0, "Trigo y Maíz": 15.0, "Oro y Metales Preciosos": 15.0, "Gas Natural": 10.0, "Resto Cesta": 20.0}
-    },
-    "vhyd.de": {
-        "name": "Vanguard FTSE All-World High Dividend Yield UCITS ETF [Distribución]", "ticker": "VHYD.DE",
-        "category": "Alto Dividendo", "ter": 0.29, "aum": 4200,
-        "replication": "Física", "te": 0.05, "currency": "EUR", "age_years": 10, "is_dist": True, "return_1y": 14.2, "score": 4.5,
-        "desc": "Acciones de alta rentabilidad por dividendo a nivel global.",
-        "geo": {"EE. UU.": 42.0, "Europa": 28.0, "Reino Unido": 12.0, "Japón": 8.0, "Otros": 10.0},
-        "holdings": {"JPMorgan Chase & Co.": 3.2, "Exxon Mobil Corp.": 3.0, "Johnson & Johnson": 2.7, "Procter & Gamble": 2.5, "Chevron Corp.": 2.2, "Pfizer": 1.9, "Resto del ETF": 84.5}
-    },
-    "emim.l": {
-        "name": "iShares Core MSCI Emerging Markets IMI UCITS ETF [Acumulación]", "ticker": "EMIM.L",
-        "category": "Mercados Emergentes", "ter": 0.18, "aum": 18000,
-        "replication": "Física (Muestreo)", "te": 0.06, "currency": "EUR", "age_years": 10, "is_dist": False, "return_1y": 9.8, "score": 4.4,
-        "desc": "Exposición completa a más de 3.000 valores de países emergentes de gran, mediana y pequeña capitalización.",
-        "geo": {"China": 26.0, "India": 19.5, "Taiwán": 17.5, "Corea del Sur": 12.0, "Otros": 25.0},
-        "holdings": {"Taiwan Semiconductor (TSMC)": 8.8, "Tencent Holdings": 4.5, "Samsung Electronics": 4.0, "Alibaba Group": 2.9, "Reliance Industries": 1.9, "Resto del ETF": 77.9}
+    "xtrackers msci world ex usa ucits etf 1c": {
+        "name": "Xtrackers MSCI World ex USA UCITS ETF 1C", "ticker": "EXUS.DE",
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.15, "aum": 7022,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "USD", "age_years": 2, "is_dist": False, "return_1y": 19.6, "score": 4.8,
+        "desc": "El ETF ucits de Xtrackers más grande sobre el índice MSCI World ex USA con más de 7.000 M€ en patrimonio.",
+        "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
+        "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.3, "Novartis AG": 1.1, "Royal Bank of Canada": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del ETF": 90.5}
     }
 }
 
@@ -954,7 +985,7 @@ elif st.session_state.stage == 'portfolio_view':
             ⚠️ **¡Alerta de Solapamiento Geográfico Detectado!**  
             Has incluido en tu cartera un fondo/ETF de **Renta Variable Global (MSCI World)** y al mismo tiempo un fondo/ETF de **EE. UU. (S&P 500)**.  
             * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%.
-            * **💡 Alternativa recomendada:** Utiliza un ETF de **Países Desarrollados Ex-EE. UU.** (*EXUS.DE*) para capturar Europa y Japón sin solapar tu fondo global.
+            * **💡 Alternativa recomendada:** Utiliza un ETF de **Países Desarrollados Ex-EE. UU.** (*EXUS.DE*, *WEXE.DE* o *WXUS.DE*) para capturar Europa y Japón sin solapar tu fondo global.
             """)
         elif not duplicated_categories and not (has_msci_world and has_sp500) and not (has_broad_market and has_tech_sector):
             st.success("✅ **Buena diversificación:** Tu cartera no presenta duplicidades ni solapamientos críticos de empresas.")
@@ -1789,7 +1820,7 @@ elif st.session_state.stage == 'analyzer':
                     """, unsafe_allow_html=True)
 
             elif st.session_state.asset_type == "ETFs":
-                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower()), None)
+                matched_etf = next((data for key, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
                 
                 if matched_etf:
                     etf_name = matched_etf["name"]
