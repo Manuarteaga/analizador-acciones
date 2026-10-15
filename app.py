@@ -3,16 +3,6 @@ import yfinance as yf
 import pandas as pd
 import io
 import json
-from supabase import create_client, Client
-
-# --- CONFIGURACIÓN DE SUPABASE (NUBE) ---
-SUPABASE_URL = "AQUÍ_PEGAS_TU_URL_DE_SUPABASE"
-SUPABASE_KEY = "AQUÍ_PEGAS_TU_CLAVE_ANON_DE_SUPABASE"
-
-try:
-    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-except Exception:
-    supabase = None
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
