@@ -414,18 +414,18 @@ FUND_DB = {
         "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
     },
     "es0165185010": {
-        "name": "Fondo Añadido 1 (ISIN: ES0165185010)", "ticker": "ES0165185010",
-        "category": "Fondos / Renta Variable", "ter": 0.20, "aum": 1500, "tracking_error": 0.05, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 10.0, "score": 4.3,
-        "desc": "Fondo de inversión añadido manualmente mediante su código ISIN.",
-        "geo": {"España / Global": 100.0},
-        "holdings": {"Posiciones Principales": 100.0}
+        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase D - Distribución)", "ticker": "ES0165185010",
+        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 120, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": True, "return_1y": 11.8, "score": 4.2,
+        "desc": "Fondo de fondos que invierte en empresas de alto dividendo global a través de estrategias de JPMorgan AM con reparto periódico de dividendos.",
+        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
+        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
     },
     "es0165185002": {
-        "name": "Fondo Añadido 2 (ISIN: ES0165185002)", "ticker": "ES0165185002",
-        "category": "Fondos / Renta Variable", "ter": 0.20, "aum": 1500, "tracking_error": 0.05, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 10.0, "score": 4.3,
-        "desc": "Fondo de inversión añadido manualmente mediante su código ISIN.",
-        "geo": {"España / Global": 100.0},
-        "holdings": {"Posiciones Principales": 100.0}
+        "name": "MyInvestor Dividendos, 100% JPMorgan AM (Clase A - Acumulación)", "ticker": "ES0165185002",
+        "category": "Alto Dividendo Global", "ter": 0.30, "aum": 210, "tracking_error": 0.15, "age_years": 2, "currency": "EUR", "is_dist": False, "return_1y": 12.0, "score": 4.3,
+        "desc": "Fondo de fondos enfocado en renta variable global de alto dividendo a través de JPMorgan AM con reinversión automática de cupones.",
+        "geo": {"EE. UU.": 55.0, "Europa": 25.0, "Reino Unido": 10.0, "Otros": 10.0},
+        "holdings": {"Empresas Globales de Alto Dividendo (JPMorgan AM)": 100.0}
     }
 }
 
@@ -767,7 +767,7 @@ if st.session_state.stage == 'home':
             [
                 "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
                 "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
-                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche or reforma)"
+                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
             ]
         )
         
@@ -1877,7 +1877,7 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 if matched_etf and "desc" in matched_etf:
-                    st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
+                    st.markdown(f"**📖 Qué includes:** {matched_etf['desc']}")
                 if matched_etf and "geo" in matched_etf:
                     render_geo_breakdown(matched_etf["geo"])
                 if matched_etf and "holdings" in matched_etf:
