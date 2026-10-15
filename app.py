@@ -412,6 +412,21 @@ FUND_DB = {
         "desc": "Fondo de corto plazo de renta fija/monetario gestionado por PIMCO.",
         "geo": {"Zona Euro": 90.0, "Otros": 10.0},
         "holdings": {"Bonos Cortos / Depósitos Bancarios": 100.0}
+    },
+    # --- NUEVOS FONDOS AÑADIDOS ---
+    "es0165185010": {
+        "name": "Fondo Añadido 1 (ISIN: ES0165185010)", "ticker": "ES0165185010",
+        "category": "Fondos / Renta Variable", "ter": 0.20, "aum": 1500, "tracking_error": 0.05, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 10.0, "score": 4.3,
+        "desc": "Fondo de inversión añadido manualmente mediante su código ISIN.",
+        "geo": {"España / Global": 100.0},
+        "holdings": {"Posiciones Principales": 100.0}
+    },
+    "es0165185002": {
+        "name": "Fondo Añadido 2 (ISIN: ES0165185002)", "ticker": "ES0165185002",
+        "category": "Fondos / Renta Variable", "ter": 0.20, "aum": 1500, "tracking_error": 0.05, "age_years": 5, "currency": "EUR", "is_dist": False, "return_1y": 10.0, "score": 4.3,
+        "desc": "Fondo de inversión añadido manualmente mediante su código ISIN.",
+        "geo": {"España / Global": 100.0},
+        "holdings": {"Posiciones Principales": 100.0}
     }
 }
 
@@ -538,7 +553,7 @@ def render_geo_breakdown(geo_dict):
         "Europa (Ex-UK)": "#06b6d4", "Canadá": "#84cc16", "Mercados Emergentes": "#f97316", 
         "Brasil": "#eab308", "Oro Físico": "#fbbf24", "Plata Física": "#94a3b8", "Energía": "#f97316", 
         "Agricultura": "#84cc16", "Metales Industriales": "#06b6d4", "Francia": "#3b82f6", "Suiza": "#ef4444", 
-        "Alemania": "#10b981", "Zona Euro": "#3b82f6", "Zona Euro (Deuda Pública/Corto Plazo)": "#3b82f6", "Otros": "#64748b"
+        "Alemania": "#10b981", "Zona Euro": "#3b82f6", "Zona Euro (Deuda Pública/Corto Plazo)": "#3b82f6", "España / Global": "#3b82f6", "Otros": "#64748b"
     }
     
     bar_html = '<div class="geo-bar-container">'
@@ -1623,7 +1638,6 @@ elif st.session_state.stage == 'analyzer':
                 color_fund = "#22c55e"
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Estable</div>'
 
-                # Etiqueta de salud profesional basada en AUM y Antigüedad
                 salud_patrimonio = "🟢 Muy Sólido (>1.000M€)" if aum_val >= 1000 else "🟡 Moderado"
                 salud_historial = "🟢 Consolidado (>5 años)" if age_val >= 5 else "🟡 Fondo Joven"
 
