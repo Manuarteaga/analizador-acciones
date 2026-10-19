@@ -250,7 +250,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de Estados y Persistencia en URL Nativa
+# Control de Estados y Persistencia
 if 'stage' not in st.session_state:
     st.session_state.stage = 'home'
 if 'asset_type' not in st.session_state:
@@ -303,6 +303,7 @@ TICKER_DB = {
     "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
     "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
     "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
+    "nike": {"ticker": "NKE", "racha": "Sólida trayectoria de crecimiento e incremento de dividendo sostenido durante más de 20 años.", "div_growth": 9.5, "div_yield": 1.8, "per": 28.5, "beta": 1.10, "payout": 45.0},
     "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
     "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0}
 }
@@ -427,6 +428,13 @@ FUND_DB = {
         "geo": {"EE. UU.": 71.5, "Japón": 6.2, "Reino Unido": 3.8, "Europa (Ex-UK)": 14.5, "Otros": 4.0},
         "holdings": {"Apple Inc.": 5.2, "Microsoft Corp.": 4.8, "NVIDIA Corp.": 4.3, "Amazon.com Inc.": 2.6, "Alphabet Inc. (Google)": 2.3, "Meta Platforms Inc.": 1.6, "Eli Lilly & Co.": 1.0, "Resto del Fondo": 78.2}
     },
+    "vanguard japan stock acc": {
+        "name": "Vanguard Japan Stock Index Fund EUR Acc", "ticker": "IE0007286036",
+        "category": "Renta Variable Japón", "ter": 0.16, "aum": 3400, "tracking_error": 0.05, "age_years": 20, "currency": "EUR", "is_dist": False, "return_1y": 14.2, "score": 4.7,
+        "desc": "Fondo indexado de Vanguard que replica la renta variable japonesa en empresas de alta y mediana capitalización (Toyota, Sony, Keyence, Mitsubishi, etc.).",
+        "geo": {"Japón": 100.0},
+        "holdings": {"Toyota Motor Corp.": 5.2, "Sony Group Corp.": 3.1, "Mitsubishi UFJ Financial": 2.8, "Keyence Corp.": 2.2, "Tokyo Electron": 2.0, "Hitachi Ltd.": 1.9, "Resto del Fondo": 82.8}
+    },
     "vanguard sp 500 acc": {
         "name": "Vanguard U.S. 500 Stock Index Fund EUR Acc", "ticker": "IE0032126645",
         "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.10, "aum": 17000, "tracking_error": 0.03, "age_years": 22, "currency": "EUR", "is_dist": False, "return_1y": 22.4, "score": 4.8,
@@ -491,6 +499,22 @@ ETF_DB = {
         "desc": "Cesta diversificada de materias primas (energía, agricultura, metales industriales).",
         "geo": {"Energía": 40.0, "Agricultura": 30.0, "Metales Industriales": 30.0},
         "holdings": {"Petróleo Crudo WTI / Brent": 22.0, "Cobre y Aluminio": 18.0, "Trigo y Maíz": 15.0, "Oro y Metales Preciosos": 15.0, "Gas Natural": 10.0, "Resto Cesta": 20.0}
+    },
+    "ijpa.de": {
+        "name": "iShares Core MSCI Japan IMI UCITS ETF [Acumulación]", "ticker": "IJPA.DE",
+        "category": "Renta Variable Japón", "ter": 0.13, "aum": 7400,
+        "replication": "Física (Muestreo)", "te": 0.03, "currency": "EUR", "age_years": 15, "is_dist": False, "return_1y": 15.5, "score": 4.8,
+        "desc": "Exposición completa a todo el mercado de renta variable de Japón: grandes, medianas y pequeñas empresas (índice MSCI Japan IMI).",
+        "geo": {"Japón": 100.0},
+        "holdings": {"Toyota Motor Corp.": 4.8, "Sony Group Corp.": 2.9, "Mitsubishi UFJ Financial": 2.6, "Keyence Corp.": 2.1, "Tokyo Electron": 1.9, "Hitachi Ltd.": 1.8, "Resto del ETF": 83.9}
+    },
+    "iqqj.de": {
+        "name": "iShares MSCI Japan UCITS ETF [Distribución]", "ticker": "IQQJ.DE",
+        "category": "Renta Variable Japón", "ter": 0.12, "aum": 4560,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "EUR", "age_years": 20, "is_dist": True, "return_1y": 15.2, "score": 4.7,
+        "desc": "Versión de distribución periódica de dividendos para empresas líderes cotizadas en la bolsa de Tokio.",
+        "geo": {"Japón": 100.0},
+        "holdings": {"Toyota Motor Corp.": 5.1, "Sony Group Corp.": 3.0, "Mitsubishi UFJ Financial": 2.7, "Keyence Corp.": 2.2, "Tokyo Electron": 2.0, "Resto del ETF": 85.0}
     },
     "isln.de": {
         "name": "iShares Physical Silver ETC (Plata Física)", "ticker": "ISLN.DE",
@@ -570,7 +594,15 @@ ETF_DB = {
         "replication": "Física (Completa)", "te": 0.04, "currency": "EUR", "age_years": 12, "is_dist": True, "return_1y": 15.8, "score": 4.7,
         "desc": "Versión de distribución del FTSE All-World.",
         "geo": {"EE. UU.": 62.5, "Mercados Emergentes": 10.5, "Japón": 5.8, "Europa": 15.2, "Otros": 6.0},
-        "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Alphabet Inc.": 2.0, "Resto del ETF": 83.2}
+        "holdings": {"Apple Inc.": 4.5, "Microsoft Corp.": 4.2, "NVIDIA Corp.": 3.8, "Amazon.com Inc.": 2.3, "Alphabet Inc.": 2.0, "Meta Platforms": 1.4, "Resto del ETF": 83.2}
+    },
+    "xmjp.de": {
+        "name": "Xtrackers MSCI Japan UCITS ETF 1C [Acumulación]", "ticker": "XMJP.DE",
+        "category": "Renta Variable Japón", "ter": 0.12, "aum": 6370,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "EUR", "age_years": 17, "is_dist": False, "return_1y": 15.4, "score": 4.8,
+        "desc": "Uno de los ETFs sobre Japón de mayor tamaño y liquidez en Europa con un TER mínimo del 0.12% anual.",
+        "geo": {"Japón": 100.0},
+        "holdings": {"Toyota Motor Corp.": 5.1, "Sony Group Corp.": 3.0, "Mitsubishi UFJ Financial": 2.7, "Keyence Corp.": 2.2, "Tokyo Electron": 2.0, "Hitachi Ltd.": 1.9, "Resto del ETF": 83.1}
     },
     "xtrackers msci world ex usa ucits etf 1c": {
         "name": "Xtrackers MSCI World ex USA UCITS ETF 1C", "ticker": "EXUS.DE",
@@ -692,6 +724,41 @@ with col_tb3:
 st.markdown("---")
 
 with st.sidebar:
+    st.header("💾 Copia de Seguridad y Datos")
+    st.markdown("Guarda o restaura tu cartera y favoritos para no perderlos nunca:")
+    
+    # Exportar copia de seguridad en JSON
+    backup_data = {
+        "portfolio": st.session_state.portfolio,
+        "favorites": st.session_state.favorites
+    }
+    backup_json = json.dumps(backup_data, indent=4)
+    
+    st.download_button(
+        label="📥 Descargar Copia Seguridad (.json)",
+        data=backup_json,
+        file_name="cartera_favoritos_backup.json",
+        mime="application/json",
+        use_container_width=True
+    )
+    
+    # Importar copia de seguridad en JSON
+    uploaded_backup = st.file_uploader("📤 Restaurar Copia Seguridad", type=["json"])
+    if uploaded_backup is not None:
+        try:
+            loaded_data = json.load(uploaded_backup)
+            if "portfolio" in loaded_data and "favorites" in loaded_data:
+                st.session_state.portfolio = loaded_data["portfolio"]
+                st.session_state.favorites = loaded_data["favorites"]
+                guardar_en_url()
+                st.success("¡Copia restaurada con éxito!")
+                st.rerun()
+            else:
+                st.error("El archivo no tiene el formato correcto.")
+        except Exception as e:
+            st.error(f"Error al leer el archivo: {e}")
+
+    st.markdown("---")
     st.header("📊 Historial de Sesión")
     num_entries = len(st.session_state.history)
     st.markdown(f"Activos / Entradas analizadas: **{num_entries}**")
@@ -708,10 +775,11 @@ with st.sidebar:
             data=excel_data,
             file_name="historial_multifuente.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            type="primary"
+            type="primary",
+            use_container_width=True
         )
         
-        if st.button("🗑️ Borrar Historial"):
+        if st.button("🗑️ Borrar Historial", use_container_width=True):
             st.session_state.history = []
             st.rerun()
     else:
@@ -719,7 +787,7 @@ with st.sidebar:
 
     if st.session_state.stage != 'home':
         st.markdown("---")
-        if st.button("🏠 Volver al Menú Principal"):
+        if st.button("🏠 Volver al Menú Principal", use_container_width=True):
             reset_navigation()
             st.rerun()
 
@@ -1327,24 +1395,27 @@ elif st.session_state.stage == 'analyzer':
 
     elif st.session_state.asset_type == "ETFs" and st.session_state.sub_type == "Explorador ETFs":
         st.title("🗺️ Guía y Tipos de ETFs Disponibles")
-        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["🌍 Globales", "💰 Dividendos", "🥇 Materias Primas / Metales", "💻 Tecnología & IA", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
+        tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs(["🌍 Globales", "🇯🇵 Japón", "💰 Dividendos", "🥇 Materias Primas / Metales", "💻 Tecnología & IA", "⚡ Renovables & Eléctricas", "🚀 Emergentes"])
         
         with tab1:
             st.subheader("Renta Variable Global")
             st.markdown("- **Objetivo:** Diversificación global en países desarrollados.")
         with tab2:
+            st.subheader("Renta Variable Japón")
+            st.markdown("- **Objetivo:** Exposición a grandes conglomerados nipones, robótica, semiconductores y líderes de automoción (Toyota, Sony, Mitsubishi, Keyence).")
+        with tab3:
             st.subheader("Alto Dividendo")
             st.markdown("- **Objetivo:** Empresas maduras con pagos estables y cobro periódico de cupones.")
-        with tab3:
+        with tab4:
             st.subheader("Materias Primas y Metales")
             st.markdown("- **Objetivo:** Exposición física a Oro, Plata y Cesta de Commodities como cobertura contra inflación.")
-        with tab4:
+        with tab5:
             st.subheader("Tecnología, IA & Semiconductores")
             st.markdown("- **Objetivo:** Innovación, Inteligencia Artificial, Software y Ciberseguridad.")
-        with tab5:
-            st.subheader("Renovables y Utilities")
-            st.markdown("- **Objetivo:** Transición energética y eléctricas defensivas.")
         with tab6:
+            st.subheader("Renovables & Utilities")
+            st.markdown("- **Objetivo:** Transición energética y eléctricas defensivas.")
+        with tab7:
             st.subheader("Emergentes")
             st.markdown("- **Objetivo:** Crecimiento en economías en desarrollo.")
 
@@ -1418,7 +1489,7 @@ elif st.session_state.stage == 'analyzer':
                 user_input = ""
 
         elif st.session_state.asset_type == "ETFs":
-            st.markdown("### 🌐 Biblioteca Completa de ETFs (Materias Primas, Tecnología, Metales, Distribución...)")
+            st.markdown("### 🌐 Biblioteca Completa de ETFs (Materias Primas, Tecnología, Japón, Metales...)")
             st.markdown("Selecciona un ETF de la biblioteca organizada para analizar su cotización, comisiones y equivalencias:")
             
             etf_options = ["-- Selecciona un ETF de la biblioteca --"]
@@ -1480,11 +1551,20 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
+                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
+                    ex_dividend_date = info.get('exDividendDate', None)
+                    has_real_dividend = (div_y_val > 0.0) or (ex_dividend_date is not None)
+
+                    if st.session_state.sub_type == "Sin dividendos" and has_real_dividend:
+                        st.warning(f"""
+                        💡 **Aviso importante:** Hemos detectado que **{name} ({ticker_input})** reparte dividendos (Yield estimado: `{div_y_val:.2f}%`).  
+                        Te recomendamos buscarla y evaluarla en la sección de **"Con dividendos"** para que las proyecciones de interés compuesto e ingresos incluyan los cobros periódicos de forma precisa.
+                        """)
+
                     per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
                     pb_y = info.get('priceToBook') or 3.0
                     roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
-                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
                     beta_val = info.get('beta') or db_beta
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
