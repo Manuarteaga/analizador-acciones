@@ -163,34 +163,6 @@ st.markdown("""
         color: #ffffff;
     }
 
-    .featured-card {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        border: 1px solid #38bdf8;
-        border-radius: 12px;
-        padding: 22px;
-        margin-bottom: 10px;
-    }
-    .featured-badge {
-        background-color: #0284c7;
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        display: inline-block;
-        margin-bottom: 8px;
-    }
-    .score-tag {
-        background-color: #065f46;
-        color: #34d399;
-        padding: 3px 10px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: bold;
-        float: right;
-    }
-
     .converter-card {
         background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
         border: 1px solid #6366f1;
@@ -250,7 +222,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Control de Estados y Persistencia
 if 'stage' not in st.session_state:
     st.session_state.stage = 'home'
 if 'asset_type' not in st.session_state:
@@ -719,9 +690,6 @@ with st.sidebar:
         * **Interés Compuesto:** Proceso mediante el cual las ganancias o rendimientos generados por una inversión se reinvierten para producir sus propios rendimientos en periodos futuros.
         """)
 
-# ----------------------------------------------------
-# LANDING PAGE
-# ----------------------------------------------------
 if st.session_state.stage == 'home':
     st.markdown("### ¿Qué tipo de activo quieres evaluar?")
     col1, col2, col3, col4 = st.columns(4)
@@ -783,7 +751,6 @@ if st.session_state.stage == 'home':
         
         if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
             st.markdown("---")
-            
             if "No, acabo" in q_knowledge:
                 st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) un poco más bajas.")
 
@@ -796,9 +763,6 @@ if st.session_state.stage == 'home':
             elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
                 st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
 
-# ----------------------------------------------------
-# SECCIÓN SUBOPCIONES
-# ----------------------------------------------------
 elif st.session_state.stage == 'sub_options':
     if st.button("← Volver a selección de activos"):
         reset_navigation()
@@ -853,9 +817,6 @@ elif st.session_state.stage == 'sub_options':
                 st.session_state.stage = "analyzer"
                 st.rerun()
 
-# ----------------------------------------------------
-# SECCIÓN FAVORITOS
-# ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
     if st.button("← Volver al Menú Principal"):
         reset_navigation()
@@ -900,9 +861,6 @@ elif st.session_state.stage == 'favorites_view':
             guardar_en_url()
             st.rerun()
 
-# ----------------------------------------------------
-# SECCIÓN CARTERA CONSOLIDADA CON AUDITORÍA DE SOLAPAMIENTO
-# ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
     if st.button("← Volver al Menú Principal"):
         reset_navigation()
@@ -914,7 +872,6 @@ elif st.session_state.stage == 'portfolio_view':
         st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
-        
         category_counts = pd.Series(categories_in_portfolio).value_counts()
         duplicated_categories = category_counts[category_counts > 1].index.tolist()
 
@@ -922,36 +879,15 @@ elif st.session_state.stage == 'portfolio_view':
             for dup_cat in duplicated_categories:
                 st.warning(f"""
                 ⚠️ **¡Alerta de Activos Duplicados Detectada!**  
-                Has añadido **{category_counts[dup_cat]} activos** de la misma categoría (**{dup_cat}**).  
-                * **El problema:** Estás invirtiendo en el mismo índice o mercado a través de diferentes vehículos. Esto no aporta diversificación real y encarece la gestión.
-                * **💡 Recomendación:** Unifica tu aportación en un solo activo de esa categoría que tenga menor coste.
+                Has añadido **{category_counts[dup_cat]} activos** de la misma categoría (**{dup_cat}**). Unifica tu aportación en un solo activo de menor coste.
                 """)
 
         portfolio_tickers = [item.get('ticker', '').lower() for item in st.session_state.portfolio]
-        
         has_broad_market = any(t in portfolio_tickers for t in ['spyl.de', 'vusa.as', 'swda.l', 'vwce.de', 'vwrl.as', 'ie0032126645', 'ie00b03hd191', 'ie00byx5nx33'])
         has_tech_sector = any(t in portfolio_tickers for t in ['eqqq.de', 'sxrv.de', 'smh.de', 'ie00b1w33f31', 'es0165265002'])
 
         if has_broad_market and has_tech_sector:
-            st.warning("""
-            ⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!**  
-            Has combinado un índice general de mercado (como **S&P 500 o MSCI World**) con un ETF o Fondo sectorial de **Tecnología o Semiconductores (ej. Nasdaq 100)**.  
-            * **El problema:** Los índices generales ya dedican un porcentaje altísimo de su cartera a **Apple, Microsoft, NVIDIA, Amazon y Alphabet**. Al añadir un fondo tecnológico específico, estás inflando artificialmente el peso de estas mismas empresas.
-            * **💡 Recomendación:** Asegúrate de que este solapamiento es intencionado o equilibra tu cartera con activos descorrelacionados.
-            """)
-
-        has_msci_world = any("Global" in cat for cat in categories_in_portfolio)
-        has_sp500 = any("S&P 500" in cat for cat in categories_in_portfolio)
-
-        if has_msci_world and has_sp500:
-            st.warning("""
-            ⚠️ **¡Alerta de Solapamiento Geográfico Detectado!**  
-            Has incluido en tu cartera un fondo/ETF de **Renta Variable Global (MSCI World)** y al mismo tiempo un fondo/ETF de **EE. UU. (S&P 500)**.  
-            * **El problema:** El índice MSCI World ya invierte un **70% de su capital en EE. UU.** Al sumar el S&P 500, estarás sobreponderando EE. UU. por encima del 85-90%.
-            * **💡 Alternativa recomendada:** Utiliza un ETF de **Países Desarrollados Ex-EE. UU.** (*EXUS.DE*, *WEXE.DE* o *WXUS.DE*) para capturar Europa y Japón sin solapar tu fondo global.
-            """)
-        elif not duplicated_categories and not (has_msci_world and has_sp500) and not (has_broad_market and has_tech_sector):
-            st.success("✅ **Buena diversificación:** Tu cartera no presenta duplicidades ni solapamientos críticos de empresas.")
+            st.warning("⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!** Estás combinando S&P500 o MSCI World con fondos/ETFs tecnológicos o Nasdaq 100.")
 
         st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
         
@@ -974,11 +910,11 @@ elif st.session_state.stage == 'portfolio_view':
             is_etf_or_stock = item['type'] in ["ETF", "Acción"]
             broker_profiles = ETF_BROKER_PROFILES if is_etf_or_stock else FUND_BROKER_PROFILES
             
-            if item.get('is_dist', False) or item.get('type') == "Acción":
+            is_dist_item = item.get('is_dist', False) or (item.get('type') == "Acción") or ("Dividendo" in item.get('category', ''))
+            if is_dist_item:
                 has_dividend_asset = True
 
             currency_act = item.get('currency', 'EUR')
-            
             ticker_key = item['ticker'].lower()
             ter_val = item.get('ter', 0.20)
             est_rent_val = float(item.get('est_rent', 7.5))
@@ -1069,19 +1005,22 @@ elif st.session_state.stage == 'portfolio_view':
                         costes_tot_act = acum_b + acum_s + acum_f
                         int_brutos = saldo_act - (total_aport_acum - costes_tot_act)
                         
-                        if item.get('is_dist', False) or item.get('type') == "Acción":
+                        if is_dist_item:
                             div_bruto_anual = saldo_act * 0.025
                             div_bruto_activo += div_bruto_anual
 
-                        historial_activo.append({
+                        row_dict = {
                             "Año": f"Año {ano_act}",
                             "Capital Aportado Bruto (€)": round(total_aport_acum, 2),
                             "Comisiones Bróker (€)": round(acum_b, 2),
                             "Coste Spread (€)": round(acum_s, 2),
                             "Coste Cambio Divisa (€)": round(acum_f, 2),
                             "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
-                            "Capital Total Neto (€)": round(saldo_act, 2)
-                        })
+                        }
+                        if is_dist_item:
+                            row_dict["Dividendo Bruto Anual (€)"] = round(saldo_act * 0.025, 2)
+                        row_dict["Capital Total Neto (€)"] = round(saldo_act, 2)
+                        historial_activo.append(row_dict)
 
                 df_act = pd.DataFrame(historial_activo)
                 st.markdown("##### 📊 Desglose de crecimiento anual para este activo:")
@@ -1132,9 +1071,6 @@ elif st.session_state.stage == 'portfolio_view':
                 guardar_en_url()
                 st.rerun()
 
-# ----------------------------------------------------
-# SECCIÓN ANALIZADOR
-# ----------------------------------------------------
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
         st.session_state.stage = 'sub_options' if st.session_state.asset_type != "Fondos Monetarios" else 'home'
@@ -1326,13 +1262,10 @@ elif st.session_state.stage == 'analyzer':
 
         if st.session_state.asset_type == "Acciones":
             st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
-            st.markdown("Introduce el nombre o el ticker de la acción que deseas analizar (ej. `AAPL`, `MSFT`, `SAN.MC`, `TSLA`):")
             user_input = st.text_input("Ticker o Nombre de la Acción:", value=default_input).strip().upper()
 
         elif st.session_state.asset_type == "Fondos Monetarios":
             st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
-            st.markdown("Selecciona un fondo monetario para aparcar liquidez con total seguridad y rentabilidad ligada a tipos:")
-            
             monetary_options = ["-- Selecciona un fondo monetario --"]
             for data in FUND_DB.values():
                 if data["category"] == "Fondos Monetarios":
@@ -1357,8 +1290,6 @@ elif st.session_state.stage == 'analyzer':
 
         elif st.session_state.asset_type == "Fondos indexados":
             st.markdown("### 📁 Biblioteca Completa de Fondos Indexados (Acumulación y Distribución)")
-            st.markdown("Selecciona un fondo de la biblioteca ordenada para analizar sus métricas, ver equivalencias y simular rentabilidades:")
-            
             fund_options = ["-- Selecciona un fondo indexado de la biblioteca --"]
             for data in FUND_DB.values():
                 if data["category"] != "Fondos Monetarios":
@@ -1384,8 +1315,6 @@ elif st.session_state.stage == 'analyzer':
 
         elif st.session_state.asset_type == "ETFs":
             st.markdown("### 🌐 Biblioteca Completa de ETFs (Materias Primas, Tecnología, Japón, Metales...)")
-            st.markdown("Selecciona un ETF de la biblioteca organizada para analizar su cotización, comisiones y equivalencias:")
-            
             etf_options = ["-- Selecciona un ETF de la biblioteca --"]
             for data in ETF_DB.values():
                 tipo_tag = "Distribución 💰" if data['is_dist'] else "Acumulación 📥"
@@ -1420,7 +1349,6 @@ elif st.session_state.stage == 'analyzer':
         else:
             if st.session_state.asset_type == "Acciones":
                 ticker_input = user_input
-                
                 try:
                     stock = yf.Ticker(ticker_input)
                     hist_price = stock.history(period="3mo")
@@ -1437,21 +1365,11 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
-                    # CORRECCIÓN DE DIVIDEND YIELD
                     raw_yield = info.get('dividendYield', 0) or 0.0
                     if raw_yield > 0 and raw_yield < 1.0:
                         div_y_val = raw_yield * 100
                     else:
                         div_y_val = raw_yield
-
-                    ex_dividend_date = info.get('exDividendDate', None)
-                    has_real_dividend = (div_y_val > 0.0) or (ex_dividend_date is not None)
-
-                    if st.session_state.sub_type == "Sin dividendos" and has_real_dividend:
-                        st.warning(f"""
-                        💡 **Aviso importante:** Hemos detectado que **{name} ({ticker_input})** reparte dividendos (Yield estimado: `{div_y_val:.2f}%`).  
-                        Te recomendamos evaluarla en la sección de **"Con dividendos"** para que las proyecciones de interés compuesto e ingresos incluyan los cobros periódicos de forma precisa.
-                        """)
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or 18.0
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -1579,11 +1497,12 @@ elif st.session_state.stage == 'analyzer':
                                     "Coste Spread (€)": round(a_spread_stock, 2),
                                     "Coste Cambio Divisa (€)": round(a_fx_stock, 2),
                                     "Beneficio Neto (€)": round(max(0.0, int_b_stock), 2),
+                                    "Dividendo Bruto Anual (€)": round(div_bruto_anual_s, 2),
                                     "Capital Total Neto (€)": round(saldo_stock, 2)
                                 })
 
                         df_sim_stock = pd.DataFrame(historial_stock)
-                        with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                        with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
                             st.dataframe(df_sim_stock, use_container_width=True)
 
                         c_tot_acum_stock = a_broker_stock + a_spread_stock + a_fx_stock
@@ -1594,12 +1513,13 @@ elif st.session_state.stage == 'analyzer':
                         liquido_stock = net_aport_stock + neto_stock
                         div_neto_stock = div_bruto_stock_total * (1 - 0.19)
 
-                        sm1, sm2, sm3, sm4, sm5 = st.columns(5)
+                        sm1, sm2, sm3, sm4, sm5, sm6 = st.columns(6)
                         sm1.metric("Capital Invertido Neto", f"{net_aport_stock:,.2f} €")
                         sm2.metric("Costes Totales", f"{c_tot_acum_stock:,.2f} €")
                         sm3.metric("Beneficio Bruto", f"{bruto_stock:,.2f} €")
                         sm4.metric("Beneficio Neto (19%)", f"{neto_stock:,.2f} €")
-                        sm5.metric("Div. Netos Cobrados", f"{div_neto_stock:,.2f} €")
+                        sm5.metric("Div. Brutos Total", f"{div_bruto_stock_total:,.2f} €")
+                        sm6.metric("Div. Netos Total", f"{div_neto_stock:,.2f} €")
 
                         st.markdown(f"""
                         <div class="final-net-card">
@@ -1738,6 +1658,7 @@ elif st.session_state.stage == 'analyzer':
                     a_spread_f = c_spread_i_f
                     a_fx_f = c_fx_i_f
 
+                    div_bruto_fund_total = 0.0
                     historial_f = []
 
                     for p in range(1, tot_per_f + 1):
@@ -1761,18 +1682,24 @@ elif st.session_state.stage == 'analyzer':
                             c_tot_f = a_broker_f + a_spread_f + a_fx_f
                             int_b_f = saldo_f - (aport_f - c_tot_f)
                             
-                            historial_f.append({
+                            row_f_dict = {
                                 "Año": f"Año {ano_act_f}",
                                 "Capital Aportado Bruto (€)": round(aport_f, 2),
                                 "Comisiones Bróker (€)": round(a_broker_f, 2),
                                 "Coste Spread (€)": round(a_spread_f, 2),
                                 "Coste Cambio Divisa (€)": round(a_fx_f, 2),
                                 "Beneficio Neto (€)": round(max(0.0, int_b_f), 2),
-                                "Capital Total Neto (€)": round(saldo_f, 2)
-                            })
+                            }
+                            if is_dist_fund:
+                                div_bruto_anual_f = saldo_f * 0.025
+                                div_bruto_fund_total += div_bruto_anual_f
+                                row_f_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual_f, 2)
+                            
+                            row_f_dict["Capital Total Neto (€)"] = round(saldo_f, 2)
+                            historial_f.append(row_f_dict)
 
                     df_sim_f = pd.DataFrame(historial_f)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
                         st.dataframe(df_sim_f, use_container_width=True)
 
                     c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
@@ -1781,12 +1708,22 @@ elif st.session_state.stage == 'analyzer':
                     imp_f = bruto_f * 0.19
                     neto_f = bruto_f - imp_f
                     liquido_f = net_aport_f + neto_f
+                    div_neto_fund = div_bruto_fund_total * (1 - 0.19)
 
-                    fm1, fm2, fm3, fm4 = st.columns(4)
-                    fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
-                    fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
-                    fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
-                    fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
+                    if is_dist_fund:
+                        fm1, fm2, fm3, fm4, fm5, fm6 = st.columns(6)
+                        fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
+                        fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
+                        fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
+                        fm4.metric("Beneficio Neto (19%)", f"{neto_f:,.2f} €")
+                        fm5.metric("Div. Brutos Total", f"{div_bruto_fund_total:,.2f} €")
+                        fm6.metric("Div. Netos Total", f"{div_neto_fund:,.2f} €")
+                    else:
+                        fm1, fm2, fm3, fm4 = st.columns(4)
+                        fm1.metric("Capital Invertido Neto", f"{net_aport_f:,.2f} €")
+                        fm2.metric("Costes Totales", f"{c_tot_acum_f:,.2f} €")
+                        fm3.metric("Beneficio Bruto", f"{bruto_f:,.2f} €")
+                        fm4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_f:,.2f} €")
 
                     st.markdown(f"""
                     <div class="final-net-card">
@@ -1944,6 +1881,7 @@ elif st.session_state.stage == 'analyzer':
                     a_spread_e = c_spread_i_e
                     a_fx_e = c_fx_i_e
 
+                    div_bruto_etf_total = 0.0
                     historial_e = []
 
                     for p in range(1, tot_per_e + 1):
@@ -1967,18 +1905,24 @@ elif st.session_state.stage == 'analyzer':
                             c_tot_e = a_broker_e + a_spread_e + a_fx_e
                             int_b_e = saldo_e - (aport_e - c_tot_e)
                             
-                            historial_e.append({
+                            row_e_dict = {
                                 "Año": f"Año {ano_act_e}",
                                 "Capital Aportado Bruto (€)": round(aport_e, 2),
                                 "Comisiones Bróker (€)": round(a_broker_e, 2),
                                 "Coste Spread (€)": round(a_spread_e, 2),
                                 "Coste Cambio Divisa (€)": round(a_fx_e, 2),
                                 "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
-                                "Capital Total Neto (€)": round(saldo_e, 2)
-                            })
+                            }
+                            if is_dist_etf:
+                                div_bruto_anual_e = saldo_e * 0.025
+                                div_bruto_etf_total += div_bruto_anual_e
+                                row_e_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual_e, 2)
+                            
+                            row_e_dict["Capital Total Neto (€)"] = round(saldo_e, 2)
+                            historial_e.append(row_e_dict)
 
                     df_sim_e = pd.DataFrame(historial_e)
-                    with st.expander("Ver desglose anual detallado con comisiones y spreads", expanded=True):
+                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
                         st.dataframe(df_sim_e, use_container_width=True)
 
                     c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
@@ -1987,12 +1931,22 @@ elif st.session_state.stage == 'analyzer':
                     imp_e = bruto_e * 0.19
                     neto_e = bruto_e - imp_e
                     liquido_e = net_aport_e + neto_e
+                    div_neto_etf = div_bruto_etf_total * (1 - 0.19)
 
-                    em1, em2, em3, em4 = st.columns(4)
-                    em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                    em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
-                    em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
-                    em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
+                    if is_dist_etf:
+                        em1, em2, em3, em4, em5, em6 = st.columns(6)
+                        em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
+                        em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
+                        em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
+                        em4.metric("Beneficio Neto (19%)", f"{neto_e:,.2f} €")
+                        em5.metric("Div. Brutos Total", f"{div_bruto_etf_total:,.2f} €")
+                        em6.metric("Div. Netos Total", f"{div_neto_etf:,.2f} €")
+                    else:
+                        em1, em2, em3, em4 = st.columns(4)
+                        em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
+                        em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
+                        em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
+                        em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
 
                     st.markdown(f"""
                     <div class="final-net-card">
