@@ -680,9 +680,6 @@ with col_tb3:
 st.markdown("---")
 
 with st.sidebar:
-    # ----------------------------------------------------
-    # GLOSARIO DE TÉRMINOS ECONÓMICOS Y DE INVERSIÓN
-    # ----------------------------------------------------
     st.header("📖 Glosario Financiero")
     st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
 
@@ -756,7 +753,6 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    # 1. CUESTIONARIO INTERACTIVO
     st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
     with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
         q_knowledge = st.radio(
@@ -1441,7 +1437,13 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
-                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else 0.0
+                    # CORRECCIÓN DE DIVIDEND YIELD
+                    raw_yield = info.get('dividendYield', 0) or 0.0
+                    if raw_yield > 0 and raw_yield < 1.0:
+                        div_y_val = raw_yield * 100
+                    else:
+                        div_y_val = raw_yield
+
                     ex_dividend_date = info.get('exDividendDate', None)
                     has_real_dividend = (div_y_val > 0.0) or (ex_dividend_date is not None)
 
@@ -1458,7 +1460,6 @@ elif st.session_state.stage == 'analyzer':
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
 
-                    # Cálculo dinámico de la nota basado en métricas de Yahoo Finance
                     score_calc = 3.0
                     if per_y > 0 and per_y < 25: score_calc += 0.5
                     if roe_val > 15: score_calc += 0.5
