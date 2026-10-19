@@ -785,6 +785,49 @@ with st.sidebar:
     else:
         st.info("Analiza algún activo para habilitar la exportación.")
 
+    # ----------------------------------------------------
+    # GLOSARIO DE TÉRMINOS ECONÓMICOS Y DE INVERSIÓN
+    # ----------------------------------------------------
+    st.markdown("---")
+    st.header("📖 Glosario Financiero")
+    st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
+
+    with st.expander("💼 Vehículos de Inversión"):
+        st.markdown("""
+        * **Cartera de Inversión:** Conjunto total de activos financieros (acciones, fondos, ETFs, efectivo) que posee un inversor.
+        * **Acciones:** Títulos de renta variable que representan una parte alícuota del capital social de una empresa pública o privada.
+        * **Fondo de Inversión / Indexado:** Institución de Inversión Colectiva (IIC) que agrupa el capital de múltiples inversores para réplica o gestión activa. En España disfrutan del beneficio de **traspasabilidad sin peaje fiscal**.
+        * **ETF (Exchange Traded Fund):** Fondo cotizado en bolsa que cotiza e interactúa en el mercado como una acción en tiempo real, combinando la diversificación de un fondo con la liquidez de una acción.
+        * **Fondo Monetario:** Vehículo enfocado en instrumentos de deuda a muy corto plazo (Letras del Tesoro, pagarés AAA) diseñado para preservar el capital y ofrecer liquidez diaria.
+        """)
+
+    with st.expander("📊 Métricas de Valoración y Análisis"):
+        st.markdown("""
+        * **PER (Price to Earnings Ratio):** Ratio precio-beneficio. Indica cuántas veces se paga el beneficio anual de una empresa al comprar su acción ($PER = \\frac{Precio}{Beneficio\\ por\\ Acción}$). Un PER alto suele indicar altas expectativas de crecimiento o sobrevaloración.
+        * **Dividend Yield (Rentabilidad por Dividendo):** Porcentaje que paga la empresa en dividendos anuales con respecto a su cotización ($Yield = \\frac{Dividendo\\ Anual}{Precio\\ Acción} \\times 100$).
+        * **Payout Ratio:** Porcentaje de los beneficios netos que la empresa destina a pagar dividendos a sus accionistas.
+        * **Beta:** Medida de la volatilidad o riesgo sistemático de un activo en comparación con el mercado global (Beta > 1 es más volátil que el mercado; Beta < 1 es más defensivo).
+        * **Price / FCF (Precio / Flujo de Caja Libre):** Compara el valor bursátil con el dinero efectivo real generado tras gastos de capital.
+        * **ROE (Return on Equity):** Rentabilidad financiera que mide la capacidad de la empresa para generar beneficios con el capital de sus accionistas.
+        """)
+
+    with st.expander("⚙️ Costes, Gastos y Gestión"):
+        st.markdown("""
+        * **TER (Total Expense Ratio):** Total de gastos corrientes anuales repercutidos directamente por la gestora sobre el fondo o ETF.
+        * **Tracking Error:** Muestra la desviación o margen de diferencia entre la rentabilidad del fondo/ETF y la del índice que pretende replicar.
+        * **AUM (Assets Under Management):** Patrimonio total gestionado en un fondo o ETF. Cuanto mayor es el AUM, suele haber menor riesgo de liquidación.
+        * **Spread (Horquilla):** Diferencia entre el precio de compra (*Ask*) y el precio de venta (*Bid*) que aplica el mercado o bróker.
+        * **Comisión de Cambio de Divisa (FX):** Recargo aplicado por el bróker al operar en activos cotizados en monedas distintas al Euro (ej. USD).
+        """)
+
+    with st.expander("🔄 Modalidades y Fiscalidad"):
+        st.markdown("""
+        * **Acumulación (Acc):** Los dividendos o cupones cobrados por el fondo o ETF se reinvierten automáticamente en la propia cartera para potenciar el interés compuesto.
+        * **Distribución (Dist):** Los dividendos cobrados se liquidan de forma periódica abonándose en la cuenta de efectivo del inversor.
+        * **Diferimiento Fiscal:** Ventaja regulatoria de los fondos indexados en España que permite traspasar dinero de un fondo a otro sin tributar en el IRPF por las ganancias hasta el reembolso definitivo.
+        * **Interés Compuesto:** Proceso mediante el cual las ganancias o rendimientos generados por una inversión se reinvierten para producir sus propios rendimientos en periodos futuros.
+        """)
+
     if st.session_state.stage != 'home':
         st.markdown("---")
         if st.button("🏠 Volver al Menú Principal", use_container_width=True):
@@ -1265,7 +1308,7 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-downward"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
@@ -1789,7 +1832,7 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 if matched_fund and "desc" in matched_fund:
-                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
+                    st.markdown(f"**📖 Qué includes:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
                 if matched_fund and "holdings" in matched_fund:
