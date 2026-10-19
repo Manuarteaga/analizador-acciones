@@ -295,19 +295,6 @@ def reset_navigation():
     st.session_state.sub_type = None
     st.session_state.selected_eval_input = ""
 
-TICKER_DB = {
-    "banco sabadell": {"ticker": "SAB.MC", "racha": "Cíclica / Irregular (Sujeta a los altibajos históricos del sector financiero).", "div_growth": 2.0, "div_yield": 5.5, "per": 8.0, "beta": 1.25, "payout": 50.0},
-    "banco santander": {"ticker": "SAN.MC", "racha": "Cíclica / Con antecedentes de ajuste en crisis pasadas.", "div_growth": 2.5, "div_yield": 4.0, "per": 7.5, "beta": 1.30, "payout": 40.0},
-    "caixabank": {"ticker": "CABK.MC", "racha": "Cíclica / Sensible al ciclo económico y a los planes de consolidación bancaria.", "div_growth": 4.5, "div_yield": 6.2, "per": 8.5, "beta": 1.10, "payout": 60.0},
-    "copart": {"ticker": "CPRT", "racha": "Empresa pura de crecimiento orientada a reinvestigación.", "div_growth": 0.0, "div_yield": 0.0, "per": 28.0, "beta": 1.05, "payout": 0.0},
-    "iberdrola": {"ticker": "IBE.MC", "racha": "Impecable (Programa de retribución flexible consolidado sin recortes históricos).", "div_growth": 5.0, "div_yield": 4.8, "per": 16.5, "beta": 0.65, "payout": 70.0},
-    "inditex": {"ticker": "ITX.MC", "racha": "Muy alta (Décadas cuidando al accionista con pagos estables y extraordinarios).", "div_growth": 6.5, "div_yield": 2.8, "per": 24.0, "beta": 0.95, "payout": 60.0},
-    "microsoft": {"ticker": "MSFT", "racha": "Sólido crecimiento tecnológico sin dependencia de dividendo tradicional.", "div_growth": 10.0, "div_yield": 0.7, "per": 32.0, "beta": 0.90, "payout": 25.0},
-    "nike": {"ticker": "NKE", "racha": "Sólida trayectoria de crecimiento e incremento de dividendo sostenido durante más de 20 años.", "div_growth": 9.5, "div_yield": 1.8, "per": 28.5, "beta": 1.10, "payout": 45.0},
-    "procter & gamble": {"ticker": "PG", "racha": "Excepcional. Aristócrata del Dividendo con más de 65 años de subidas ininterrumpidas.", "div_growth": 6.0, "div_yield": 2.4, "per": 25.0, "beta": 0.55, "payout": 60.0},
-    "telefonica": {"ticker": "TEF.MC", "racha": "Irregular / Con recortes históricos y reestructuraciones de deuda.", "div_growth": 1.0, "div_yield": 6.5, "per": 12.0, "beta": 0.85, "payout": 85.0}
-}
-
 FUND_DB = {
     "axa court terme ac": {
         "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
@@ -658,37 +645,6 @@ def render_holdings_breakdown(holdings_dict):
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
 
-def get_best_single_monthly_recommendation():
-    candidates = []
-    best_stock_key = max(TICKER_DB.keys(), key=lambda k: TICKER_DB[k]['div_yield'] + (50 / TICKER_DB[k]['per']))
-    stock_data = TICKER_DB[best_stock_key]
-    candidates.append({
-        "type_label": "Acción del Mes", "asset_type": "Acciones", "sub_type": "Con dividendos",
-        "name": best_stock_key.title() + " S.A.", "ticker": stock_data["ticker"],
-        "desc": stock_data["racha"], "score": 4.3, "grade": "A", "ter": 0.0, "is_dist": True
-    })
-
-    best_fund_key = min(FUND_DB.keys(), key=lambda k: FUND_DB[k]['ter'])
-    fund_data = FUND_DB[best_fund_key]
-    candidates.append({
-        "type_label": "Fondo del Mes", "asset_type": "Fondos indexados", "sub_type": "Acumulación",
-        "name": fund_data["name"], "ticker": fund_data["ticker"],
-        "desc": f"ISIN: {fund_data['ticker']} | TER ultra bajo: {fund_data['ter']}% ({fund_data['category']})",
-        "score": 4.6, "grade": "A+", "ter": fund_data["ter"], "is_dist": False
-    })
-
-    best_etf_key = min(ETF_DB.keys(), key=lambda k: ETF_DB[k]['ter'])
-    etf_data = ETF_DB[best_etf_key]
-    candidates.append({
-        "type_label": "ETF del Mes", "asset_type": "ETFs", "sub_type": "Evaluación ETF",
-        "name": etf_data["name"], "ticker": etf_data["ticker"],
-        "desc": f"Ticker: {etf_data['ticker']} | TER: {etf_data['ter']}% ({etf_data['category']})",
-        "score": 4.7, "grade": "A+", "ter": etf_data["ter"], "is_dist": False
-    })
-    return max(candidates, key=lambda c: c["score"])
-
-top_asset = get_best_single_monthly_recommendation()
-
 FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
     "Indexa Capital (Cartera / Gestor automatizado)": {"fee_percent": 0.45, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
@@ -724,71 +680,9 @@ with col_tb3:
 st.markdown("---")
 
 with st.sidebar:
-    st.header("💾 Copia de Seguridad y Datos")
-    st.markdown("Guarda o restaura tu cartera y favoritos para no perderlos nunca:")
-    
-    # Exportar copia de seguridad en JSON
-    backup_data = {
-        "portfolio": st.session_state.portfolio,
-        "favorites": st.session_state.favorites
-    }
-    backup_json = json.dumps(backup_data, indent=4)
-    
-    st.download_button(
-        label="📥 Descargar Copia Seguridad (.json)",
-        data=backup_json,
-        file_name="cartera_favoritos_backup.json",
-        mime="application/json",
-        use_container_width=True
-    )
-    
-    # Importar copia de seguridad en JSON
-    uploaded_backup = st.file_uploader("📤 Restaurar Copia Seguridad", type=["json"])
-    if uploaded_backup is not None:
-        try:
-            loaded_data = json.load(uploaded_backup)
-            if "portfolio" in loaded_data and "favorites" in loaded_data:
-                st.session_state.portfolio = loaded_data["portfolio"]
-                st.session_state.favorites = loaded_data["favorites"]
-                guardar_en_url()
-                st.success("¡Copia restaurada con éxito!")
-                st.rerun()
-            else:
-                st.error("El archivo no tiene el formato correcto.")
-        except Exception as e:
-            st.error(f"Error al leer el archivo: {e}")
-
-    st.markdown("---")
-    st.header("📊 Historial de Sesión")
-    num_entries = len(st.session_state.history)
-    st.markdown(f"Activos / Entradas analizadas: **{num_entries}**")
-    
-    if st.session_state.history:
-        df_history = pd.DataFrame(st.session_state.history)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df_history.to_excel(writer, sheet_name='Evaluaciones', index=False)
-        excel_data = output.getvalue()
-        
-        st.download_button(
-            label="📥 Descargar Excel de la Sesión",
-            data=excel_data,
-            file_name="historial_multifuente.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            type="primary",
-            use_container_width=True
-        )
-        
-        if st.button("🗑️ Borrar Historial", use_container_width=True):
-            st.session_state.history = []
-            st.rerun()
-    else:
-        st.info("Analiza algún activo para habilitar la exportación.")
-
     # ----------------------------------------------------
     # GLOSARIO DE TÉRMINOS ECONÓMICOS Y DE INVERSIÓN
     # ----------------------------------------------------
-    st.markdown("---")
     st.header("📖 Glosario Financiero")
     st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
 
@@ -828,12 +722,6 @@ with st.sidebar:
         * **Interés Compuesto:** Proceso mediante el cual las ganancias o rendimientos generados por una inversión se reinvierten para producir sus propios rendimientos en periodos futuros.
         """)
 
-    if st.session_state.stage != 'home':
-        st.markdown("---")
-        if st.button("🏠 Volver al Menú Principal", use_container_width=True):
-            reset_navigation()
-            st.rerun()
-
 # ----------------------------------------------------
 # LANDING PAGE
 # ----------------------------------------------------
@@ -868,39 +756,7 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    # 1. RECOMENDADO DEL MES
-    st.markdown("### 🌟 Recomendado del Mes")
-    st.markdown(f"""
-    <div class="featured-card">
-        <span class="featured-badge">Top Inversión Global del Mes • {top_asset['type_label']}</span>
-        <span class="score-tag">⭐ {top_asset['score']}/5 ({top_asset['grade']})</span>
-        <h3 style="margin: 10px 0 6px 0; color: #f8fafc;">{top_asset['name']}</h3>
-        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 15px;">{top_asset['desc']}</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col_top_a, col_top_b = st.columns(2)
-    with col_top_a:
-        if st.button(f"🔍 Evaluar {top_asset['name']}", key="rec_eval_single_top", use_container_width=True, type="primary"):
-            st.session_state.asset_type = top_asset['asset_type']
-            st.session_state.sub_type = top_asset['sub_type']
-            st.session_state.selected_eval_input = top_asset['ticker']
-            st.session_state.stage = "analyzer"
-            st.rerun()
-    with col_top_b:
-        if st.button("➕ Añadir a mi Cartera", key="rec_add_single_top", use_container_width=True):
-            st.session_state.portfolio.append({
-                "type": top_asset['asset_type'][:-1] if top_asset['asset_type'].endswith('s') else top_asset['asset_type'],
-                "name": top_asset['name'], "ticker": top_asset['ticker'], "est_rent": 8.0,
-                "ter": top_asset['ter'], "currency": "EUR", "is_dist": top_asset['is_dist'],
-                "category": "Renta Variable Global (MSCI World)"
-            })
-            guardar_en_url()
-            st.success(f"¡{top_asset['name']} añadido a tu Cartera!")
-
-    st.markdown("---")
-
-    # 2. CUESTIONARIO INTERACTIVO
+    # 1. CUESTIONARIO INTERACTIVO
     st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
     with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
         q_knowledge = st.radio(
@@ -1005,8 +861,8 @@ elif st.session_state.stage == 'sub_options':
 # SECCIÓN FAVORITOS
 # ----------------------------------------------------
 elif st.session_state.stage == 'favorites_view':
-    if st.button("← Volver al Analizador"):
-        st.session_state.stage = 'analyzer' if st.session_state.asset_type else 'home'
+    if st.button("← Volver al Menú Principal"):
+        reset_navigation()
         st.rerun()
 
     st.title("⭐ Mis Activos Favoritos")
@@ -1052,8 +908,8 @@ elif st.session_state.stage == 'favorites_view':
 # SECCIÓN CARTERA CONSOLIDADA CON AUDITORÍA DE SOLAPAMIENTO
 # ----------------------------------------------------
 elif st.session_state.stage == 'portfolio_view':
-    if st.button("← Volver al Analizador"):
-        st.session_state.stage = 'analyzer' if st.session_state.asset_type else 'home'
+    if st.button("← Volver al Menú Principal"):
+        reset_navigation()
         st.rerun()
 
     st.title("💼 Simulador Global de Cartera Consolidada")
@@ -1308,7 +1164,7 @@ elif st.session_state.stage == 'analyzer':
         if pct_change >= 1.0:
             return f'<div class="neon-stream-vertical"><span class="arrow-item-up st-1">▲</span><span class="arrow-item-up st-2">▲</span><span class="arrow-item-up st-3">▲</span></div><div style="font-size: 0.75rem; color: #22c55e; margin-top: 4px;">+{pct_change:.1f}%</div>'
         elif pct_change <= -1.0:
-            return f'<div class="neon-stream-downward"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
+            return f'<div class="neon-stream-vertical"><span class="arrow-item-down st-1">▼</span><span class="arrow-item-down st-2">▼</span><span class="arrow-item-down st-3">▼</span></div><div style="font-size: 0.75rem; color: #ef4444; margin-top: 4px;">{pct_change:.1f}%</div>'
         else:
             return f'<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">{pct_change:+.1f}%</div>'
 
@@ -1473,10 +1329,9 @@ elif st.session_state.stage == 'analyzer':
         default_input = st.session_state.selected_eval_input
 
         if st.session_state.asset_type == "Acciones":
-            stock_options = ["-- Selecciona una acción o escribe abajo --"] + [f"{data.get('ticker')} ({key.title()})" for key, data in TICKER_DB.items()]
-            selected_stock_option = st.selectbox("📊 Buscador predictivo de Acciones", options=stock_options)
-            custom_stock_input = st.text_input("¿No encuentras lo que buscas? Escríbelo aquí:", value=default_input).strip()
-            user_input = custom_stock_input.upper() if custom_stock_input else ("" if selected_stock_option.startswith("--") else selected_stock_option.split("(")[0].strip())
+            st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
+            st.markdown("Introduce el nombre o el ticker de la acción que deseas analizar (ej. `AAPL`, `MSFT`, `SAN.MC`, `TSLA`):")
+            user_input = st.text_input("Ticker o Nombre de la Acción:", value=default_input).strip().upper()
 
         elif st.session_state.asset_type == "Fondos Monetarios":
             st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
@@ -1557,13 +1412,6 @@ elif st.session_state.stage == 'analyzer':
             else:
                 user_input = ""
 
-        def get_stock_data(query):
-            q_lower = query.lower().strip()
-            for key, data in TICKER_DB.items():
-                if key in q_lower or data["ticker"].lower() == q_lower:
-                    return data.get("ticker", query.upper()), data.get("racha", "Sin datos"), data.get("div_growth", 3.0), data.get("div_yield", 4.0), data.get("per", 18.0), data.get("beta", 1.0), data.get("payout", 50.0)
-            return query.upper(), "Sin datos de racha previos.", 3.0, 4.0, 18.0, 1.0, 50.0
-
         def get_letter_grade(score):
             if score >= 4.5: return "A+"
             elif score >= 4.0: return "A"
@@ -1572,11 +1420,10 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Selecciona un activo en el desplegable superior o escríbelo en el buscador personalizado.")
+            st.info("👆 Escribe el ticker o nombre de la acción en la barra superior para calcular su nota y métricas con Yahoo Finance.")
         else:
             if st.session_state.asset_type == "Acciones":
-                stock_result = get_stock_data(user_input)
-                ticker_input, racha_info, est_div_growth, db_div_yield, db_per, db_beta, db_payout = stock_result
+                ticker_input = user_input
                 
                 try:
                     stock = yf.Ticker(ticker_input)
@@ -1589,33 +1436,38 @@ elif st.session_state.stage == 'analyzer':
                             current_price = float(valid_closes.iloc[-1])
 
                     info = stock.info or {}
-                    name = info.get('longName', user_input.title())
+                    name = info.get('longName', ticker_input.title())
                     currency_symbol = '$' if info.get('currency') == 'USD' else '€'
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
-                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else db_div_yield
+                    div_y_val = (info.get('dividendYield', 0) * 100) if info.get('dividendYield') else 0.0
                     ex_dividend_date = info.get('exDividendDate', None)
                     has_real_dividend = (div_y_val > 0.0) or (ex_dividend_date is not None)
 
                     if st.session_state.sub_type == "Sin dividendos" and has_real_dividend:
                         st.warning(f"""
                         💡 **Aviso importante:** Hemos detectado que **{name} ({ticker_input})** reparte dividendos (Yield estimado: `{div_y_val:.2f}%`).  
-                        Te recomendamos buscarla y evaluarla en la sección de **"Con dividendos"** para que las proyecciones de interés compuesto e ingresos incluyan los cobros periódicos de forma precisa.
+                        Te recomendamos evaluarla en la sección de **"Con dividendos"** para que las proyecciones de interés compuesto e ingresos incluyan los cobros periódicos de forma precisa.
                         """)
 
-                    per_y = info.get('trailingPE') or info.get('forwardPE') or db_per
+                    per_y = info.get('trailingPE') or info.get('forwardPE') or 18.0
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
-                    pb_y = info.get('priceToBook') or 3.0
                     roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
-                    beta_val = info.get('beta') or db_beta
+                    beta_val = info.get('beta') or 1.0
                     raw_payout = info.get('payoutRatio')
-                    payout_val = (raw_payout * 100) if raw_payout is not None else db_payout
+                    payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
 
-                    total_score = 4.0
+                    # Cálculo dinámico de la nota basado en métricas de Yahoo Finance
+                    score_calc = 3.0
+                    if per_y > 0 and per_y < 25: score_calc += 0.5
+                    if roe_val > 15: score_calc += 0.5
+                    if beta_val < 1.2: score_calc += 0.5
+                    total_score = min(5.0, max(1.0, score_calc))
+
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
-                    progress_color = "#22c55e"
+                    progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 3.0 else "#ef4444")
 
                     col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
                     with col_n1:
@@ -1640,7 +1492,7 @@ elif st.session_state.stage == 'analyzer':
 
                     st.markdown(f"""
                     <div class="score-container">
-                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación</div></div>
+                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Yahoo Finance</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
@@ -1756,7 +1608,7 @@ elif st.session_state.stage == 'analyzer':
                         """, unsafe_allow_html=True)
 
                 except Exception as e:
-                    st.error(f"Error al obtener datos: {e}")
+                    st.error(f"No se han podido encontrar datos para el ticker '{ticker_input}'. Comprueba que sea correcto en Yahoo Finance.")
 
             elif st.session_state.asset_type in ["Fondos indexados", "Fondos Monetarios"]:
                 matched_fund = next((data for key, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
@@ -1832,7 +1684,7 @@ elif st.session_state.stage == 'analyzer':
                 """, unsafe_allow_html=True)
 
                 if matched_fund and "desc" in matched_fund:
-                    st.markdown(f"**📖 Qué includes:** {matched_fund['desc']}")
+                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
                 if matched_fund and "holdings" in matched_fund:
