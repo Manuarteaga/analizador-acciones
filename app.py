@@ -657,7 +657,6 @@ def render_holdings_breakdown(holdings_dict):
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
 
-# FUNCIÓN PARA MOSTRAR EL SEMÁFORO DE RECOMENDACIÓN CORREGIDO
 def render_traffic_light_recommendation(score, asset_type, details=None):
     if score >= 4.0:
         badge_class = "tl-buy"
@@ -714,21 +713,32 @@ ETF_BROKER_PROFILES = {
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
-col_tb1, col_tb2, col_tb3 = st.columns([2, 1, 1])
+col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([1.5, 1, 1, 1])
 with col_tb1:
-    st.markdown("### 📈 Analizador Bursátil Multifuente")
+    st.markdown("### 📈 Analizador Bursátil")
 with col_tb2:
     if st.button(f"⭐ Favoritos ({favorites_count})", use_container_width=True):
         st.session_state.stage = "favorites_view"
         st.rerun()
 with col_tb3:
-    if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
+    if st.button(f"💼 Simulador de Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
+        st.rerun()
+with col_tb4:
+    if st.button("🏦 Añadir cuenta remunerada", use_container_width=True):
+        st.session_state.asset_type = "Fondos Monetarios"
+        st.session_state.stage = "analyzer"
+        st.session_state.sub_type = "Biblioteca Monetarios"
+        st.session_state.selected_eval_input = "AXA COURT TERME"
         st.rerun()
 
 st.markdown("---")
 
 with st.sidebar:
+    st.header("📖 Menú y Enlaces")
+    st.markdown("[🌐 Ir a Mi Cartera Inversiones](https://mi-cartera-inversiones.streamlit.app/)")
+    st.markdown("---")
+    
     st.header("📖 Glosario Financiero")
     st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
 
@@ -1341,8 +1351,8 @@ elif st.session_state.stage == 'analyzer':
             user_input = st.text_input("Ticker o Nombre de la Acción:", value=default_input).strip().upper()
 
         elif st.session_state.asset_type == "Fondos Monetarios":
-            st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
-            monetary_options = ["-- Selecciona un fondo monetario --"]
+            st.markdown("### 🏦 Biblioteca de Fondos Monetarios y Cuentas Remuneradas (Bajo Riesgo / Corto Plazo)")
+            monetary_options = ["-- Selecciona un fondo monetario o cuenta remunerada --"]
             for data in FUND_DB.values():
                 if data["category"] == "Fondos Monetarios":
                     monetary_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [TER: {data['ter']}%]")
@@ -1439,7 +1449,6 @@ elif st.session_state.stage == 'analyzer':
                         if not valid_closes.empty:
                             current_price_native = float(valid_closes.iloc[-1])
 
-                    # CONVERSIÓN A EUROS (€) SI VIENE EN USD U OTRA MONEDA
                     eur_usd_rate = get_eur_usd_rate()
                     if native_currency == 'USD' and current_price_native is not None:
                         current_price_eur = current_price_native / eur_usd_rate
@@ -1449,7 +1458,6 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
-                    # CORRECCIÓN ROBUSTA DE DIVIDEND YIELD
                     raw_yield = info.get('dividendYield', 0) or 0.0
                     if raw_yield > 0:
                         if raw_yield < 0.1:
@@ -1467,22 +1475,16 @@ elif st.session_state.stage == 'analyzer':
                     payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
                     recommendation = info.get('recommendationKey', 'hold').lower()
 
-                    # CÁLCULO DINÁMICO DE PUNTUACIÓN REAL PARA ACCIONES (Llega de 1.0 a 5.0 permitiendo VERDE)
                     score_calc = 2.5
-                    
-                    # Criterio PER
                     if 0 < per_y <= 18: score_calc += 1.0
                     elif 18 < per_y <= 28: score_calc += 0.5
                     elif per_y > 45: score_calc -= 0.5
 
-                    # Criterio ROE
                     if roe_val >= 20: score_calc += 1.0
                     elif roe_val >= 12: score_calc += 0.5
 
-                    # Criterio Volatilidad (Beta)
                     if 0.5 <= beta_val <= 1.1: score_calc += 0.5
 
-                    # Criterio Consenso Analistas
                     if recommendation in ['buy', 'strong_buy']: score_calc += 0.5
 
                     total_score = min(5.0, max(1.0, score_calc))
@@ -1503,7 +1505,7 @@ elif st.session_state.stage == 'analyzer':
                             guardar_en_url()
                             st.success("¡Añadido a Favoritos!")
                     with col_n3:
-                        if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
+                        if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
                                 "type": "Acción", "name": name, "ticker": ticker_input,
                                 "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True,
@@ -1521,7 +1523,6 @@ elif st.session_state.stage == 'analyzer':
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # RENDER SEMÁFORO DE COMPRA CORREGIDO
                     render_traffic_light_recommendation(
                         total_score, "Acción",
                         f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
@@ -1694,7 +1695,7 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
+                    if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
                             "est_rent": 3.5 if cat_fund == 'Fondos Monetarios' else 7.5, "ter": ter_val, "currency": "EUR", "is_dist": is_dist_fund,
@@ -1712,7 +1713,6 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
-                # RENDER SEMÁFORO DE COMPRA PARA FONDOS
                 render_traffic_light_recommendation(
                     score_fund, "Fondo",
                     f"TER del {ter_val:.2f}% anual, patrimonio gestionado de {aum_val:,} M€ y antigüedad de {age_val} años."
@@ -1927,7 +1927,7 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_e3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
+                    if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
                             "est_rent": 7.5, "ter": ter_etf, "currency": "EUR", "is_dist": is_dist_etf,
@@ -1945,7 +1945,6 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
-                # RENDER SEMÁFORO DE COMPRA PARA ETFS
                 render_traffic_light_recommendation(
                     score_etf, "ETF",
                     f"TER del {ter_etf:.2f}% anual, estructura de réplica {repl_etf} y patrimonio acumulado de {aum_etf:,} M€."
