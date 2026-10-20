@@ -665,29 +665,29 @@ with st.sidebar:
 
     with st.expander("📊 Métricas de Valoración y Análisis"):
         st.markdown("""
-        * **PER (Price to Earnings Ratio):** Ratio precio-beneficio. Indica cuántas veces se paga el beneficio anual de una empresa al comprar su acción ($PER = \\frac{Precio}{Beneficio\\ por\\ Acción}$). Un PER alto suele indicar altas expectativas de crecimiento o sobrevaloración.
-        * **Dividend Yield (Rentabilidad por Dividendo):** Porcentaje que paga la empresa en dividendos anuales con respecto a su cotización ($Yield = \\frac{Dividendo\\ Anual}{Precio\\ Acción} \\times 100$).
+        * **PER (Price to Earnings Ratio):** Ratio precio-beneficio. Indica cuántas veces se paga el beneficio anual de una empresa al comprar su acción. Un PER alto suele indicar altas expectativas de crecimiento o sobrevaloración.
+        * **Dividend Yield (Rentabilidad por Dividendo):** Porcentaje que paga la empresa en dividendos anuales con respecto a su cotización.
         * **Payout Ratio:** Porcentaje de los beneficios netos que la empresa destina a pagar dividendos a sus accionistas.
-        * **Beta:** Medida de la volatilidad o riesgo sistemático de un activo en comparación con el mercado global (Beta > 1 es más volátil que el mercado; Beta < 1 es más defensivo).
+        * **Beta:** Medida de la volatilidad o riesgo sistemático de un activo en comparación con el mercado global (Beta > 1 es más volátil; Beta < 1 es defensivo).
         * **Price / FCF (Precio / Flujo de Caja Libre):** Compara el valor bursátil con el dinero efectivo real generado tras gastos de capital.
-        * **ROE (Return on Equity):** Rentabilidad financiera que mide la capacidad de la empresa para generar beneficios con el capital de sus accionistas.
+        * **ROE (Return on Equity):** Rentabilidad financiera que mide la capacidad de generar beneficios con el capital de los accionistas.
         """)
 
     with st.expander("⚙️ Costes, Gastos y Gestión"):
         st.markdown("""
         * **TER (Total Expense Ratio):** Total de gastos corrientes anuales repercutidos directamente por la gestora sobre el fondo o ETF.
         * **Tracking Error:** Muestra la desviación o margen de diferencia entre la rentabilidad del fondo/ETF y la del índice que pretende replicar.
-        * **AUM (Assets Under Management):** Patrimonio total gestionado en un fondo o ETF. Cuanto mayor es el AUM, suele haber menor riesgo de liquidación.
+        * **AUM (Assets Under Management):** Patrimonio total gestionado en un fondo o ETF. Cuanto mayor es el AUM, menor riesgo de liquidación.
         * **Spread (Horquilla):** Diferencia entre el precio de compra (*Ask*) y el precio de venta (*Bid*) que aplica el mercado o bróker.
         * **Comisión de Cambio de Divisa (FX):** Recargo aplicado por el bróker al operar en activos cotizados en monedas distintas al Euro (ej. USD).
         """)
 
     with st.expander("🔄 Modalidades y Fiscalidad"):
         st.markdown("""
-        * **Acumulación (Acc):** Los dividendos o cupones cobrados por el fondo o ETF se reinvierten automáticamente en la propia cartera para potenciar el interés compuesto.
+        * **Acumulación (Acc):** Los dividendos o cupones cobrados por el fondo o ETF se reinvierten automáticamente en la propia cartera.
         * **Distribución (Dist):** Los dividendos cobrados se liquidan de forma periódica abonándose en la cuenta de efectivo del inversor.
-        * **Diferimiento Fiscal:** Ventaja regulatoria de los fondos indexados en España que permite traspasar dinero de un fondo a otro sin tributar en el IRPF por las ganancias hasta el reembolso definitivo.
-        * **Interés Compuesto:** Proceso mediante el cual las ganancias o rendimientos generados por una inversión se reinvierten para producir sus propios rendimientos en periodos futuros.
+        * **Diferimiento Fiscal:** Ventaja de los fondos indexados en España que permite traspasar dinero de un fondo a otro sin tributar en el IRPF hasta el reembolso definitivo.
+        * **Interés Compuesto:** Proceso mediante el cual las ganancias generadas se reinvierten para producir nuevos rendimientos.
         """)
 
 if st.session_state.stage == 'home':
@@ -752,16 +752,16 @@ if st.session_state.stage == 'home':
         if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
             st.markdown("---")
             if "No, acabo" in q_knowledge:
-                st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) un poco más bajas.")
+                st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) más bajas.")
 
             if "Híbrido" in q_goal:
-                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER) para optimizar comisiones al máximo.\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) o **Fondos Monetarios** para poder retirar o mover capital sin penalización ni peaje fiscal inmediato en tus transacciones.")
+                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER).\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) o **Fondos Monetarios** para poder retirar o mover capital sin penalización ni peaje fiscal inmediato.")
             elif "Corto plazo" in q_goal:
-                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo o imprevistos (coche, reformas), los **Fondos Monetarios** y **Fondos Indexados** son la opción más recomendable por su seguridad y flexibilidad al reembolsar sin peaje fiscal inmediato.")
+                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo o imprevistos, los **Fondos Monetarios** y **Fondos Indexados** son la opción más recomendable por su seguridad y flexibilidad al reembolsar sin peaje fiscal inmediato.")
             elif "Largo plazo" in q_goal and "No, quiero comprar" in q_moves:
-                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales (TER del 0.03% vs 0.18%) compensa con creces cualquier ventaja fiscal de traspaso.")
+                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales compensa con creces cualquier ventaja fiscal.")
             elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
-                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, reestructurar la cartera o por no tener aún clara la estrategia, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
+                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
 
 elif st.session_state.stage == 'sub_options':
     if st.button("← Volver a selección de activos"):
@@ -825,7 +825,7 @@ elif st.session_state.stage == 'favorites_view':
     st.title("⭐ Mis Activos Favoritos")
 
     if not st.session_state.favorites:
-        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos, monetarios o ETFs y pulsa **'⭐ Añadir a Favoritos'** en sus informes.")
+        st.info("No tienes ningún activo guardado en favoritos todavía. Explora acciones, fondos, monetarios o ETFs y pulsa **'⭐ Añadir a Favoritos'**.")
     else:
         for idx, fav in enumerate(st.session_state.favorites):
             with st.expander(f"{idx+1}. {fav['name']} ({fav['ticker']}) - [{fav['type']}]", expanded=True):
@@ -869,7 +869,7 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'** para añadirlos a este simulador conjunto.")
+        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'**.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         category_counts = pd.Series(categories_in_portfolio).value_counts()
@@ -1005,10 +1005,6 @@ elif st.session_state.stage == 'portfolio_view':
                         costes_tot_act = acum_b + acum_s + acum_f
                         int_brutos = saldo_act - (total_aport_acum - costes_tot_act)
                         
-                        if is_dist_item:
-                            div_bruto_anual = saldo_act * 0.025
-                            div_bruto_activo += div_bruto_anual
-
                         row_dict = {
                             "Año": f"Año {ano_act}",
                             "Capital Aportado Bruto (€)": round(total_aport_acum, 2),
@@ -1018,7 +1014,10 @@ elif st.session_state.stage == 'portfolio_view':
                             "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
                         }
                         if is_dist_item:
-                            row_dict["Dividendo Bruto Anual (€)"] = round(saldo_act * 0.025, 2)
+                            div_bruto_anual = saldo_act * 0.025
+                            div_bruto_activo += div_bruto_anual
+                            row_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual, 2)
+                        
                         row_dict["Capital Total Neto (€)"] = round(saldo_act, 2)
                         historial_activo.append(row_dict)
 
@@ -1036,13 +1035,13 @@ elif st.session_state.stage == 'portfolio_view':
             beneficio_bruto_global = max(0.0, total_capital_bruto_acum - capital_neto_aportado)
             impuestos_globales = beneficio_bruto_global * 0.19
             beneficio_neto_global = beneficio_bruto_global - impuestos_globales
-            capital_liquido_global = capital_neto_aportado + beneficio_neto_global
+            div_neto_global = total_dividendos_brutos_acum * (1 - 0.19) if has_dividend_asset else 0.0
+            capital_liquido_global = capital_neto_aportado + beneficio_neto_global + div_neto_global
 
             st.markdown("---")
             st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
 
             if has_dividend_asset:
-                div_neto_global = total_dividendos_brutos_acum * (1 - 0.19)
                 m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
                 m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
                 m2.metric("Costes Bróker", f"{total_costes_acum:,.2f} €")
@@ -1061,7 +1060,7 @@ elif st.session_state.stage == 'portfolio_view':
 
             st.markdown(f"""
             <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos)</div>
+                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos y Dividendos)</div>
                 <div class="final-net-value">{capital_liquido_global:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
@@ -1365,11 +1364,15 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
+                    # CORRECCIÓN ROBUSTA DE DIVIDEND YIELD
                     raw_yield = info.get('dividendYield', 0) or 0.0
-                    if raw_yield > 0 and raw_yield < 1.0:
-                        div_y_val = raw_yield * 100
+                    if raw_yield > 0:
+                        if raw_yield < 0.1:
+                            div_y_val = raw_yield * 100
+                        else:
+                            div_y_val = raw_yield
                     else:
-                        div_y_val = raw_yield
+                        div_y_val = 0.0
 
                     per_y = info.get('trailingPE') or info.get('forwardPE') or 18.0
                     pfcf_y = info.get('priceToFreeCashflow') or 18.0
@@ -1510,8 +1513,8 @@ elif st.session_state.stage == 'analyzer':
                         bruto_stock = max(0.0, saldo_stock - net_aport_stock)
                         imp_stock = bruto_stock * 0.19
                         neto_stock = bruto_stock - imp_stock
-                        liquido_stock = net_aport_stock + neto_stock
                         div_neto_stock = div_bruto_stock_total * (1 - 0.19)
+                        liquido_stock = net_aport_stock + neto_stock + div_neto_stock
 
                         sm1, sm2, sm3, sm4, sm5, sm6 = st.columns(6)
                         sm1.metric("Capital Invertido Neto", f"{net_aport_stock:,.2f} €")
@@ -1523,7 +1526,7 @@ elif st.session_state.stage == 'analyzer':
 
                         st.markdown(f"""
                         <div class="final-net-card">
-                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción</div>
+                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción (Con Dividendos)</div>
                             <div class="final-net-value">{liquido_stock:,.2f} €</div>
                         </div>
                         """, unsafe_allow_html=True)
@@ -1707,8 +1710,8 @@ elif st.session_state.stage == 'analyzer':
                     bruto_f = max(0.0, saldo_f - net_aport_f)
                     imp_f = bruto_f * 0.19
                     neto_f = bruto_f - imp_f
-                    liquido_f = net_aport_f + neto_f
                     div_neto_fund = div_bruto_fund_total * (1 - 0.19)
+                    liquido_f = net_aport_f + neto_f + div_neto_fund
 
                     if is_dist_fund:
                         fm1, fm2, fm3, fm4, fm5, fm6 = st.columns(6)
@@ -1727,7 +1730,7 @@ elif st.session_state.stage == 'analyzer':
 
                     st.markdown(f"""
                     <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo</div>
+                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo (Con Dividendos)</div>
                         <div class="final-net-value">{liquido_f:,.2f} €</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1930,8 +1933,8 @@ elif st.session_state.stage == 'analyzer':
                     bruto_e = max(0.0, saldo_e - net_aport_e)
                     imp_e = bruto_e * 0.19
                     neto_e = bruto_e - imp_e
-                    liquido_e = net_aport_e + neto_e
                     div_neto_etf = div_bruto_etf_total * (1 - 0.19)
+                    liquido_e = net_aport_e + neto_e + div_neto_etf
 
                     if is_dist_etf:
                         em1, em2, em3, em4, em5, em6 = st.columns(6)
@@ -1950,7 +1953,7 @@ elif st.session_state.stage == 'analyzer':
 
                     st.markdown(f"""
                     <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF</div>
+                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF (Con Dividendos)</div>
                         <div class="final-net-value">{liquido_e:,.2f} €</div>
                     </div>
                     """, unsafe_allow_html=True)
