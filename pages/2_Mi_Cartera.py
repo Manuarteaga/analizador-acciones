@@ -1,6 +1,8 @@
 from datetime import date, timedelta
 import pandas as pd
+import plotly.express as px
 import streamlit as st
+import gspread
 from google.oauth2.service_account import Credentials
 
 # Configuración de la página en modo ancho
