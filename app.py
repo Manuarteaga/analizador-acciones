@@ -74,6 +74,38 @@ st.markdown("""
         100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
     }
 
+    /* Estilos para el Semáforo de Recomendación */
+    .traffic-light-card {
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border-left: 8px solid;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .tl-buy {
+        background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+        border-color: #10b981;
+        color: #ecfdf5;
+    }
+    .tl-hold {
+        background: linear-gradient(135deg, #713f12 0%, #451a03 100%);
+        border-color: #f59e0b;
+        color: #fef3c7;
+    }
+    .tl-avoid {
+        background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+        border-color: #ef4444;
+        color: #fef2f2;
+    }
+    .tl-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
     .neon-stream-vertical {
         position: relative;
         width: 40px;
@@ -615,6 +647,43 @@ def render_holdings_breakdown(holdings_dict):
     legend_html += '</div>'
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
+
+# FUNCIÓN PARA MOSTRAR EL SEMÁFORO DE RECOMENDACIÓN
+def render_traffic_light_recommendation(score, asset_type, details=None):
+    if score >= 4.2:
+        badge_class = "tl-buy"
+        icon = "🟢"
+        status = "RECOMENDACIÓN DE COMPRA / MUY FAVORABLE"
+        if asset_type == "Acción":
+            desc = "Activo con fundamentales muy sólidos, valoración atractiva y un excelente balance entre rentabilidad y riesgo."
+        else:
+            desc = "Vehículo altamente eficiente con comisiones de las más bajas del mercado, un patrimonio amplio y mínima desviación frente al índice."
+    elif score >= 3.0:
+        badge_class = "tl-hold"
+        icon = "🟡"
+        status = "RECOMENDACIÓN NEUTRAL / MANTENER EN OBSERVACIÓN"
+        if asset_type == "Acción":
+            desc = "Empresa con buenos parámetros aunque cotiza a múltiplos exigentes (PER elevado) o con cierta volatilidad. Se sugiere acumular con cautela."
+        else:
+            desc = "Fondo o ETF aceptable con comisiones moderadas. Adecuado para diversificación secundaria o si no existe una opción equivalente más barata."
+    else:
+        badge_class = "tl-avoid"
+        icon = "🔴"
+        status = "PRECAUCIÓN / EVALUAR OTRAS ALTERNATIVAS"
+        if asset_type == "Acción":
+            desc = "Se observan métricas de sobrevaloración o bajo retorno sobre el capital (ROE). Es recomendable ponderar otras oportunidades del sector."
+        else:
+            desc = "Las comisiones anuales (TER) o el bajo volumen de patrimonio hacen que existan opciones mucho más eficientes en nuestra biblioteca."
+
+    detail_html = f"<div style='margin-top: 8px; font-size: 0.9rem; opacity: 0.9;'><b>Justificación del Semáforo:</b> {details}</div>" if details else ""
+
+    st.markdown(f"""
+    <div class="traffic-light-card {badge_class}">
+        <div class="tl-title">{icon} Semáforo de Análisis: {status}</div>
+        <div>{desc}</div>
+        {detail_html}
+    </div>
+    """, unsafe_allow_html=True)
 
 FUND_BROKER_PROFILES = {
     "MyInvestor (Fondos Indexados / Sin custodia)": {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.05, "fx_fee_percent": 0.30, "supports_free_plans": True},
@@ -1421,6 +1490,12 @@ elif st.session_state.stage == 'analyzer':
                     </div>
                     """, unsafe_allow_html=True)
 
+                    # RENDER SEMÁFORO DE COMPRA
+                    render_traffic_light_recommendation(
+                        total_score, "Acción",
+                        f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
+                    )
+
                     df_metrics = pd.DataFrame({
                         "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividendo Yield", "Payout Ratio", "Beta"],
                         "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
@@ -1606,6 +1681,12 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Salud del Fondo</div><div style="font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 15px;">{salud_patrimonio}<br>{salud_historial}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                # RENDER SEMÁFORO DE COMPRA PARA FONDOS
+                render_traffic_light_recommendation(
+                    score_fund, "Fondo",
+                    f"TER del {ter_val:.2f}% anual, patrimonio gestionado de {aum_val:,} M€ y antigüedad de {age_val} años."
+                )
 
                 if matched_fund and "desc" in matched_fund:
                     st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
@@ -1829,6 +1910,12 @@ elif st.session_state.stage == 'analyzer':
                     <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Salud del ETF</div><div style="font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 15px;">{salud_patrimonio_etf}<br>{salud_historial_etf}</div></div>
                 </div>
                 """, unsafe_allow_html=True)
+
+                # RENDER SEMÁFORO DE COMPRA PARA ETFS
+                render_traffic_light_recommendation(
+                    score_etf, "ETF",
+                    f"TER del {ter_etf:.2f}% anual, estructura de réplica {repl_etf} y patrimonio acumulado de {aum_etf:,} M€."
+                )
 
                 if matched_etf and "desc" in matched_etf:
                     st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
