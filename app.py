@@ -613,6 +613,15 @@ ETF_DB = {
     }
 }
 
+# Catálogo de Cuentas Remuneradas populares para añadir directamente en el Simulador de Cartera
+CUENTAS_REMUNERADAS_DB = [
+    {"name": "Renault Bank (Cuenta Tú)", "default_interest": 2.75, "category": "Cuenta Remunerada"},
+    {"name": "Banco Sabadell (Cuenta Online)", "default_interest": 2.50, "category": "Cuenta Remunerada"},
+    {"name": "MyInvestor (Cuenta Remunerada)", "default_interest": 2.25, "category": "Cuenta Remunerada"},
+    {"name": "Trade Republic (Efectivo Remunerado)", "default_interest": 3.00, "category": "Cuenta Remunerada"},
+    {"name": "Cuenta Remunerada Personalizada", "default_interest": 2.00, "category": "Cuenta Remunerada"}
+]
+
 def render_geo_breakdown(geo_dict):
     st.markdown("**🗺️ Desglose Geográfico Estimado:**")
     colors = {
@@ -713,7 +722,7 @@ ETF_BROKER_PROFILES = {
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
-col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([1.5, 1, 1, 1])
+col_tb1, col_tb2, col_tb3 = st.columns([1.5, 1, 1])
 with col_tb1:
     st.markdown("### 📈 Analizador Bursátil")
 with col_tb2:
@@ -723,13 +732,6 @@ with col_tb2:
 with col_tb3:
     if st.button(f"💼 Simulador de Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
-        st.rerun()
-with col_tb4:
-    if st.button("🏦 Añadir cuenta remunerada", use_container_width=True):
-        st.session_state.asset_type = "Fondos Monetarios"
-        st.session_state.stage = "analyzer"
-        st.session_state.sub_type = "Biblioteca Monetarios"
-        st.session_state.selected_eval_input = "AXA COURT TERME"
         st.rerun()
 
 st.markdown("---")
@@ -956,8 +958,38 @@ elif st.session_state.stage == 'portfolio_view':
 
     st.title("💼 Simulador Global de Cartera Consolidada")
     
+    # OPCIÓN PARA AÑADIR CUENTA REMUNERADA DENTRO DEL SIMULADOR DE CARTERA
+    with st.container():
+        st.markdown("### ➕ Añadir Cuenta Remunerada a la Cartera")
+        col_add1, col_add2 = st.columns([2, 1])
+        with col_add1:
+            cuenta_seleccionada = st.selectbox(
+                "Selecciona una cuenta remunerada:",
+                options=[c["name"] for c in CUENTAS_REMUNERADAS_DB],
+                key="select_cuenta_remunerada_sim"
+            )
+        with col_add2:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("Añadir cuenta remunerada", type="primary", use_container_width=True):
+                c_info = next((c for c in CUENTAS_REMUNERADAS_DB if c["name"] == cuenta_seleccionada), CUENTAS_REMUNERADAS_DB[0])
+                st.session_state.portfolio.append({
+                    "type": "Cuenta Remunerada",
+                    "name": c_info["name"],
+                    "ticker": "C_REM",
+                    "est_rent": c_info["default_interest"],
+                    "ter": 0.0,
+                    "currency": "EUR",
+                    "is_dist": True,
+                    "category": "Cuenta Remunerada"
+                })
+                guardar_en_url()
+                st.success(f"¡{c_info['name']} añadida correctamente a tu Cartera!")
+                st.rerun()
+
+    st.markdown("---")
+
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a Simulador de Cartera'**.")
+        st.info("🛒 Tu cartera está vacía. Añade cuentas remuneradas arriba o explora acciones, fondos y ETFs para añadirlos desde sus buscadores.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         category_counts = pd.Series(categories_in_portfolio).value_counts()
@@ -995,17 +1027,18 @@ elif st.session_state.stage == 'portfolio_view':
         has_dividend_asset = False
 
         for idx, item in enumerate(st.session_state.portfolio):
+            is_cuenta_rem = item['type'] == "Cuenta Remunerada"
             is_etf_or_stock = item['type'] in ["ETF", "Acción"]
             broker_profiles = ETF_BROKER_PROFILES if is_etf_or_stock else FUND_BROKER_PROFILES
             
-            is_dist_item = item.get('is_dist', False) or (item.get('type') == "Acción") or ("Dividendo" in item.get('category', ''))
+            is_dist_item = item.get('is_dist', False) or (item.get('type') == "Acción") or ("Dividendo" in item.get('category', '')) or is_cuenta_rem
             if is_dist_item:
                 has_dividend_asset = True
 
             ticker_key = item['ticker'].lower()
-            ter_val = item.get('ter', 0.20)
+            ter_val = 0.0 if is_cuenta_rem else item.get('ter', 0.20)
             est_rent_val = float(item.get('est_rent', 7.5))
-            score_val = 4.5
+            score_val = 4.8 if is_cuenta_rem else 4.5
             
             if ticker_key in FUND_DB:
                 score_val = FUND_DB[ticker_key].get('score', 4.5)
@@ -1018,20 +1051,26 @@ elif st.session_state.stage == 'portfolio_view':
                 cm2.markdown(f"**TER:** `{ter_val}%`")
                 cm3.markdown(f"**Nota:** ⭐ `{score_val}/5`")
                 with cm4:
-                    if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
-                        st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else ("Fondos Monetarios" if item['type'] == "Fondo Monetario" else "ETFs"))
-                        st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if item['type'] == "Fondo Monetario" else "Evaluación ETF"))
-                        st.session_state.selected_eval_input = item['ticker']
-                        st.session_state.stage = "analyzer"
-                        st.rerun()
+                    if not is_cuenta_rem:
+                        if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
+                            st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else ("Fondos Monetarios" if item['type'] == "Fondo Monetario" else "ETFs"))
+                            st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if item['type'] == "Fondo Monetario" else "Evaluación ETF"))
+                            st.session_state.selected_eval_input = item['ticker']
+                            st.session_state.stage = "analyzer"
+                            st.rerun()
 
                 st.markdown("---")
-                col_b1, col_b2 = st.columns(2)
-                with col_b1:
-                    sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
-                with col_b2:
-                    b_data = broker_profiles[sel_broker]
-                    plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
+                if not is_cuenta_rem:
+                    col_b1, col_b2 = st.columns(2)
+                    with col_b1:
+                        sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
+                    with col_b2:
+                        b_data = broker_profiles[sel_broker]
+                        plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
+                else:
+                    sel_broker = "Cuenta Remunerada Directa"
+                    b_data = {"fee_percent": 0.0, "fee_fixed": 0.0, "spread_percent": 0.0, "fx_fee_percent": 0.0, "supports_free_plans": True}
+                    plan_sc = True
 
                 col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
                 with col_i1:
@@ -1039,7 +1078,7 @@ elif st.session_state.stage == 'portfolio_view':
                 with col_i2:
                     app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=100.0, step=50.0, key=f"p_app_{idx}")
                 with col_i3:
-                    rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=est_rent_val, step=0.5, key=f"p_rent_{idx}")
+                    rent_est = st.slider(f"Rentabilidad estimada anual / Interés (%)", min_value=0.0, max_value=20.0, value=est_rent_val, step=0.5, key=f"p_rent_{idx}")
                 with col_i4:
                     st.markdown("<br>", unsafe_allow_html=True)
                     if st.button("🗑️ Quitar", key=f"del_{idx}"):
@@ -1101,9 +1140,9 @@ elif st.session_state.stage == 'portfolio_view':
                             "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
                         }
                         if is_dist_item:
-                            div_bruto_anual = saldo_act * 0.025
+                            div_bruto_anual = saldo_act * (rent_est / 100.0) if is_cuenta_rem else saldo_act * 0.025
                             div_bruto_activo += div_bruto_anual
-                            row_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual, 2)
+                            row_dict["Intereses/Dividendos Brutos Anuales (€)"] = round(div_bruto_anual, 2)
                         
                         row_dict["Capital Total Neto (€)"] = round(saldo_act, 2)
                         historial_activo.append(row_dict)
@@ -1135,8 +1174,8 @@ elif st.session_state.stage == 'portfolio_view':
                 m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
                 m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
                 m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
-                m6.metric("Total Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
-                m7.metric("Total Div. Netos", f"{div_neto_global:,.2f} €")
+                m6.metric("Total Intereses/Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
+                m7.metric("Total Intereses/Div. Netos", f"{div_neto_global:,.2f} €")
             else:
                 m1, m2, m3, m4, m5 = st.columns(5)
                 m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
@@ -1147,7 +1186,7 @@ elif st.session_state.stage == 'portfolio_view':
 
             st.markdown(f"""
             <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos y Dividendos)</div>
+                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos y Rendimientos)</div>
                 <div class="final-net-value">{capital_liquido_global:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
@@ -1351,8 +1390,8 @@ elif st.session_state.stage == 'analyzer':
             user_input = st.text_input("Ticker o Nombre de la Acción:", value=default_input).strip().upper()
 
         elif st.session_state.asset_type == "Fondos Monetarios":
-            st.markdown("### 🏦 Biblioteca de Fondos Monetarios y Cuentas Remuneradas (Bajo Riesgo / Corto Plazo)")
-            monetary_options = ["-- Selecciona un fondo monetario o cuenta remunerada --"]
+            st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
+            monetary_options = ["-- Selecciona un fondo monetario --"]
             for data in FUND_DB.values():
                 if data["category"] == "Fondos Monetarios":
                     monetary_options.append(f"{data['name']} (ISIN: {data['ticker']}) - [TER: {data['ter']}%]")
