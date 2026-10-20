@@ -298,6 +298,15 @@ def reset_navigation():
     st.session_state.sub_type = None
     st.session_state.selected_eval_input = ""
 
+@st.cache_data(ttl=3600)
+def get_eur_usd_rate():
+    try:
+        fx = yf.Ticker("EURUSD=X")
+        rate = fx.history(period="1d")['Close'].iloc[-1]
+        return float(rate) if rate > 0 else 1.08
+    except:
+        return 1.08
+
 FUND_DB = {
     "axa court terme ac": {
         "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
@@ -371,7 +380,7 @@ FUND_DB = {
     },
     "ubs msci world ex usa usd i-a3 acc": {
         "name": "UBS MSCI World ex USA USD I-A3 acc", "ticker": "LU2448026133",
-        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.24, "aum": 820, "tracking_error": 0.06, "age_years": 3, "currency": "USD", "is_dist": False, "return_1y": 14.5, "score": 4.6,
+        "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.24, "aum": 820, "tracking_error": 0.06, "age_years": 3, "currency": "EUR", "is_dist": False, "return_1y": 14.5, "score": 4.6,
         "desc": "Fondo indexado institucional de UBS que replica el índice MSCI World ex USA, invirtiendo en mercados desarrollados globales excluyendo Estados Unidos.",
         "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
         "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.3, "Novartis AG": 1.1, "Royal Bank of Canada": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del Fondo": 90.5}
@@ -549,7 +558,7 @@ ETF_DB = {
     "ubs msci world ex usa ucits etf acc": {
         "name": "UBS MSCI World ex USA UCITS ETF USD acc", "ticker": "WXUS.DE",
         "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.09, "aum": 443,
-        "replication": "Física (Completa)", "te": 0.03, "currency": "USD", "age_years": 2, "is_dist": False, "return_1y": 19.8, "score": 4.8,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "EUR", "age_years": 2, "is_dist": False, "return_1y": 19.8, "score": 4.8,
         "desc": "El ETF sobre el índice MSCI World ex USA con el TER más bajo del mercado (0.09% anual).",
         "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
         "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.2, "Royal Bank of Canada": 1.1, "Novartis AG": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del ETF": 90.6}
@@ -597,7 +606,7 @@ ETF_DB = {
     "xtrackers msci world ex usa ucits etf 1c": {
         "name": "Xtrackers MSCI World ex USA UCITS ETF 1C", "ticker": "EXUS.DE",
         "category": "Renta Variable Desarrollada Ex-EEUU", "ter": 0.15, "aum": 7022,
-        "replication": "Física (Completa)", "te": 0.03, "currency": "USD", "age_years": 2, "is_dist": False, "return_1y": 19.6, "score": 4.8,
+        "replication": "Física (Completa)", "te": 0.03, "currency": "EUR", "age_years": 2, "is_dist": False, "return_1y": 19.6, "score": 4.8,
         "desc": "El ETF ucits de Xtrackers más grande sobre el índice MSCI World ex USA con más de 7.000 M€ en patrimonio.",
         "geo": {"Japón": 20.3, "Canadá": 12.2, "Reino Unido": 11.9, "Europa (Ex-UK)": 48.5, "Otros": 7.1},
         "holdings": {"ASML Holding NV": 2.6, "HSBC Holdings Plc": 1.4, "Roche Holding AG": 1.3, "Novartis AG": 1.1, "Royal Bank of Canada": 1.1, "Shell Plc": 1.0, "Nestlé SA": 1.0, "Resto del ETF": 90.5}
@@ -648,32 +657,32 @@ def render_holdings_breakdown(holdings_dict):
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
 
-# FUNCIÓN PARA MOSTRAR EL SEMÁFORO DE RECOMENDACIÓN
+# FUNCIÓN PARA MOSTRAR EL SEMÁFORO DE RECOMENDACIÓN CORREGIDO
 def render_traffic_light_recommendation(score, asset_type, details=None):
-    if score >= 4.2:
+    if score >= 4.0:
         badge_class = "tl-buy"
         icon = "🟢"
         status = "RECOMENDACIÓN DE COMPRA / MUY FAVORABLE"
         if asset_type == "Acción":
-            desc = "Activo con fundamentales muy sólidos, valoración atractiva y un excelente balance entre rentabilidad y riesgo."
+            desc = "Activo con fundamentales muy sólidos, valoración equilibrada y excelente perfil de rentabilidad/riesgo."
         else:
-            desc = "Vehículo altamente eficiente con comisiones de las más bajas del mercado, un patrimonio amplio y mínima desviación frente al índice."
-    elif score >= 3.0:
+            desc = "Vehículo altamente eficiente con comisiones muy reducidas, patrimonio robusto y mínima desviación del índice."
+    elif score >= 2.8:
         badge_class = "tl-hold"
         icon = "🟡"
         status = "RECOMENDACIÓN NEUTRAL / MANTENER EN OBSERVACIÓN"
         if asset_type == "Acción":
-            desc = "Empresa con buenos parámetros aunque cotiza a múltiplos exigentes (PER elevado) o con cierta volatilidad. Se sugiere acumular con cautela."
+            desc = "Empresa de calidad pero con múltiplos algo exigentes (PER elevado) o volatilidad superior a la media. Adecuada para mantener o acumular con cautela."
         else:
-            desc = "Fondo o ETF aceptable con comisiones moderadas. Adecuado para diversificación secundaria o si no existe una opción equivalente más barata."
+            desc = "Fondo o ETF aceptable con costes moderados. Válido para diversificación si no existe una opción idéntica más barata."
     else:
         badge_class = "tl-avoid"
         icon = "🔴"
         status = "PRECAUCIÓN / EVALUAR OTRAS ALTERNATIVAS"
         if asset_type == "Acción":
-            desc = "Se observan métricas de sobrevaloración o bajo retorno sobre el capital (ROE). Es recomendable ponderar otras oportunidades del sector."
+            desc = "Se detectan métricas de sobrevaloración o bajo retorno sobre el capital (ROE). Se recomienda explorar otras oportunidades."
         else:
-            desc = "Las comisiones anuales (TER) o el bajo volumen de patrimonio hacen que existan opciones mucho más eficientes en nuestra biblioteca."
+            desc = "Las comisiones anuales (TER) elevadas o el bajo patrimonio aconsejan buscar opciones más competitivas en la biblioteca."
 
     detail_html = f"<div style='margin-top: 8px; font-size: 0.9rem; opacity: 0.9;'><b>Justificación del Semáforo:</b> {details}</div>" if details else ""
 
@@ -958,7 +967,7 @@ elif st.session_state.stage == 'portfolio_view':
         if has_broad_market and has_tech_sector:
             st.warning("⚠️ **¡Alerta de Solapamiento de Empresas (Megacaps Tech)!** Estás combinando S&P500 o MSCI World con fondos/ETFs tecnológicos o Nasdaq 100.")
 
-        st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final:")
+        st.markdown("Configura el plazo, la frecuencia y el bróker de cada activo para obtener el desglose anual detallado y el rendimiento neto final en **Euros (€)**:")
         
         c_p1, c_p2 = st.columns(2)
         with c_p1:
@@ -983,7 +992,6 @@ elif st.session_state.stage == 'portfolio_view':
             if is_dist_item:
                 has_dividend_asset = True
 
-            currency_act = item.get('currency', 'EUR')
             ticker_key = item['ticker'].lower()
             ter_val = item.get('ter', 0.20)
             est_rent_val = float(item.get('est_rent', 7.5))
@@ -1032,7 +1040,7 @@ elif st.session_state.stage == 'portfolio_view':
                 f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
                 f_fix = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_fixed"]
                 f_spr = b_data["spread_percent"]
-                f_fx = 0.0 if currency_act == "EUR" else b_data["fx_fee_percent"]
+                f_fx = 0.0 if (item.get('currency') == 'EUR' or item['ticker'].endswith('.DE') or item['ticker'].endswith('.MC') or item['ticker'].endswith('.AS')) else b_data["fx_fee_percent"]
 
                 periodos_ano = 12 if frecuencia_cartera == "Mensual" else 1
                 tasa_neta = rent_est - ter_val
@@ -1091,7 +1099,7 @@ elif st.session_state.stage == 'portfolio_view':
                         historial_activo.append(row_dict)
 
                 df_act = pd.DataFrame(historial_activo)
-                st.markdown("##### 📊 Desglose de crecimiento anual para este activo:")
+                st.markdown("##### 📊 Desglose de crecimiento anual para este activo (€):")
                 st.dataframe(df_act, use_container_width=True)
 
                 total_capital_bruto_acum += saldo_act
@@ -1108,7 +1116,7 @@ elif st.session_state.stage == 'portfolio_view':
             capital_liquido_global = capital_neto_aportado + beneficio_neto_global + div_neto_global
 
             st.markdown("---")
-            st.markdown("### 📊 Proyección Total de la Cartera Consolidada")
+            st.markdown("### 📊 Proyección Total de la Cartera Consolidada (€)")
 
             if has_dividend_asset:
                 m1, m2, m3, m4, m5, m6, m7 = st.columns(7)
@@ -1421,16 +1429,24 @@ elif st.session_state.stage == 'analyzer':
                     stock = yf.Ticker(ticker_input)
                     hist_price = stock.history(period="3mo")
                     
-                    current_price = None
+                    info = stock.info or {}
+                    name = info.get('longName', ticker_input.title())
+                    native_currency = info.get('currency', 'EUR')
+
+                    current_price_native = None
                     if not hist_price.empty and 'Close' in hist_price.columns:
                         valid_closes = hist_price['Close'].dropna()
                         if not valid_closes.empty:
-                            current_price = float(valid_closes.iloc[-1])
+                            current_price_native = float(valid_closes.iloc[-1])
 
-                    info = stock.info or {}
-                    name = info.get('longName', ticker_input.title())
-                    currency_symbol = '$' if info.get('currency') == 'USD' else '€'
-                    price_display = f"{current_price:,.2f} {currency_symbol}" if current_price is not None else "—"
+                    # CONVERSIÓN A EUROS (€) SI VIENE EN USD U OTRA MONEDA
+                    eur_usd_rate = get_eur_usd_rate()
+                    if native_currency == 'USD' and current_price_native is not None:
+                        current_price_eur = current_price_native / eur_usd_rate
+                    else:
+                        current_price_eur = current_price_native
+
+                    price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
                     # CORRECCIÓN ROBUSTA DE DIVIDEND YIELD
@@ -1449,16 +1465,31 @@ elif st.session_state.stage == 'analyzer':
                     beta_val = info.get('beta') or 1.0
                     raw_payout = info.get('payoutRatio')
                     payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
+                    recommendation = info.get('recommendationKey', 'hold').lower()
 
-                    score_calc = 3.0
-                    if per_y > 0 and per_y < 25: score_calc += 0.5
-                    if roe_val > 15: score_calc += 0.5
-                    if beta_val < 1.2: score_calc += 0.5
+                    # CÁLCULO DINÁMICO DE PUNTUACIÓN REAL PARA ACCIONES (Llega de 1.0 a 5.0 permitiendo VERDE)
+                    score_calc = 2.5
+                    
+                    # Criterio PER
+                    if 0 < per_y <= 18: score_calc += 1.0
+                    elif 18 < per_y <= 28: score_calc += 0.5
+                    elif per_y > 45: score_calc -= 0.5
+
+                    # Criterio ROE
+                    if roe_val >= 20: score_calc += 1.0
+                    elif roe_val >= 12: score_calc += 0.5
+
+                    # Criterio Volatilidad (Beta)
+                    if 0.5 <= beta_val <= 1.1: score_calc += 0.5
+
+                    # Criterio Consenso Analistas
+                    if recommendation in ['buy', 'strong_buy']: score_calc += 0.5
+
                     total_score = min(5.0, max(1.0, score_calc))
 
                     grade = get_letter_grade(total_score)
                     deg = int((total_score / 5.0) * 360)
-                    progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 3.0 else "#ef4444")
+                    progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 2.8 else "#ef4444")
 
                     col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
                     with col_n1:
@@ -1467,7 +1498,7 @@ elif st.session_state.stage == 'analyzer':
                         if st.button("⭐ Añadir a Favoritos", use_container_width=True):
                             st.session_state.favorites.append({
                                 "type": "Acción", "name": name, "ticker": ticker_input,
-                                "ter": 0.0, "currency": info.get('currency', 'EUR'), "category": "Renta Variable (Acción)"
+                                "ter": 0.0, "currency": "EUR", "category": "Renta Variable (Acción)"
                             })
                             guardar_en_url()
                             st.success("¡Añadido a Favoritos!")
@@ -1475,7 +1506,7 @@ elif st.session_state.stage == 'analyzer':
                         if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
                                 "type": "Acción", "name": name, "ticker": ticker_input,
-                                "est_rent": 8.0, "ter": 0.0, "currency": info.get('currency', 'EUR'), "is_dist": True,
+                                "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True,
                                 "category": "Renta Variable (Acción)"
                             })
                             guardar_en_url()
@@ -1486,11 +1517,11 @@ elif st.session_state.stage == 'analyzer':
                         <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Yahoo Finance</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
                         <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
+                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual (€)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # RENDER SEMÁFORO DE COMPRA
+                    # RENDER SEMÁFORO DE COMPRA CORREGIDO
                     render_traffic_light_recommendation(
                         total_score, "Acción",
                         f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
@@ -1523,7 +1554,7 @@ elif st.session_state.stage == 'analyzer':
                         spct = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_percent"]
                         sfix = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_fixed"]
                         sspr = b_stock_data["spread_percent"]
-                        sfx = 0.0 if info.get('currency', 'EUR') == 'EUR' else b_stock_data["fx_fee_percent"]
+                        sfx = 0.0 if native_currency == 'EUR' or ticker_input.endswith('.DE') or ticker_input.endswith('.MC') else b_stock_data["fx_fee_percent"]
 
                         per_ano_stock = 12 if freq_stock == "Mensual" else 1
                         t_neta_stock = rent_stock - 0.0
@@ -1580,7 +1611,7 @@ elif st.session_state.stage == 'analyzer':
                                 })
 
                         df_sim_stock = pd.DataFrame(historial_stock)
-                        with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
+                        with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
                             st.dataframe(df_sim_stock, use_container_width=True)
 
                         c_tot_acum_stock = a_broker_stock + a_spread_stock + a_fx_stock
@@ -1601,7 +1632,7 @@ elif st.session_state.stage == 'analyzer':
 
                         st.markdown(f"""
                         <div class="final-net-card">
-                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción (Con Dividendos)</div>
+                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción (Con Dividendos en €)</div>
                             <div class="final-net-value">{liquido_stock:,.2f} €</div>
                         </div>
                         """, unsafe_allow_html=True)
@@ -1619,7 +1650,7 @@ elif st.session_state.stage == 'analyzer':
                     aum_val = matched_fund["aum"]
                     te_val = matched_fund["tracking_error"]
                     age_val = matched_fund["age_years"]
-                    curr_fund = matched_fund["currency"]
+                    curr_fund = "EUR"
                     is_dist_fund = matched_fund["is_dist"]
                     cat_fund = matched_fund["category"]
                     ret_1y_fund = matched_fund.get("return_1y", 15.0)
@@ -1631,11 +1662,10 @@ elif st.session_state.stage == 'analyzer':
                         live_ticker = yf.Ticker(fund_isin)
                         info_live = live_ticker.info or {}
                         fund_name = info_live.get('longName') or info_live.get('shortName') or fund_isin
-                        curr_fund = info_live.get('currency', 'EUR')
                     except:
                         fund_name = fund_isin
-                        curr_fund = 'EUR'
 
+                    curr_fund = "EUR"
                     ter_val = 0.15 if st.session_state.asset_type == "Fondos Monetarios" else 0.18
                     aum_val = 2500
                     te_val = 0.01
@@ -1646,7 +1676,7 @@ elif st.session_state.stage == 'analyzer':
 
                 grade_fund = get_letter_grade(score_fund)
                 deg_fund = int((score_fund / 5.0) * 360)
-                color_fund = "#22c55e"
+                color_fund = "#22c55e" if score_fund >= 4.0 else ("#eab308" if score_fund >= 2.8 else "#ef4444")
                 trend_html_fund = '<div class="neon-stream-horizontal"><span class="arrow-item-side st-1">►</span><span class="arrow-item-side st-2">►</span><span class="arrow-item-side st-3">►</span></div><div style="font-size: 0.75rem; color: #eab308; margin-top: 4px;">Estable</div>'
 
                 salud_patrimonio = "🟢 Muy Sólido (>1.000M€)" if aum_val >= 1000 else "🟡 Moderado"
@@ -1659,7 +1689,7 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("⭐ Favoritos", use_container_width=True, key="fav_fund"):
                         st.session_state.favorites.append({
                             "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "ter": ter_val, "currency": curr_fund, "category": cat_fund
+                            "ter": ter_val, "currency": "EUR", "category": cat_fund
                         })
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
@@ -1667,7 +1697,7 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
-                            "est_rent": 3.5 if cat_fund == 'Fondos Monetarios' else 7.5, "ter": ter_val, "currency": curr_fund, "is_dist": is_dist_fund,
+                            "est_rent": 3.5 if cat_fund == 'Fondos Monetarios' else 7.5, "ter": ter_val, "currency": "EUR", "is_dist": is_dist_fund,
                             "category": cat_fund
                         })
                         guardar_en_url()
@@ -1697,7 +1727,7 @@ elif st.session_state.stage == 'analyzer':
 
                 df_fund_data = {
                     "Métrica Clave (Análisis Profesional)": ["ISIN / Identificador", "Categoría / Perfil", "Modalidad", "1. TER (Gastos Corrientes Anuales)", "2. Tracking Error (Desviación del Índice)", "3. Patrimonio Bajo Gestión (AUM)", "4. Antigüedad del Vehículo", "5. Rentabilidad Estimada (1 Año)", "Divisa"],
-                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"{ter_val:.2f}% anual", f"{te_val:.2f}%", f"{aum_val:,.0f} M€", f"{age_val} años", f"+{ret_1y_fund:.1f}%", curr_fund]
+                    "Valor Actual": [fund_isin, cat_fund, "Distribución 💰" if is_dist_fund else "Acumulación 📥", f"{ter_val:.2f}% anual", f"{te_val:.2f}%", f"{aum_val:,.0f} M€", f"{age_val} años", f"+{ret_1y_fund:.1f}%", "EUR (€)"]
                 }
                 st.table(pd.DataFrame(df_fund_data))
 
@@ -1724,7 +1754,7 @@ elif st.session_state.stage == 'analyzer':
                     fpct = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_percent"]
                     ffix = 0.0 if (b_f_data["supports_free_plans"] and plan_f_free) else b_f_data["fee_fixed"]
                     fspr = b_f_data["spread_percent"]
-                    ffx = 0.0 if curr_fund == "EUR" else b_f_data["fx_fee_percent"]
+                    ffx = 0.0
 
                     per_ano_f = 12 if freq_f == "Mensual" else 1
                     t_neta_f = rent_f - ter_val
@@ -1783,7 +1813,7 @@ elif st.session_state.stage == 'analyzer':
                             historial_f.append(row_f_dict)
 
                     df_sim_f = pd.DataFrame(historial_f)
-                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
+                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
                         st.dataframe(df_sim_f, use_container_width=True)
 
                     c_tot_acum_f = a_broker_f + a_spread_f + a_fx_f
@@ -1811,7 +1841,7 @@ elif st.session_state.stage == 'analyzer':
 
                     st.markdown(f"""
                     <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo (Con Dividendos)</div>
+                        <div class="final-net-title">💰 Capital Total Líquido Final del Fondo (Con Dividendos en €)</div>
                         <div class="final-net-value">{liquido_f:,.2f} €</div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1827,7 +1857,7 @@ elif st.session_state.stage == 'analyzer':
                     aum_etf = matched_etf["aum"]
                     repl_etf = matched_etf["replication"]
                     te_etf = matched_etf["te"]
-                    curr_etf = matched_etf["currency"]
+                    curr_etf = "EUR"
                     age_etf = matched_etf["age_years"]
                     is_dist_etf = matched_etf["is_dist"]
                     ret_1y_etf = matched_etf.get("return_1y", 15.0)
@@ -1839,11 +1869,10 @@ elif st.session_state.stage == 'analyzer':
                         live_ticker = yf.Ticker(etf_ticker)
                         info_live = live_ticker.info or {}
                         etf_name = info_live.get('longName') or info_live.get('shortName') or etf_ticker
-                        curr_etf = info_live.get('currency', 'EUR')
                     except:
                         etf_name = etf_ticker
-                        curr_etf = 'EUR'
                     
+                    curr_etf = "EUR"
                     etf_cat = "ETF Personalizado / Materias Primas (Yahoo Finance)"
                     ter_etf = 0.35
                     aum_etf = 1000
@@ -1853,7 +1882,7 @@ elif st.session_state.stage == 'analyzer':
                     is_dist_etf = False
                     score_etf = 4.2
 
-                etf_price = None
+                etf_price_eur = None
                 last_volume = None
                 avg_monthly_volume = None
                 etf_hist = None
@@ -1863,20 +1892,25 @@ elif st.session_state.stage == 'analyzer':
                     if not etf_hist.empty and 'Close' in etf_hist.columns:
                         valid_c = etf_hist['Close'].dropna()
                         if not valid_c.empty:
-                            etf_price = float(valid_c.iloc[-1])
+                            p_raw = float(valid_c.iloc[-1])
+                            info_e = etf_stock.info or {}
+                            if info_e.get('currency') == 'USD':
+                                etf_price_eur = p_raw / get_eur_usd_rate()
+                            else:
+                                etf_price_eur = p_raw
                         last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
                         avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
                 except:
                     pass
 
-                price_display_etf = f"{etf_price:,.2f} {curr_etf}" if etf_price is not None else "—"
+                price_display_etf = f"{etf_price_eur:,.2f} €" if etf_price_eur is not None else "—"
                 last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
                 avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
                 trend_html_etf = get_trend_chain_stream(etf_hist)
 
                 grade_etf = get_letter_grade(score_etf)
                 deg_etf = int((score_etf / 5.0) * 360)
-                color_etf = "#22c55e"
+                color_etf = "#22c55e" if score_etf >= 4.0 else ("#eab308" if score_etf >= 2.8 else "#ef4444")
 
                 salud_patrimonio_etf = "🟢 Muy Sólido (>1.000M€)" if aum_etf >= 1000 else "🟡 Moderado"
                 salud_historial_etf = "🟢 Consolidado (>5 años)" if age_etf >= 5 else "🟡 ETF Joven"
@@ -1888,7 +1922,7 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("⭐ Favoritos", use_container_width=True, key="fav_etf"):
                         st.session_state.favorites.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "ter": ter_etf, "currency": curr_etf, "category": etf_cat
+                            "ter": ter_etf, "currency": "EUR", "category": etf_cat
                         })
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
@@ -1896,7 +1930,7 @@ elif st.session_state.stage == 'analyzer':
                     if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
                         st.session_state.portfolio.append({
                             "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "est_rent": 7.5, "ter": ter_etf, "currency": curr_etf, "is_dist": is_dist_etf,
+                            "est_rent": 7.5, "ter": ter_etf, "currency": "EUR", "is_dist": is_dist_etf,
                             "category": etf_cat
                         })
                         guardar_en_url()
@@ -1925,8 +1959,8 @@ elif st.session_state.stage == 'analyzer':
                     render_holdings_breakdown(matched_etf["holdings"])
 
                 df_etf_data = {
-                    "Métrica Clave (Análisis Profesional)": ["Categoría / Sector", "Modalidad", "1. TER (Gastos Anuales)", "2. Tipo de Réplica", "3. Tracking Error", "4. Patrimonio (AUM)", "5. Antigüedad", "Precio Actual", "Volumen Medio Diario", "Divisa"],
-                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", f"{ter_etf:.2f}% anual", repl_etf, f"{te_etf:.2f}%", f"{aum_etf:,.0f} M€", f"{age_etf} años", price_display_etf, avg_vol_display, curr_etf]
+                    "Métrica Clave (Análisis Profesional)": ["Categoría / Sector", "Modalidad", "1. TER (Gastos Anuales)", "2. Tipo de Réplica", "3. Tracking Error", "4. Patrimonio (AUM)", "5. Antigüedad", "Precio Actual (€)", "Volumen Medio Diario", "Divisa"],
+                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", f"{ter_etf:.2f}% anual", repl_etf, f"{te_etf:.2f}%", f"{aum_etf:,.0f} M€", f"{age_etf} años", price_display_etf, avg_vol_display, "EUR (€)"]
                 }
                 st.table(pd.DataFrame(df_etf_data))
 
@@ -1953,7 +1987,7 @@ elif st.session_state.stage == 'analyzer':
                     epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
                     efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
                     espr = b_e_data["spread_percent"]
-                    efx = 0.0 if curr_etf == "EUR" else b_e_data["fx_fee_percent"]
+                    efx = 0.0
 
                     per_ano_e = 12 if freq_e == "Mensual" else 1
                     t_neta_e = rent_e - ter_etf
@@ -2012,7 +2046,7 @@ elif st.session_state.stage == 'analyzer':
                             historial_e.append(row_e_dict)
 
                     df_sim_e = pd.DataFrame(historial_e)
-                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos", expanded=True):
+                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
                         st.dataframe(df_sim_e, use_container_width=True)
 
                     c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
@@ -2040,7 +2074,7 @@ elif st.session_state.stage == 'analyzer':
 
                     st.markdown(f"""
                     <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF (Con Dividendos)</div>
+                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF (Con Dividendos en €)</div>
                         <div class="final-net-value">{liquido_e:,.2f} €</div>
                     </div>
                     """, unsafe_allow_html=True)
