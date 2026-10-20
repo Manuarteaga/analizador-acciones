@@ -957,7 +957,7 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'**.")
+        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a Simulador de Cartera'**.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         category_counts = pd.Series(categories_in_portfolio).value_counts()
