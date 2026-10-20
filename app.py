@@ -1,9 +1,7 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import io
 import json
-import urllib.parse
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
@@ -131,7 +129,7 @@ st.markdown("""
     @keyframes slideDownStream {
         0% { top: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
         50% { opacity: 1; filter: blur(0px); text-shadow: 0 0 12px #ef4444, 0 0 22px #ef4444; }
-        100% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #ef4444; }
+        100% { top: 45px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #22c55e; }
     }
     @keyframes slideRightStream {
         0% { left: -15px; opacity: 0; filter: blur(2px); text-shadow: 0 0 2px #eab308; }
@@ -657,7 +655,6 @@ def render_holdings_breakdown(holdings_dict):
     
     st.markdown(bar_html + legend_html, unsafe_allow_html=True)
 
-# FUNCIÓN PARA MOSTRAR EL SEMÁFORO DE RECOMENDACIÓN CORREGIDO
 def render_traffic_light_recommendation(score, asset_type, details=None):
     if score >= 4.0:
         badge_class = "tl-buy"
@@ -714,7 +711,7 @@ ETF_BROKER_PROFILES = {
 portfolio_count = len(st.session_state.portfolio)
 favorites_count = len(st.session_state.favorites)
 
-col_tb1, col_tb2, col_tb3 = st.columns([2, 1, 1])
+col_tb1, col_tb2, col_tb3, col_tb4 = st.columns([2, 1, 1, 1])
 with col_tb1:
     st.markdown("### 📈 Analizador Bursátil Multifuente")
 with col_tb2:
@@ -722,13 +719,24 @@ with col_tb2:
         st.session_state.stage = "favorites_view"
         st.rerun()
 with col_tb3:
-    if st.button(f"💼 Mi Cartera ({portfolio_count})", use_container_width=True, type="primary"):
+    if st.button("➕ Añadir cuenta remunerada", use_container_width=True):
+        st.session_state.portfolio.append({
+            "type": "Cuenta Remunerada", "name": "Cuenta Remunerada", "ticker": "CASH_REM",
+            "est_rent": 2.5, "ter": 0.0, "currency": "EUR", "is_dist": True, "category": "Efectivo / Cuenta Remunerada"
+        })
+        guardar_en_url()
+        st.success("¡Cuenta remunerada añadida a tu Simulador de Cartera!")
+        st.session_state.stage = "portfolio_view"
+        st.rerun()
+with col_tb4:
+    if st.button(f"💼 Simulador de Cartera ({portfolio_count})", use_container_width=True, type="primary"):
         st.session_state.stage = "portfolio_view"
         st.rerun()
 
 st.markdown("---")
 
 with st.sidebar:
+    st.markdown("[💼 Mi Cartera](https://mi-cartera-inversiones.streamlit.app/)")
     st.header("📖 Glosario Financiero")
     st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
 
@@ -920,14 +928,14 @@ elif st.session_state.stage == 'favorites_view':
                         st.session_state.stage = "analyzer"
                         st.rerun()
                 with col_fav3:
-                    if st.button("➕ A Cartera", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
+                    if st.button("➕ A Simulador", key=f"fav_to_port_{idx}", type="primary", use_container_width=True):
                         st.session_state.portfolio.append({
                             "type": fav['type'], "name": fav['name'], "ticker": fav['ticker'],
                             "est_rent": 3.5 if fav['type'] == "Fondo Monetario" else 7.5, "ter": fav.get('ter', 0.15), "currency": fav.get('currency', 'EUR'), 
                             "is_dist": fav.get('is_dist', False), "category": fav.get('category', 'General')
                         })
                         guardar_en_url()
-                        st.success(f"¡{fav['name']} añadido a la Cartera!")
+                        st.success(f"¡{fav['name']} añadido al Simulador de Cartera!")
                 with col_fav4:
                     if st.button("🗑️ Quitar", key=f"del_fav_{idx}", use_container_width=True):
                         st.session_state.favorites.pop(idx)
@@ -947,7 +955,7 @@ elif st.session_state.stage == 'portfolio_view':
     st.title("💼 Simulador Global de Cartera Consolidada")
     
     if not st.session_state.portfolio:
-        st.info("🛒 Tu cartera está vacía. Explora acciones, fondos, monetarios o ETFs y pulsa el botón **'➕ Añadir a mi Cartera'**.")
+        st.info("🛒 Tu simulador está vacío. Explora acciones, fondos, monetarios, ETFs, cuentas remuneradas o pulsa el botón **'➕ Añadir cuenta remunerada'** en la parte superior.")
     else:
         categories_in_portfolio = [item.get('category', '') for item in st.session_state.portfolio if item.get('category')]
         category_counts = pd.Series(categories_in_portfolio).value_counts()
@@ -988,7 +996,7 @@ elif st.session_state.stage == 'portfolio_view':
             is_etf_or_stock = item['type'] in ["ETF", "Acción"]
             broker_profiles = ETF_BROKER_PROFILES if is_etf_or_stock else FUND_BROKER_PROFILES
             
-            is_dist_item = item.get('is_dist', False) or (item.get('type') == "Acción") or ("Dividendo" in item.get('category', ''))
+            is_dist_item = item.get('is_dist', False) or (item.get('type') in ["Acción", "Cuenta Remunerada"]) or ("Dividendo" in item.get('category', ''))
             if is_dist_item:
                 has_dividend_asset = True
 
@@ -1008,46 +1016,64 @@ elif st.session_state.stage == 'portfolio_view':
                 cm2.markdown(f"**TER:** `{ter_val}%`")
                 cm3.markdown(f"**Nota:** ⭐ `{score_val}/5`")
                 with cm4:
-                    if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
-                        st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else ("Fondos Monetarios" if item['type'] == "Fondo Monetario" else "ETFs"))
-                        st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if item['type'] == "Fondo Monetario" else "Evaluación ETF"))
-                        st.session_state.selected_eval_input = item['ticker']
-                        st.session_state.stage = "analyzer"
-                        st.rerun()
+                    if item['type'] != "Cuenta Remunerada":
+                        if st.button("🔍 Evaluar", key=f"port_eval_{idx}", use_container_width=True):
+                            st.session_state.asset_type = "Acciones" if item['type'] == "Acción" else ("Fondos indexados" if item['type'] == "Fondo Indexado" else ("Fondos Monetarios" if item['type'] == "Fondo Monetario" else "ETFs"))
+                            st.session_state.sub_type = "Con dividendos" if item['type'] == "Acción" else ("Acumulación" if item['type'] == "Fondo Indexado" else ("Biblioteca Monetarios" if item['type'] == "Fondo Monetario" else "Evaluación ETF"))
+                            st.session_state.selected_eval_input = item['ticker']
+                            st.session_state.stage = "analyzer"
+                            st.rerun()
 
                 st.markdown("---")
-                col_b1, col_b2 = st.columns(2)
-                with col_b1:
-                    sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
-                with col_b2:
-                    b_data = broker_profiles[sel_broker]
-                    plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
+                if item['type'] == "Cuenta Remunerada":
+                    col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
+                    with col_i1:
+                        inv_ini = st.number_input(f"Saldo Inicial (€)", min_value=0.0, value=5000.0, step=500.0, key=f"p_ini_{idx}")
+                    with col_i2:
+                        app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=200.0, step=50.0, key=f"p_app_{idx}")
+                    with col_i3:
+                        rent_est = st.slider(f"Rentabilidad/Interés anual (%)", min_value=0.0, max_value=10.0, value=2.5, step=0.25, key=f"p_rent_{idx}")
+                    with col_i4:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if st.button("🗑️ Quitar", key=f"del_{idx}"):
+                            st.session_state.portfolio.pop(idx)
+                            guardar_en_url()
+                            st.rerun()
 
-                col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
-                with col_i1:
-                    inv_ini = st.number_input(f"Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key=f"p_ini_{idx}")
-                with col_i2:
-                    app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=100.0, step=50.0, key=f"p_app_{idx}")
-                with col_i3:
-                    rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=est_rent_val, step=0.5, key=f"p_rent_{idx}")
-                with col_i4:
-                    st.markdown("<br>", unsafe_allow_html=True)
-                    if st.button("🗑️ Quitar", key=f"del_{idx}"):
-                        st.session_state.portfolio.pop(idx)
-                        guardar_en_url()
-                        st.rerun()
+                    f_pct, f_fix, f_spr, f_fx = 0.0, 0.0, 0.0, 0.0
+                else:
+                    col_b1, col_b2 = st.columns(2)
+                    with col_b1:
+                        sel_broker = st.selectbox(f"Bróker / Entidad", options=list(broker_profiles.keys()), key=f"p_brok_{idx}")
+                    with col_b2:
+                        b_data = broker_profiles[sel_broker]
+                        plan_sc = st.checkbox("Plan de aportación automática a 0€", value=b_data["supports_free_plans"], key=f"p_plan_{idx}")
 
-                f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
-                f_fix = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_fixed"]
-                f_spr = b_data["spread_percent"]
-                f_fx = 0.0 if (item.get('currency') == 'EUR' or item['ticker'].endswith('.DE') or item['ticker'].endswith('.MC') or item['ticker'].endswith('.AS')) else b_data["fx_fee_percent"]
+                    col_i1, col_i2, col_i3, col_i4 = st.columns([2, 2, 2, 1])
+                    with col_i1:
+                        inv_ini = st.number_input(f"Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key=f"p_ini_{idx}")
+                    with col_i2:
+                        app_per = st.number_input(f"Aportación Periódica (€)", min_value=0.0, value=100.0, step=50.0, key=f"p_app_{idx}")
+                    with col_i3:
+                        rent_est = st.slider(f"Rentabilidad estimada anual (%)", min_value=0.0, max_value=20.0, value=est_rent_val, step=0.5, key=f"p_rent_{idx}")
+                    with col_i4:
+                        st.markdown("<br>", unsafe_allow_html=True)
+                        if st.button("🗑️ Quitar", key=f"del_{idx}"):
+                            st.session_state.portfolio.pop(idx)
+                            guardar_en_url()
+                            st.rerun()
+
+                    f_pct = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_percent"]
+                    f_fix = 0.0 if (b_data["supports_free_plans"] and plan_sc) else b_data["fee_fixed"]
+                    f_spr = b_data["spread_percent"]
+                    f_fx = 0.0 if (item.get('currency') == 'EUR' or item['ticker'].endswith('.DE') or item['ticker'].endswith('.MC') or item['ticker'].endswith('.AS')) else b_data["fx_fee_percent"]
 
                 periodos_ano = 12 if frecuencia_cartera == "Mensual" else 1
                 tasa_neta = rent_est - ter_val
                 tasa_periodica = (tasa_neta / 100.0) / periodos_ano
                 tot_periodos = anos_cartera * periodos_ano
 
-                c_broker_ini = (inv_ini * (b_data["fee_percent"] / 100.0)) + b_data["fee_fixed"]
+                c_broker_ini = (inv_ini * (f_pct / 100.0)) + f_fix
                 c_spread_ini = inv_ini * (f_spr / 100.0)
                 c_fx_ini = inv_ini * (f_fx / 100.0)
                 c_tot_ini = c_broker_ini + c_spread_ini + c_fx_ini
@@ -1091,9 +1117,9 @@ elif st.session_state.stage == 'portfolio_view':
                             "Beneficio Neto (€)": round(max(0.0, int_brutos), 2),
                         }
                         if is_dist_item:
-                            div_bruto_anual = saldo_act * 0.025
+                            div_bruto_anual = saldo_act * (rent_est / 100.0) if item['type'] == "Cuenta Remunerada" else saldo_act * 0.025
                             div_bruto_activo += div_bruto_anual
-                            row_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual, 2)
+                            row_dict["Intereses / Dividendo Bruto Anual (€)" if item['type'] == "Cuenta Remunerada" else "Dividendo Bruto Anual (€)"] = round(div_bruto_anual, 2)
                         
                         row_dict["Capital Total Neto (€)"] = round(saldo_act, 2)
                         historial_activo.append(row_dict)
@@ -1125,8 +1151,8 @@ elif st.session_state.stage == 'portfolio_view':
                 m3.metric("Beneficio Bruto", f"{beneficio_bruto_global:,.2f} €")
                 m4.metric("Impuestos (19%)", f"{impuestos_globales:,.2f} €")
                 m5.metric("Beneficio Neto", f"{beneficio_neto_global:,.2f} €")
-                m6.metric("Total Div. Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
-                m7.metric("Total Div. Netos", f"{div_neto_global:,.2f} €")
+                m6.metric("Total Intereses Brutos", f"{total_dividendos_brutos_acum:,.2f} €")
+                m7.metric("Total Intereses Netos", f"{div_neto_global:,.2f} €")
             else:
                 m1, m2, m3, m4, m5 = st.columns(5)
                 m1.metric("Capital Invertido", f"{total_capital_aportado_acum:,.2f} €")
@@ -1137,7 +1163,7 @@ elif st.session_state.stage == 'portfolio_view':
 
             st.markdown(f"""
             <div class="final-net-card">
-                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos y Dividendos)</div>
+                <div class="final-net-title">💰 Capital Total Líquido Final de tu Cartera (Tras Impuestos e Intereses/Dividendos)</div>
                 <div class="final-net-value">{capital_liquido_global:,.2f} €</div>
             </div>
             """, unsafe_allow_html=True)
@@ -1439,7 +1465,6 @@ elif st.session_state.stage == 'analyzer':
                         if not valid_closes.empty:
                             current_price_native = float(valid_closes.iloc[-1])
 
-                    # CONVERSIÓN A EUROS (€) SI VIENE EN USD U OTRA MONEDA
                     eur_usd_rate = get_eur_usd_rate()
                     if native_currency == 'USD' and current_price_native is not None:
                         current_price_eur = current_price_native / eur_usd_rate
@@ -1449,7 +1474,6 @@ elif st.session_state.stage == 'analyzer':
                     price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
                     trend_html = get_trend_chain_stream(hist_price)
 
-                    # CORRECCIÓN ROBUSTA DE DIVIDEND YIELD
                     raw_yield = info.get('dividendYield', 0) or 0.0
                     if raw_yield > 0:
                         if raw_yield < 0.1:
@@ -1467,22 +1491,15 @@ elif st.session_state.stage == 'analyzer':
                     payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
                     recommendation = info.get('recommendationKey', 'hold').lower()
 
-                    # CÁLCULO DINÁMICO DE PUNTUACIÓN REAL PARA ACCIONES (Llega de 1.0 a 5.0 permitiendo VERDE)
                     score_calc = 2.5
-                    
-                    # Criterio PER
                     if 0 < per_y <= 18: score_calc += 1.0
                     elif 18 < per_y <= 28: score_calc += 0.5
                     elif per_y > 45: score_calc -= 0.5
 
-                    # Criterio ROE
                     if roe_val >= 20: score_calc += 1.0
                     elif roe_val >= 12: score_calc += 0.5
 
-                    # Criterio Volatilidad (Beta)
                     if 0.5 <= beta_val <= 1.1: score_calc += 0.5
-
-                    # Criterio Consenso Analistas
                     if recommendation in ['buy', 'strong_buy']: score_calc += 0.5
 
                     total_score = min(5.0, max(1.0, score_calc))
@@ -1503,14 +1520,14 @@ elif st.session_state.stage == 'analyzer':
                             guardar_en_url()
                             st.success("¡Añadido a Favoritos!")
                     with col_n3:
-                        if st.button("➕ Añadir a mi Cartera", type="primary", use_container_width=True):
+                        if st.button("➕ A Simulador", type="primary", use_container_width=True):
                             st.session_state.portfolio.append({
                                 "type": "Acción", "name": name, "ticker": ticker_input,
                                 "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True,
                                 "category": "Renta Variable (Acción)"
                             })
                             guardar_en_url()
-                            st.success(f"¡{name} añadido a tu Cartera!")
+                            st.success(f"¡{name} añadido al Simulador de Cartera!")
 
                     st.markdown(f"""
                     <div class="score-container">
@@ -1521,7 +1538,6 @@ elif st.session_state.stage == 'analyzer':
                     </div>
                     """, unsafe_allow_html=True)
 
-                    # RENDER SEMÁFORO DE COMPRA CORREGIDO
                     render_traffic_light_recommendation(
                         total_score, "Acción",
                         f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
@@ -1694,14 +1710,14 @@ elif st.session_state.stage == 'analyzer':
                         guardar_en_url()
                         st.success("¡Añadido a Favoritos!")
                 with col_f3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_fund"):
+                    if st.button("➕ A Simulador", type="primary", use_container_width=True, key="add_fund"):
                         st.session_state.portfolio.append({
                             "type": "Fondo Monetario" if cat_fund == 'Fondos Monetarios' else "Fondo Indexado", "name": fund_name, "ticker": fund_isin,
                             "est_rent": 3.5 if cat_fund == 'Fondos Monetarios' else 7.5, "ter": ter_val, "currency": "EUR", "is_dist": is_dist_fund,
                             "category": cat_fund
                         })
                         guardar_en_url()
-                        st.success(f"¡{fund_name} añadido a tu Cartera!")
+                        st.success(f"¡{fund_name} añadido al Simulador de Cartera!")
 
                 st.markdown(f"""
                 <div class="score-container">
@@ -1712,7 +1728,6 @@ elif st.session_state.stage == 'analyzer':
                 </div>
                 """, unsafe_allow_html=True)
 
-                # RENDER SEMÁFORO DE COMPRA PARA FONDOS
                 render_traffic_light_recommendation(
                     score_fund, "Fondo",
                     f"TER del {ter_val:.2f}% anual, patrimonio gestionado de {aum_val:,} M€ y antigüedad de {age_val} años."
@@ -1896,185 +1911,3 @@ elif st.session_state.stage == 'analyzer':
                             info_e = etf_stock.info or {}
                             if info_e.get('currency') == 'USD':
                                 etf_price_eur = p_raw / get_eur_usd_rate()
-                            else:
-                                etf_price_eur = p_raw
-                        last_volume = int(etf_hist['Volume'].iloc[-1]) if 'Volume' in etf_hist.columns and not pd.isna(etf_hist['Volume'].iloc[-1]) else None
-                        avg_monthly_volume = int(etf_hist['Volume'].tail(20).mean()) if 'Volume' in etf_hist.columns else None
-                except:
-                    pass
-
-                price_display_etf = f"{etf_price_eur:,.2f} €" if etf_price_eur is not None else "—"
-                last_vol_display = f"{last_volume:,.0f} títulos" if last_volume is not None else "—"
-                avg_vol_display = f"{avg_monthly_volume:,.0f} títulos/día" if avg_monthly_volume is not None else "—"
-                trend_html_etf = get_trend_chain_stream(etf_hist)
-
-                grade_etf = get_letter_grade(score_etf)
-                deg_etf = int((score_etf / 5.0) * 360)
-                color_etf = "#22c55e" if score_etf >= 4.0 else ("#eab308" if score_etf >= 2.8 else "#ef4444")
-
-                salud_patrimonio_etf = "🟢 Muy Sólido (>1.000M€)" if aum_etf >= 1000 else "🟡 Moderado"
-                salud_historial_etf = "🟢 Consolidado (>5 años)" if age_etf >= 5 else "🟡 ETF Joven"
-
-                col_e1, col_e2, col_e3 = st.columns([2, 1, 1])
-                with col_e1:
-                    st.subheader(f"🌐 Informe de ETF: {etf_name} ({etf_ticker})")
-                with col_e2:
-                    if st.button("⭐ Favoritos", use_container_width=True, key="fav_etf"):
-                        st.session_state.favorites.append({
-                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "ter": ter_etf, "currency": "EUR", "category": etf_cat
-                        })
-                        guardar_en_url()
-                        st.success("¡Añadido a Favoritos!")
-                with col_e3:
-                    if st.button("➕ A Cartera", type="primary", use_container_width=True, key="add_etf"):
-                        st.session_state.portfolio.append({
-                            "type": "ETF", "name": etf_name, "ticker": etf_ticker,
-                            "est_rent": 7.5, "ter": ter_etf, "currency": "EUR", "is_dist": is_dist_etf,
-                            "category": etf_cat
-                        })
-                        guardar_en_url()
-                        st.success(f"¡{etf_name} añadido a tu Cartera!")
-
-                st.markdown(f"""
-                <div class="score-container">
-                    <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg_etf}deg; --progress-color: {color_etf};"><div class="progress-value">{score_etf:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación ETF</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {color_etf};">{grade_etf}</div></div>
-                    <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Salud del ETF</div><div style="font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 15px;">{salud_patrimonio_etf}<br>{salud_historial_etf}</div></div>
-                </div>
-                """, unsafe_allow_html=True)
-
-                # RENDER SEMÁFORO DE COMPRA PARA ETFS
-                render_traffic_light_recommendation(
-                    score_etf, "ETF",
-                    f"TER del {ter_etf:.2f}% anual, estructura de réplica {repl_etf} y patrimonio acumulado de {aum_etf:,} M€."
-                )
-
-                if matched_etf and "desc" in matched_etf:
-                    st.markdown(f"**📖 Qué incluye:** {matched_etf['desc']}")
-                if matched_etf and "geo" in matched_etf:
-                    render_geo_breakdown(matched_etf["geo"])
-                if matched_etf and "holdings" in matched_etf:
-                    render_holdings_breakdown(matched_etf["holdings"])
-
-                df_etf_data = {
-                    "Métrica Clave (Análisis Profesional)": ["Categoría / Sector", "Modalidad", "1. TER (Gastos Anuales)", "2. Tipo de Réplica", "3. Tracking Error", "4. Patrimonio (AUM)", "5. Antigüedad", "Precio Actual (€)", "Volumen Medio Diario", "Divisa"],
-                    "Valor Actual": [etf_cat, "Distribución 💰" if is_dist_etf else "Acumulación 📥", f"{ter_etf:.2f}% anual", repl_etf, f"{te_etf:.2f}%", f"{aum_etf:,.0f} M€", f"{age_etf} años", price_display_etf, avg_vol_display, "EUR (€)"]
-                }
-                st.table(pd.DataFrame(df_etf_data))
-
-                render_asset_converter(etf_cat, etf_ticker, is_dist_etf, "ETF")
-
-                st.markdown("---")
-                st.subheader(f"🧮 Simulador de Interés Compuesto para: {etf_name}")
-                toggle_e_sim = st.toggle("Activar calculadora individual de este ETF", value=False, key="tg_e_sim")
-
-                if toggle_e_sim:
-                    sel_b_e = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_e")
-                    b_e_data = ETF_BROKER_PROFILES[sel_b_e]
-                    plan_e_free = st.checkbox("Plan de aportación automática sin comisión", value=b_e_data["supports_free_plans"], key="plan_e_free")
-
-                    ce1, ce2 = st.columns(2)
-                    with ce1:
-                        inv_i_e = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_e")
-                        app_p_e = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_e")
-                        freq_e = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_e")
-                    with ce2:
-                        anos_e = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_e")
-                        rent_e = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=7.5, step=0.5, key="rent_e")
-
-                    epct = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_percent"]
-                    efix = 0.0 if (b_e_data["supports_free_plans"] and plan_e_free) else b_e_data["fee_fixed"]
-                    espr = b_e_data["spread_percent"]
-                    efx = 0.0
-
-                    per_ano_e = 12 if freq_e == "Mensual" else 1
-                    t_neta_e = rent_e - ter_etf
-                    t_per_e = (t_neta_e / 100.0) / per_ano_e
-                    tot_per_e = anos_e * per_ano_e
-
-                    c_broker_i_e = (inv_i_e * (b_e_data["fee_percent"] / 100.0)) + b_e_data["fee_fixed"]
-                    c_spread_i_e = inv_i_e * (espr / 100.0)
-                    c_fx_i_e = inv_i_e * (efx / 100.0)
-                    c_ini_e = c_broker_i_e + c_spread_i_e + c_fx_i_e
-
-                    saldo_e = max(0.0, inv_i_e - c_ini_e)
-                    aport_e = inv_i_e
-                    a_broker_e = c_broker_i_e
-                    a_spread_e = c_spread_i_e
-                    a_fx_e = c_fx_i_e
-
-                    div_bruto_etf_total = 0.0
-                    historial_e = []
-
-                    for p in range(1, tot_per_e + 1):
-                        if p > 1:
-                            cb = (app_p_e * (epct / 100.0)) + efix
-                            cs = app_p_e * (espr / 100.0)
-                            cf = app_p_e * (efx / 100.0)
-                            ct = cb + cs + cf
-
-                            net_app_e = max(0.0, app_p_e - ct)
-                            aport_e += app_p_e
-                            a_broker_e += cb
-                            a_spread_e += cs
-                            a_fx_e += cf
-                            saldo_e = saldo_e * (1 + t_per_e) + net_app_e
-                        else:
-                            saldo_e = saldo_e * (1 + t_per_e)
-
-                        if p % per_ano_e == 0:
-                            ano_act_e = p // per_ano_e
-                            c_tot_e = a_broker_e + a_spread_e + a_fx_e
-                            int_b_e = saldo_e - (aport_e - c_tot_e)
-                            
-                            row_e_dict = {
-                                "Año": f"Año {ano_act_e}",
-                                "Capital Aportado Bruto (€)": round(aport_e, 2),
-                                "Comisiones Bróker (€)": round(a_broker_e, 2),
-                                "Coste Spread (€)": round(a_spread_e, 2),
-                                "Coste Cambio Divisa (€)": round(a_fx_e, 2),
-                                "Beneficio Neto (€)": round(max(0.0, int_b_e), 2),
-                            }
-                            if is_dist_etf:
-                                div_bruto_anual_e = saldo_e * 0.025
-                                div_bruto_etf_total += div_bruto_anual_e
-                                row_e_dict["Dividendo Bruto Anual (€)"] = round(div_bruto_anual_e, 2)
-                            
-                            row_e_dict["Capital Total Neto (€)"] = round(saldo_e, 2)
-                            historial_e.append(row_e_dict)
-
-                    df_sim_e = pd.DataFrame(historial_e)
-                    with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
-                        st.dataframe(df_sim_e, use_container_width=True)
-
-                    c_tot_acum_e = a_broker_e + a_spread_e + a_fx_e
-                    net_aport_e = aport_e - c_tot_acum_e
-                    bruto_e = max(0.0, saldo_e - net_aport_e)
-                    imp_e = bruto_e * 0.19
-                    neto_e = bruto_e - imp_e
-                    div_neto_etf = div_bruto_etf_total * (1 - 0.19)
-                    liquido_e = net_aport_e + neto_e + div_neto_etf
-
-                    if is_dist_etf:
-                        em1, em2, em3, em4, em5, em6 = st.columns(6)
-                        em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                        em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
-                        em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
-                        em4.metric("Beneficio Neto (19%)", f"{neto_e:,.2f} €")
-                        em5.metric("Div. Brutos Total", f"{div_bruto_etf_total:,.2f} €")
-                        em6.metric("Div. Netos Total", f"{div_neto_etf:,.2f} €")
-                    else:
-                        em1, em2, em3, em4 = st.columns(4)
-                        em1.metric("Capital Invertido Neto", f"{net_aport_e:,.2f} €")
-                        em2.metric("Costes Totales", f"{c_tot_acum_e:,.2f} €")
-                        em3.metric("Beneficio Bruto", f"{bruto_e:,.2f} €")
-                        em4.metric("Beneficio Neto (Tras 19% Impuestos)", f"{neto_e:,.2f} €")
-
-                    st.markdown(f"""
-                    <div class="final-net-card">
-                        <div class="final-net-title">💰 Capital Total Líquido Final del ETF (Con Dividendos en €)</div>
-                        <div class="final-net-value">{liquido_e:,.2f} €</div>
-                    </div>
-                    """, unsafe_allow_html=True)
