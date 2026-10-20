@@ -735,7 +735,7 @@ with col_tb4:
 st.markdown("---")
 
 with st.sidebar:
-    st.header("[Otros Enlaces]")
+    st.header("Enlaces Relacionados")
     st.markdown("[Mi Cartera de Inversiones](https://mi-cartera-inversiones.streamlit.app/)")
     st.markdown("---")
     
