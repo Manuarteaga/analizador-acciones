@@ -43,15 +43,7 @@ st.markdown("""
         justify-content: center;
         box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
     }
-    .circular-progress::before {
-        content: "";
-        position: absolute;
-        width: 88px;
-        height: 88px;
-        border-radius: 50%;
-        background-color: #0f172a;
-    }
-    .progress-value {
+       .progress-value {
         position: relative;
         font-size: 1.6rem;
         font-weight: bold;
