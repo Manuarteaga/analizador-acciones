@@ -787,7 +787,8 @@ if st.session_state.stage == 'home':
     with col1:
         if st.button("📊 Acciones", use_container_width=True, type="primary"):
             st.session_state.asset_type = "Acciones"
-            st.session_state.stage = "sub_options"
+            st.session_state.sub_type = "Con dividendos" # O el valor por defecto que prefieras
+            st.session_state.stage = "analyzer"
             st.rerun()
             
     with col2:
