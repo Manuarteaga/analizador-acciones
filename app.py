@@ -787,7 +787,7 @@ if st.session_state.stage == 'home':
     with col1:
         if st.button("📊 Acciones", use_container_width=True, type="primary"):
             st.session_state.asset_type = "Acciones"
-            st.session_state.sub_type = "Con dividendos" # O el valor por defecto que prefieras
+            st.session_state.sub_type = "Con dividendos"
             st.session_state.stage = "analyzer"
             st.rerun()
             
@@ -861,15 +861,7 @@ elif st.session_state.stage == 'sub_options':
 
     st.title(f"Configuración para: {st.session_state.asset_type}")
 
-    # (Se elimina el bloque if st.session_state.asset_type == "Acciones": aquí)
-
-    elif st.session_state.asset_type == "Fondos indexados":
-        # ... (mantener el código de fondos indexados)
-        
-    elif st.session_state.asset_type == "ETFs":
-        # ... (mantener el código de ETFs)
-
-    elif st.session_state.asset_type == "Fondos indexados":
+    if st.session_state.asset_type == "Fondos indexados":
         st.markdown("### Selecciona qué deseas hacer:")
         c1, c2 = st.columns(2)
         with c1:
@@ -1193,7 +1185,7 @@ elif st.session_state.stage == 'portfolio_view':
 
 elif st.session_state.stage == 'analyzer':
     if st.button("← Cambiar categoría / Volver"):
-        st.session_state.stage = 'sub_options' if st.session_state.asset_type != "Fondos Monetarios" else 'home'
+        st.session_state.stage = 'sub_options' if st.session_state.asset_type not in ["Fondos Monetarios", "Acciones"] else 'home'
         st.session_state.sub_type = None
         st.session_state.selected_eval_input = ""
         st.rerun()
