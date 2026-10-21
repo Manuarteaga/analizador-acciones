@@ -859,8 +859,6 @@ elif st.session_state.stage == 'sub_options':
         st.rerun()
 
     st.title(f"Configuración para: {st.session_state.asset_type}")
-    
-    if st.session_state.asset_type == "Acciones":
    
     elif st.session_state.asset_type == "Fondos indexados":
         st.markdown("### Selecciona qué deseas hacer:")
