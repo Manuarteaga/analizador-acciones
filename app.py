@@ -1555,7 +1555,7 @@ elif st.session_state.stage == 'analyzer':
                     )
 
                     df_metrics = pd.DataFrame({
-                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividendo Yield", "Payout Ratio", "Beta"],
+                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividend Yield", "Payout Ratio", "Beta"],
                         "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
                     })
                     st.table(df_metrics)
