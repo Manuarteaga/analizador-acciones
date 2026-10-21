@@ -861,19 +861,7 @@ elif st.session_state.stage == 'sub_options':
     st.title(f"Configuración para: {st.session_state.asset_type}")
     
     if st.session_state.asset_type == "Acciones":
-        st.markdown("### Selecciona la modalidad de las acciones:")
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("Con dividendos", use_container_width=True):
-                st.session_state.sub_type = "Con dividendos"
-                st.session_state.stage = "analyzer"
-                st.rerun()
-        with c2:
-            if st.button("Sin dividendos", use_container_width=True):
-                st.session_state.sub_type = "Sin dividendos"
-                st.session_state.stage = "analyzer"
-                st.rerun()
-
+   
     elif st.session_state.asset_type == "Fondos indexados":
         st.markdown("### Selecciona qué deseas hacer:")
         c1, c2 = st.columns(2)
