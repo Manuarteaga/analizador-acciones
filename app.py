@@ -812,48 +812,6 @@ if st.session_state.stage == 'home':
 
     st.markdown("---")
 
-    st.markdown("### 🧭 Asistente Interactivo: ¿Qué vehículo elegir (Fondo Indexado o ETF)?")
-    with st.expander("💡 Responde a 3 preguntas rápidas para descubrir tu opción ideal", expanded=True):
-        q_knowledge = st.radio(
-            "0. ¿Tienes conocimientos sobre inversiones?",
-            [
-                "Sí, me he informado y tengo conocimientos sobre fondos indexados, ETFs e impuestos asociados",
-                "No, acabo de conocer este mundo y necesito consejo o información"
-            ]
-        )
-        
-        q_goal = st.radio(
-            "1. ¿Qué objetivo estás buscando?",
-            [
-                "Largo plazo sin tocarlo (adecuado para jubilación o ahorro para comprar vivienda)",
-                "Corto plazo (para reformas, imprevistos en el hogar o compra de coche)",
-                "Híbrido, una mezcla de los dos (jubilación a largo plazo pero con liquidez por si necesito un coche o reforma)"
-            ]
-        )
-        
-        q_moves = st.radio(
-            "2. ¿Tienes pensado hacer cambios en tus inversiones, rebalanceos o cambiar de activos?",
-            [
-                "No lo sé, no sé qué es eso ni lo que implicaría",
-                "No, quiero comprar y mantener sin tocar nada durante décadas",
-                "Sí, es probable que quiera mover posiciones o reestructurar"
-            ]
-        )
-        
-        if st.button("🔮 Calcular mi recomendación ideal", type="primary"):
-            st.markdown("---")
-            if "No, acabo" in q_knowledge:
-                st.info("ℹ️ **Nota educativa:** Los **Fondos Indexados** permiten traspasar dinero de un fondo a otro en España sin pagar impuestos en ese momento (diferimiento fiscal). Los **ETFs** cotizan como acciones y, cada vez que vendes o cambias, pagas impuestos sobre las ganancias ese año, aunque suelen tener comisiones anuales (TER) más bajas.")
-
-            if "Híbrido" in q_goal:
-                st.warning("🎯 **Estrategia Mixta Recomendada (Jubilación + Liquidez):**\n\n- **Parte intocable (Jubilación):** Canalízala mediante un **ETF de bajo coste** (como SPYL.DE al 0.03% TER).\n- **Parte flexible (Coche / Casa / Imprevistos):** Utiliza **Fondos Indexados** (ej. MyInvestor) o **Fondos Monetarios** para poder retirar o mover capital sin penalización ni peaje fiscal inmediato.")
-            elif "Corto plazo" in q_goal:
-                st.warning("🎯 **Recomendación para Corto Plazo / Liquidez:**\n\nSi el dinero es para metas a corto plazo o imprevistos, los **Fondos Monetarios** y **Fondos Indexados** son la opción más recomendable por su seguridad y flexibilidad al reembolsar sin peaje fiscal inmediato.")
-            elif "Largo plazo" in q_goal and "No, quiero comprar" in q_moves:
-                st.success("🎯 **Tu mejor opción: ETFs de coste ultra bajo (Ej. SPYL.DE al 0.03% TER)**\n\nPara un horizonte de largo plazo donde no vas a mover el dinero en décadas, la diferencia de comisiones anuales compensa con creces cualquier ventaja fiscal.")
-            elif "Largo plazo" in q_goal and ("Sí, es probable" in q_moves or "No lo sé" in q_moves):
-                st.info("🎯 **Tu mejor opción: Fondos Indexados (Ej. en MyInvestor)**\n\nAl querer flexibilidad para cambiar de activos, los fondos te permiten traspasar capital libremente sin tributar en el IRPF en cada movimiento.")
-
 elif st.session_state.stage == 'sub_options':
     if st.button("← Volver a selección de activos"):
         reset_navigation()
