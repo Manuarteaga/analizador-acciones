@@ -68,18 +68,6 @@ st.markdown("""
     .tl-hold { background: linear-gradient(135deg, #713f12 0%, #451a03 100%); border-color: #f59e0b; color: #fef3c7; }
     .tl-avoid { background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%); border-color: #ef4444; color: #fef2f2; }
     .tl-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-    .final-net-card {
-        background: linear-gradient(135deg, #065f46 0%, #047857 100%);
-        border: 2px solid #34d399;
-        padding: 20px;
-        border-radius: 12px;
-        text-align: center;
-        box-shadow: 0 8px 20px rgba(4, 120, 87, 0.3);
-        margin-top: 20px;
-        margin-bottom: 20px;
-    }
-    .final-net-title { font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; color: #a7f3d0; margin-bottom: 5px; font-weight: 600; }
-    .final-net-value { font-size: 2.2rem; font-weight: 800; color: #ffffff; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -98,13 +86,6 @@ def cargar_desde_url():
             except: st.session_state.portfolio = []
         st.session_state.data_loaded = True
 
-def guardar_en_url():
-    try:
-        st.query_params["favs"] = json.dumps(st.session_state.favorites)
-        st.query_params["port"] = json.dumps(st.session_state.portfolio)
-    except:
-        pass
-
 cargar_desde_url()
 
 @st.cache_data(ttl=3600)
@@ -116,15 +97,54 @@ def get_eur_usd_rate():
     except:
         return 1.08
 
-def extraer_ticker_de_url(texto_o_url):
-    texto_o_url = texto_o_url.strip()
-    yahoo_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', texto_o_url, re.IGNORECASE)
+def resolver_entrada_usuario(texto_o_url):
+    """Interpreta si es enlace de Yahoo/Investing, ISIN, Ticker directo o Nombre de empresa/fondo"""
+    texto = texto_o_url.strip()
+    if not texto:
+        return ""
+    
+    # 1. Comprobar si es enlace de Yahoo Finance
+    yahoo_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', texto, re.IGNORECASE)
     if yahoo_match:
         return yahoo_match.group(1).upper()
-    investing_match = re.search(r'investing\.com/equities/([A-Za-z0-9\-]+)', texto_o_url, re.IGNORECASE)
+    
+    # 2. Comprobar si es enlace de Investing.com
+    investing_match = re.search(r'investing\.com/equities/([A-Za-z0-9\-]+)', texto, re.IGNORECASE)
     if investing_match:
         return investing_match.group(1).split('/')[0].upper()
-    return texto_o_url
+
+    # 3. Mapeo rápido de nombres comunes hacia tickers si el usuario escribe el nombre
+    mapeo_nombres = {
+        "apple": "AAPL",
+        "microsoft": "MSFT",
+        "nvidia": "NVDA",
+        "amazon": "AMZN",
+        "tesla": "TSLA",
+        "google": "GOOGL",
+        "alphabet": "GOOGL",
+        "meta": "META",
+        "telefonica": "TEF.MC",
+        "santander": "SAN.MC",
+        "bbva": "BBVA.MC",
+        "iberdrola": "IBE.MC"
+    }
+    
+    texto_lower = texto.lower()
+    for clave, ticker_val in mapeo_nombres.items():
+        if clave in texto_lower:
+            return ticker_val
+
+    # Si escribieron un nombre largo y no está en el mapa rápido, intentamos buscarlo usando yfinance (si tiene espacio o longitud de nombre)
+    if len(texto) > 4 or " " in texto:
+        try:
+            # Buscamos coincidencias con yfinance si está disponible en su buscador interno
+            busqueda = yf.Ticker(texto)
+            if busqueda.history(period="1d").empty == False:
+                return texto.upper()
+        except:
+            pass
+
+    return texto.upper()
 
 FUND_DB = {
     "axa court terme ac": {"name": "AXA Court Terme AC", "ticker": "FR0000447823", "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "is_dist": False, "score": 4.8},
@@ -136,11 +156,6 @@ FUND_DB = {
 ETF_DB = {
     "spyl.de": {"name": "SPDR S&P 500 UCITS ETF [Acumulación]", "ticker": "SPYL.DE", "category": "Renta Variable EE.UU.", "ter": 0.03, "aum": 12000, "replication": "Física", "is_dist": False, "score": 4.9},
     "vwce.de": {"name": "Vanguard FTSE All-World UCITS ETF", "ticker": "VWCE.DE", "category": "Renta Variable Global", "ter": 0.22, "aum": 15000, "replication": "Física", "is_dist": False, "score": 4.8}
-}
-
-ETF_BROKER_PROFILES = {
-    "Trade Republic (1€ orden / Planes a 0€)": {"fee_percent": 0.0, "fee_fixed": 0.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": True},
-    "Degiro (Bajas comisiones)": {"fee_percent": 0.0, "fee_fixed": 1.00, "spread_percent": 0.10, "fx_fee_percent": 0.25, "supports_free_plans": False}
 }
 
 portfolio_count = len(st.session_state.portfolio)
@@ -160,7 +175,6 @@ with col_tb3:
 
 st.markdown("---")
 
-# VISTA DE FAVORITOS
 if st.session_state.get("view_mode") == "favorites":
     if st.button("← Volver al Buscador"):
         st.session_state.view_mode = "home"
@@ -172,7 +186,6 @@ if st.session_state.get("view_mode") == "favorites":
         for idx, fav in enumerate(st.session_state.favorites):
             st.write(f"- {fav['name']} ({fav['ticker']})")
 
-# VISTA DE CARTERA
 elif st.session_state.get("view_mode") == "portfolio":
     if st.button("← Volver al Buscador"):
         st.session_state.view_mode = "home"
@@ -181,12 +194,11 @@ elif st.session_state.get("view_mode") == "portfolio":
     if not st.session_state.portfolio:
         st.info("Tu cartera está vacía.")
 
-# VISTA PRINCIPAL (LANDING ÚNICA)
 else:
     st.title("Analizador Bursátil")
     
     input_bruto = st.text_input("escribe el ticker, nombre o el ISIN que deseas analizar", value="").strip()
-    user_input = extraer_ticker_de_url(input_bruto)
+    user_input = resolver_entrada_usuario(input_bruto)
 
     def get_letter_grade(score):
         if score >= 4.5: return "A+"
@@ -216,7 +228,6 @@ else:
         """, unsafe_allow_html=True)
 
     if user_input:
-        # Detectar si es Fondo, ETF o Acción
         matched_fund = next((data for k, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or k in user_input.lower()), None)
         matched_etf = next((data for k, data in ETF_DB.items() if data["ticker"].upper() == user_input.upper() or k in user_input.lower()), None)
 
@@ -244,7 +255,7 @@ else:
                 native_currency = info.get('currency', 'EUR')
 
                 if hist_price.empty:
-                    st.error(f"No se han encontrado datos para '{user_input}'.")
+                    st.error(f"No se han encontrado datos para '{user_input}'. Comprueba si el nombre o el ticker es correcto.")
                 else:
                     current_price_native = float(hist_price['Close'].iloc[-1])
                     cur_rate = get_eur_usd_rate()
