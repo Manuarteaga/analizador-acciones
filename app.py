@@ -3,6 +3,7 @@ import yfinance as yf
 import pandas as pd
 import json
 import re
+import requests
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
@@ -97,54 +98,44 @@ def get_eur_usd_rate():
     except:
         return 1.08
 
-def resolver_entrada_usuario(texto_o_url):
-    """Interpreta si es enlace de Yahoo/Investing, ISIN, Ticker directo o Nombre de empresa/fondo"""
-    texto = texto_o_url.strip()
-    if not texto:
-        return ""
+@st.cache_data(ttl=600)
+def buscar_en_yahoo_finance(query):
+    """Consulta la API de autocompletado de Yahoo Finance para obtener coincidencias reales"""
+    query = query.strip()
+    if not query:
+        return []
     
-    # 1. Comprobar si es enlace de Yahoo Finance
-    yahoo_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', texto, re.IGNORECASE)
+    # Comprobar si es enlace directo de Yahoo o Investing
+    yahoo_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', query, re.IGNORECASE)
     if yahoo_match:
-        return yahoo_match.group(1).upper()
+        return [{"symbol": yahoo_match.group(1).upper(), "name": yahoo_match.group(1).upper()}]
     
-    # 2. Comprobar si es enlace de Investing.com
-    investing_match = re.search(r'investing\.com/equities/([A-Za-z0-9\-]+)', texto, re.IGNORECASE)
+    investing_match = re.search(r'investing\.com/equities/([A-Za-z0-9\-]+)', query, re.IGNORECASE)
     if investing_match:
-        return investing_match.group(1).split('/')[0].upper()
+        sim = investing_match.group(1).split('/')[0].upper()
+        return [{"symbol": sim, "name": sim}]
 
-    # 3. Mapeo rápido de nombres comunes hacia tickers si el usuario escribe el nombre
-    mapeo_nombres = {
-        "apple": "AAPL",
-        "microsoft": "MSFT",
-        "nvidia": "NVDA",
-        "amazon": "AMZN",
-        "tesla": "TSLA",
-        "google": "GOOGL",
-        "alphabet": "GOOGL",
-        "meta": "META",
-        "telefonica": "TEF.MC",
-        "santander": "SAN.MC",
-        "bbva": "BBVA.MC",
-        "iberdrola": "IBE.MC"
-    }
-    
-    texto_lower = texto.lower()
-    for clave, ticker_val in mapeo_nombres.items():
-        if clave in texto_lower:
-            return ticker_val
-
-    # Si escribieron un nombre largo y no está en el mapa rápido, intentamos buscarlo usando yfinance (si tiene espacio o longitud de nombre)
-    if len(texto) > 4 or " " in texto:
-        try:
-            # Buscamos coincidencias con yfinance si está disponible en su buscador interno
-            busqueda = yf.Ticker(texto)
-            if busqueda.history(period="1d").empty == False:
-                return texto.upper()
-        except:
-            pass
-
-    return texto.upper()
+    try:
+        url = f"https://query2.finance.yahoo.com/v1/finance/search?q={query}"
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=3)
+        data = response.json()
+        quotes = data.get('quotes', [])
+        
+        resultados = []
+        for q in quotes:
+            symbol = q.get('symbol')
+            shortname = q.get('shortname') or q.get('longname', symbol)
+            exch = q.get('exchange', '')
+            if symbol:
+                resultados.append({
+                    "symbol": symbol,
+                    "name": f"{shortname} ({symbol}) [Bolsa: {exch}]"
+                })
+        return resultados
+    except:
+        # Fallback por si falla la red: intentar devolver el texto limpio como ticker
+        return [{"symbol": query.upper(), "name": query.upper()}]
 
 FUND_DB = {
     "axa court terme ac": {"name": "AXA Court Terme AC", "ticker": "FR0000447823", "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "is_dist": False, "score": 4.8},
@@ -198,7 +189,18 @@ else:
     st.title("Analizador Bursátil")
     
     input_bruto = st.text_input("escribe el ticker, nombre o el ISIN que deseas analizar", value="").strip()
-    user_input = resolver_entrada_usuario(input_bruto)
+
+    user_input = ""
+    if input_bruto:
+        # Buscar coincidencias en tiempo real con Yahoo Finance
+        sugerencias = buscar_en_yahoo_finance(input_bruto)
+        if sugerencias:
+            # Creamos un desplegable interactivo con las coincidencias encontradas en tiempo real
+            opciones_map = {s["name"]: s["symbol"] for s in sugerencias}
+            seleccion_nombre = st.selectbox("Coincidencias encontradas en Yahoo Finance:", list(opciones_map.keys()))
+            user_input = opciones_map[seleccion_nombre]
+        else:
+            user_input = input_bruto.upper()
 
     def get_letter_grade(score):
         if score >= 4.5: return "A+"
@@ -255,7 +257,7 @@ else:
                 native_currency = info.get('currency', 'EUR')
 
                 if hist_price.empty:
-                    st.error(f"No se han encontrado datos para '{user_input}'. Comprueba si el nombre o el ticker es correcto.")
+                    st.error(f"No se han encontrado datos para '{user_input}'. Comprueba si el símbolo o nombre es correcto.")
                 else:
                     current_price_native = float(hist_price['Close'].iloc[-1])
                     cur_rate = get_eur_usd_rate()
