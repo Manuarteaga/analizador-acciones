@@ -1,25 +1,126 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
+import io
+import json
+import urllib.parse
+
+st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
+
+st.markdown("""
+<style>
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #0f172a;
+        padding: 10px 20px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+        margin-bottom: 25px;
+    }
+    .score-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        margin-bottom: 20px;
+        border: 1px solid #334155;
+        flex-wrap: wrap;
+    }
+    .circular-progress {
+        position: relative;
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: conic-gradient(var(--progress-color) var(--deg), #334155 0deg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+    }
+    .circular-progress::before {
+        content: "";
+        position: absolute;
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        background-color: #0f172a;
+    }
+    .progress-value {
+        position: relative;
+        font-size: 1.6rem;
+        font-weight: bold;
+        color: #f8fafc;
+    }
+    .pure-stamp-grade {
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 5rem;
+        font-weight: 900;
+        line-height: 1;
+        color: var(--stamp-color);
+        text-transform: uppercase;
+        transform: rotate(-8deg);
+        display: inline-block;
+        text-shadow: 3px 3px 0px rgba(0,0,0,0.8), 0 0 5px rgba(0,0,0,0.5);
+        animation: stampPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+    @keyframes stampPop {
+        0% { transform: scale(2.2) rotate(-20deg); opacity: 0; }
+        100% { transform: scale(1) rotate(-8deg); opacity: 0.95; }
+    }
+
+    /* Estilos para el Semáforo de Recomendación */
+    .traffic-light-card {
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        border-left: 8px solid;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .tl-buy {
+        background: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+        border-color: #10b981;
+        color: #ecfdf5;
+    }
+    .tl-hold {
+        background: linear-gradient(135deg, #713f12 0%, #451a03 100%);
+        border-color: #f59e0b;
+        color: #fef3c7;
+    }
+    .tl-avoid {
+        background: linear-gradient(135deg, #7f1d1d 0%, #450a0a 100%);
+        border-color: #ef4444;
+        color: #fef2f2;
+    }
+    .tl-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # ---------------------------------------------------------
-# CONFIGURACIÓN DE PÁGINA
+# ESTADO INICIAL DE LA APLICACIÓN
 # ---------------------------------------------------------
-st.set_page_config(
-    page_title="Buscador Financiero Global & Simulador",
-    page_icon="🔍",
-    layout="wide"
-)
-
-# Inicializar Session State para las carteras y la navegación
-if "custom_assets_a" not in st.session_state:
+if 'stage' not in st.session_state:
+    st.session_state.stage = 'home'
+if 'custom_assets_a' not in st.session_state:
     st.session_state.custom_assets_a = []
-if "custom_assets_b" not in st.session_state:
+if 'custom_assets_b' not in st.session_state:
     st.session_state.custom_assets_b = []
-if "pagina_actual" not in st.session_state:
+if 'pagina_actual' not in st.session_state:
     st.session_state.pagina_actual = "landing"  # "landing" o "app_principal"
 
-# Base de datos global de productos
+# Bases de datos globales de productos
 market_products = {
     "Vanguard S&P 500 ETF (VOO)": {"tipo": "ETF", "isin": "US9229083632", "ter": "0.03%", "rating": "4.9/5", "return": 8.0},
     "iShares Core S&P 500 ETF (IVV)": {"tipo": "ETF", "isin": "US4642872000", "ter": "0.03%", "rating": "4.9/5", "return": 8.0},
@@ -34,6 +135,23 @@ market_products = {
 
 asset_expectations = {name: data["return"] for name, data in market_products.items()}
 
+FUND_DB = {
+    "axa court terme ac": {
+        "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
+        "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "return_1y": 3.5, "score": 4.8,
+        "desc": "Fondo monetario de corto plazo en euros, ideal para aparcar liquidez con bajo riesgo y rentabilidad ligada a tipos del BCE."
+    },
+    "fidelity msci world acc": {
+        "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
+        "category": "Renta Variable Global (MSCI World)", "ter": 0.10, "aum": 8500, "return_1y": 15.9, "score": 4.7,
+        "desc": "Uno de los fondos globales más económicos del mercado europeo para replicar el índice MSCI World."
+    },
+    "fidelity us index acc": {
+        "name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67",
+        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 6200, "return_1y": 22.5, "score": 4.9,
+        "desc": "Fondo indexado al S&P 500 con un coste bajísimo del 0.06%."
+    }
+}
 
 # =========================================================
 # 1. LANDING PAGE / BUSCADOR GENERAL PREVIO
