@@ -19,10 +19,6 @@ st.markdown("""
         border: 1px solid #334155;
         margin-bottom: 25px;
     }
-    .landing-header {
-        text-align: center;
-        padding: 40px 20px 20px 20px;
-    }
     .search-box-container {
         background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
         padding: 40px;
@@ -66,12 +62,11 @@ asset_expectations = {name: data["return"] for name, data in market_products.ite
 # 1. LANDING PAGE / BUSCADOR GENERAL UNIVERSAL
 # =========================================================
 if st.session_state.pagina_actual == "landing":
-    st.markdown("<h1 class='landing-header'>🔍 Buscador Financiero Global y Acceso Táctico</h1>", unsafe_html=True)
-    st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 1.1rem;'>Busca cualquier fondo, ETF, bono o acción internacional para evaluar su deuda y añadirlo a tus carteras.</p>", unsafe_html=True)
+    st.title("🔍 Buscador Financiero Global y Acceso Táctico")
+    st.markdown("<p style='color: #94a3b8; font-size: 1.1rem;'>Busca cualquier fondo, ETF, bono o acción internacional para evaluar su deuda y añadirlo a tus carteras.</p>", unsafe_html=True)
     
-    st.markdown("<br>", unsafe_html=True)
+    st.markdown("---")
     
-    # Contenedor principal de búsqueda
     col_l1, col_l2, col_l3 = st.columns([1, 3, 1])
     with col_l2:
         st.markdown("<div class='search-box-container'>", unsafe_html=True)
@@ -79,7 +74,6 @@ if st.session_state.pagina_actual == "landing":
         
         tipo_filtro = st.selectbox("📂 Filtrar por categoría de activo:", ["Todos los activos", "Fondos Indexados", "ETFs & Renta Variable", "Fondos Monetarios", "Bonos & Renta Fija"])
         
-        # Lógica de filtrado en tiempo real en la landing
         resultados_filtrados = {}
         for nombre, info in market_products.items():
             coincide_texto = (busqueda_global.lower() in nombre.lower()) or (busqueda_global.lower() in info["isin"].lower())
@@ -100,7 +94,6 @@ if st.session_state.pagina_actual == "landing":
                 st.rerun()
         st.markdown("</div>", unsafe_html=True)
         
-    # Mostrar resultados rápidos si hay búsqueda activa
     if busqueda_global:
         st.markdown("### 📋 Resultados de la Búsqueda Rápida")
         if resultados_filtrados:
