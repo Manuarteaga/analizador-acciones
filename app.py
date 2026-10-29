@@ -135,24 +135,6 @@ market_products = {
 
 asset_expectations = {name: data["return"] for name, data in market_products.items()}
 
-FUND_DB = {
-    "axa court terme ac": {
-        "name": "AXA Court Terme AC (Fondo Monetario Euro)", "ticker": "FR0000447823",
-        "category": "Fondos Monetarios", "ter": 0.15, "aum": 6500, "return_1y": 3.5, "score": 4.8,
-        "desc": "Fondo monetario de corto plazo en euros, ideal para aparcar liquidez con bajo riesgo y rentabilidad ligada a tipos del BCE."
-    },
-    "fidelity msci world acc": {
-        "name": "Fidelity MSCI World Index Fund EUR P Acc", "ticker": "IE00BYX5NX33",
-        "category": "Renta Variable Global (MSCI World)", "ter": 0.10, "aum": 8500, "return_1y": 15.9, "score": 4.7,
-        "desc": "Uno de los fondos globales más económicos del mercado europeo para replicar el índice MSCI World."
-    },
-    "fidelity us index acc": {
-        "name": "Fidelity S&P 500 Index Fund EUR P Acc", "ticker": "IE00BYX5MX67",
-        "category": "Renta Variable EE.UU. (S&P 500)", "ter": 0.06, "aum": 6200, "return_1y": 22.5, "score": 4.9,
-        "desc": "Fondo indexado al S&P 500 con un coste bajísimo del 0.06%."
-    }
-}
-
 # =========================================================
 # 1. LANDING PAGE / BUSCADOR GENERAL PREVIO
 # =========================================================
