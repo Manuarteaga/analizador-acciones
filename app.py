@@ -63,7 +63,7 @@ asset_expectations = {name: data["return"] for name, data in market_products.ite
 # =========================================================
 if st.session_state.pagina_actual == "landing":
     st.title("🔍 Buscador Financiero Global y Acceso Táctico")
-    st.markdown("<p style='color: #94a3b8; font-size: 1.1rem;'>Busca cualquier fondo, ETF, bono o acción internacional para evaluar su deuda y añadirlo a tus carteras.</p>", unsafe_html=True)
+    st.write("Busca cualquier fondo, ETF, bono o acción internacional para evaluar su deuda y añadirlo a tus carteras.")
     
     st.markdown("---")
     
@@ -81,7 +81,7 @@ if st.session_state.pagina_actual == "landing":
             if coincide_texto and coincide_categoria:
                 resultados_filtrados[nombre] = info
         
-        st.markdown(f"<p style='color: #38bdf8; font-size: 0.9rem; margin-top: 10px;'>Se han encontrado <b>{len(resultados_filtrados)}</b> activos coincidentes.</p>", unsafe_html=True)
+        st.write(f"Se han encontrado **{len(resultados_filtrados)}** activos coincidentes.")
         
         col_btn1, col_btn2 = st.columns(2)
         with col_btn1:
