@@ -296,4 +296,4 @@ else:
         st.markdown("---")
         ra, rb = st.columns(2)
         ra.metric("Valor Final Cartera A", f"{v_a:,.2f} €", delta=f"+{g_a:,.2f} € Netos")
-        rb.metric("Valor Final Cartera B", f"{v_
+        rb.metric("Valor Final Cartera B", f"{v_b:,.2f} €", delta=f"+{g_b:,.2f} € Netos")
