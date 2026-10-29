@@ -19,14 +19,6 @@ st.markdown("""
         border: 1px solid #334155;
         margin-bottom: 25px;
     }
-    .search-box-container {
-        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-        padding: 40px;
-        border-radius: 16px;
-        border: 1px solid #334155;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-        margin-bottom: 30px;
-    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -69,7 +61,6 @@ if st.session_state.pagina_actual == "landing":
     
     col_l1, col_l2, col_l3 = st.columns([1, 3, 1])
     with col_l2:
-        st.markdown("<div class='search-box-container'>", unsafe_html=True)
         busqueda_global = st.text_input("🔎 Búsqueda universal por nombre, ticker o ISIN:", placeholder="Ej. VOO, MSFT, FR0000447823, S&P 500...")
         
         tipo_filtro = st.selectbox("📂 Filtrar por categoría de activo:", ["Todos los activos", "Fondos Indexados", "ETFs & Renta Variable", "Fondos Monetarios", "Bonos & Renta Fija"])
@@ -92,7 +83,6 @@ if st.session_state.pagina_actual == "landing":
             if st.button("📊 Ir directo al Simulador", use_container_width=True):
                 st.session_state.pagina_actual = "app_principal"
                 st.rerun()
-        st.markdown("</div>", unsafe_html=True)
         
     if busqueda_global:
         st.markdown("### 📋 Resultados de la Búsqueda Rápida")
@@ -306,4 +296,4 @@ else:
         st.markdown("---")
         ra, rb = st.columns(2)
         ra.metric("Valor Final Cartera A", f"{v_a:,.2f} €", delta=f"+{g_a:,.2f} € Netos")
-        rb.metric("Valor Final Cartera B", f"{v_b:,.2f} €", delta=f"+{g_b:,.2f} € Netos")
+        rb.metric("Valor Final Cartera B", f"{v_
