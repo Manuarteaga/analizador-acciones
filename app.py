@@ -4,7 +4,7 @@ import pandas as pd
 import io
 import json
 import urllib.parse
-import requests
+from curl_cffi import requests as c_requests  # <--- AÑADE ESTA LÍNEA
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
