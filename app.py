@@ -6,7 +6,7 @@ import json
 import urllib.parse
 import requests
 
-# Crear una sesión personalizada con User-Agent para evitar bloqueos y errores 429 de Yahoo Finance
+# 1. Crear una sesión HTTP con User-Agent personalizado para evitar bloqueos/rate limits de Yahoo Finance
 session = requests.Session()
 session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
@@ -1423,15 +1423,15 @@ elif st.session_state.stage == 'analyzer':
             if st.session_state.asset_type == "Acciones":
                 ticker_input = user_input
                 try:
-                    # Uso de la sesión HTTP personalizada
+                    # Pasar la sesión HTTP personalizada para evitar bloqueos
                     stock = yf.Ticker(ticker_input, session=session)
                     hist_price = stock.history(period="3mo")
                     
                     info = stock.info or {}
                     
-                    # Validar si info está vacío (posible bloqueo o ticker no válido en Yahoo)
+                    # Verificación si los datos devueltos por la API son insuficientes o vacíos
                     if not info or len(info) < 5:
-                        st.warning("⚠️ No se han podido recuperar datos en tiempo real de Yahoo Finance (límite de peticiones o ticker no soportado).")
+                        st.warning(f"⚠️ Yahoo Finance no ha devuelto información para '{ticker_input}'. Si es una empresa española o europea, prueba a incluir su extensión de bolsa (ejemplo: 'SAN.MC' para Banco Santander o 'ITX.MC' para Inditex).")
 
                     name = info.get('longName', ticker_input.title())
                     native_currency = info.get('currency', 'EUR')
@@ -1712,7 +1712,7 @@ elif st.session_state.stage == 'analyzer':
                 )
 
                 if matched_fund and "desc" in matched_fund:
-                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
+                    st.markdown(f"**📖 Qué includes:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
                 if matched_fund and "holdings" in matched_fund:
