@@ -4,11 +4,6 @@ import pandas as pd
 import io
 import json
 import urllib.parse
-import requests
-
-# 1. Crear una sesión HTTP con User-Agent personalizado para evitar bloqueos/rate limits de Yahoo Finance
-session = requests.Session()
-session.headers['User-Agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
@@ -306,7 +301,7 @@ def reset_navigation():
 @st.cache_data(ttl=3600)
 def get_eur_usd_rate():
     try:
-        fx = yf.Ticker("EURUSD=X", session=session)
+        fx = yf.Ticker("EURUSD=X")
         rate = fx.history(period="1d")['Close'].iloc[-1]
         return float(rate) if rate > 0 else 1.08
     except:
@@ -618,6 +613,7 @@ ETF_DB = {
     }
 }
 
+# Catálogo de Cuentas Remuneradas populares para añadir directamente en el Simulador de Cartera
 CUENTAS_REMUNERADAS_DB = [
     {"name": "Renault Bank (Cuenta Tú)", "default_interest": 2.75, "category": "Cuenta Remunerada"},
     {"name": "Banco Sabadell (Cuenta Online)", "default_interest": 2.50, "category": "Cuenta Remunerada"},
@@ -907,6 +903,7 @@ elif st.session_state.stage == 'portfolio_view':
 
     st.title("💼 Simulador Global de Cartera Consolidada")
     
+    # OPCIÓN PARA AÑADIR CUENTA REMUNERADA DENTRO DEL SIMULADOR DE CARTERA
     with st.container():
         st.markdown("### ➕ Añadir Cuenta Remunerada a la Cartera")
         col_add1, col_add2 = st.columns([2, 1])
@@ -1423,16 +1420,10 @@ elif st.session_state.stage == 'analyzer':
             if st.session_state.asset_type == "Acciones":
                 ticker_input = user_input
                 try:
-                    # Pasar la sesión HTTP personalizada para evitar bloqueos
-                    stock = yf.Ticker(ticker_input, session=session)
+                    stock = yf.Ticker(ticker_input)
                     hist_price = stock.history(period="3mo")
                     
                     info = stock.info or {}
-                    
-                    # Verificación si los datos devueltos por la API son insuficientes o vacíos
-                    if not info or len(info) < 5:
-                        st.warning(f"⚠️ Yahoo Finance no ha devuelto información para '{ticker_input}'. Si es una empresa española o europea, prueba a incluir su extensión de bolsa (ejemplo: 'SAN.MC' para Banco Santander o 'ITX.MC' para Inditex).")
-
                     name = info.get('longName', ticker_input.title())
                     native_currency = info.get('currency', 'EUR')
 
@@ -1653,7 +1644,7 @@ elif st.session_state.stage == 'analyzer':
                     fund_isin = user_input.upper()
                     ret_1y_fund = 3.5 if st.session_state.asset_type == "Fondos Monetarios" else 12.5
                     try:
-                        live_ticker = yf.Ticker(fund_isin, session=session)
+                        live_ticker = yf.Ticker(fund_isin)
                         info_live = live_ticker.info or {}
                         fund_name = info_live.get('longName') or info_live.get('shortName') or fund_isin
                     except:
@@ -1712,7 +1703,7 @@ elif st.session_state.stage == 'analyzer':
                 )
 
                 if matched_fund and "desc" in matched_fund:
-                    st.markdown(f"**📖 Qué includes:** {matched_fund['desc']}")
+                    st.markdown(f"**📖 Qué incluye:** {matched_fund['desc']}")
                 if matched_fund and "geo" in matched_fund:
                     render_geo_breakdown(matched_fund["geo"])
                 if matched_fund and "holdings" in matched_fund:
@@ -1859,7 +1850,7 @@ elif st.session_state.stage == 'analyzer':
                     etf_ticker = user_input.upper()
                     ret_1y_etf = 12.5
                     try:
-                        live_ticker = yf.Ticker(etf_ticker, session=session)
+                        live_ticker = yf.Ticker(etf_ticker)
                         info_live = live_ticker.info or {}
                         etf_name = info_live.get('longName') or info_live.get('shortName') or etf_ticker
                     except:
@@ -1880,7 +1871,7 @@ elif st.session_state.stage == 'analyzer':
                 avg_monthly_volume = None
                 etf_hist = None
                 try:
-                    etf_stock = yf.Ticker(etf_ticker, session=session)
+                    etf_stock = yf.Ticker(etf_ticker)
                     etf_hist = etf_stock.history(period="3mo")
                     if not etf_hist.empty and 'Close' in etf_hist.columns:
                         valid_c = etf_hist['Close'].dropna()
