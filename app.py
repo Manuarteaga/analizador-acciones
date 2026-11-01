@@ -1330,9 +1330,52 @@ elif st.session_state.stage == 'analyzer':
 
         default_input = st.session_state.selected_eval_input
 
-        if st.session_state.asset_type == "Acciones":
-            st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
-            user_input = st.text_input("Ticker o Nombre de la Acción:", value=default_input).strip().upper()
+                    if st.session_state.asset_type == "Acciones":
+                st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
+                user_input = st.text_input("Ticker, Nombre de la Empresa o Pega el enlace de Yahoo Finance:", value=default_input).strip()
+
+                ticker_input = ""
+                if user_input:
+                    # 1. Si el usuario pega una URL de Yahoo Finance, extraemos el ticker automáticamente
+                    import re
+                    url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
+                    if url_match:
+                        ticker_input = url_match.group(1).upper()
+                    else:
+                        clean_input = user_input.upper()
+                        # 2. Intentamos primero acceder directamente por si es un ticker válido
+                        try:
+                            test_ticker = yf.Ticker(clean_input)
+                            test_hist = test_ticker.history(period="1d")
+                            if not test_hist.empty:
+                                ticker_input = clean_input
+                        except:
+                            pass
+                        
+                        # 3. Si falla o es un nombre comercial, usamos la búsqueda inteligente de yfinance
+                        if not ticker_input:
+                            st.info("🔍 Buscando coincidencia exacta en Yahoo Finance...")
+                            try:
+                                search_res = yf.Search(user_input, max_results=5)
+                                quotes = search_res.quotes
+                                if quotes:
+                                    options = {f"{q.get('longname', q.get('shortname', ''))} ({q['symbol']}) - {q.get('exchange', '')}": q['symbol'] for q in quotes}
+                                    selected_label = st.selectbox("Selecciona la empresa correcta:", list(options.keys()), key="select_stock_search_fix")
+                                    ticker_input = options[selected_label]
+                                else:
+                                    ticker_input = clean_input # Fallback final
+                            except:
+                                ticker_input = clean_input
+
+                if ticker_input:
+                    try:
+                        stock = yf.Ticker(ticker_input)
+                        hist_price = stock.history(period="3mo")
+                        
+                        info = stock.info or {}
+                        name = info.get('longName', ticker_input.title())
+                        native_currency = info.get('currency', 'EUR')
+                        # ... (el resto de tu lógica de acciones continúa exactamente igual aquí abajo)
 
         elif st.session_state.asset_type == "Fondos Monetarios":
             st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
