@@ -10,9 +10,8 @@ st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="�
 
 # 1. CREA UNA SESIÓN DE NAVEGADOR SIMULADA AL PRINCIPIO
 if 'custom_session' not in st.session_state:
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    # Creamos una sesión que suplanta la huella digital de un navegador real (Chrome)
+    st.session_state.custom_session = c_requests.Session(impersonate="chrome")
     })
     st.session_state.custom_session = session
 
