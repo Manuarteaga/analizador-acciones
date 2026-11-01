@@ -4,16 +4,8 @@ import pandas as pd
 import io
 import json
 import urllib.parse
-from curl_cffi import requests as c_requests  # <--- AÑADE ESTA LÍNEA
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
-
-# 1. CREA UNA SESIÓN DE NAVEGADOR SIMULADA AL PRINCIPIO
-if 'custom_session' not in st.session_state:
-    # Creamos una sesión que suplanta la huella digital de un navegador real (Chrome)
-    st.session_state.custom_session = c_requests.Session(impersonate="chrome")
-    })
-    st.session_state.custom_session = session
 
 st.markdown("""
 <style>
@@ -309,7 +301,7 @@ def reset_navigation():
 @st.cache_data(ttl=3600)
 def get_eur_usd_rate():
     try:
-        fx = yf.Ticker("EURUSD=X", session=st.session_state.custom_session)
+        fx = yf.Ticker("EURUSD=X")
         rate = fx.history(period="1d")['Close'].iloc[-1]
         return float(rate) if rate > 0 else 1.08
     except:
@@ -621,6 +613,7 @@ ETF_DB = {
     }
 }
 
+# Catálogo de Cuentas Remuneradas populares para añadir directamente en el Simulador de Cartera
 CUENTAS_REMUNERADAS_DB = [
     {"name": "Renault Bank (Cuenta Tú)", "default_interest": 2.75, "category": "Cuenta Remunerada"},
     {"name": "Banco Sabadell (Cuenta Online)", "default_interest": 2.50, "category": "Cuenta Remunerada"},
@@ -952,6 +945,7 @@ elif st.session_state.stage == 'portfolio_view':
 
     st.title("💼 Simulador Global de Cartera Consolidada")
     
+    # OPCIÓN PARA AÑADIR CUENTA REMUNERADA DENTRO DEL SIMULADOR DE CARTERA
     with st.container():
         st.markdown("### ➕ Añadir Cuenta Remunerada a la Cartera")
         col_add1, col_add2 = st.columns([2, 1])
@@ -1468,8 +1462,7 @@ elif st.session_state.stage == 'analyzer':
             if st.session_state.asset_type == "Acciones":
                 ticker_input = user_input
                 try:
-                    # USANDO LA SESIÓN PERSONALIZADA DE REQUESTS
-                    stock = yf.Ticker(ticker_input, session=st.session_state.custom_session)
+                    stock = yf.Ticker(ticker_input)
                     hist_price = stock.history(period="3mo")
                     
                     info = stock.info or {}
@@ -1693,8 +1686,7 @@ elif st.session_state.stage == 'analyzer':
                     fund_isin = user_input.upper()
                     ret_1y_fund = 3.5 if st.session_state.asset_type == "Fondos Monetarios" else 12.5
                     try:
-                        # USANDO LA SESIÓN PERSONALIZADA DE REQUESTS
-                        live_ticker = yf.Ticker(fund_isin, session=st.session_state.custom_session)
+                        live_ticker = yf.Ticker(fund_isin)
                         info_live = live_ticker.info or {}
                         fund_name = info_live.get('longName') or info_live.get('shortName') or fund_isin
                     except:
@@ -1900,9 +1892,8 @@ elif st.session_state.stage == 'analyzer':
                     etf_ticker = user_input.upper()
                     ret_1y_etf = 12.5
                     try:
-                        # USANDO LA SESIÓN PERSONALIZADA DE REQUESTS
-                        etf_stock = yf.Ticker(etf_ticker, session=st.session_state.custom_session)
-                        info_live = etf_stock.info or {}
+                        live_ticker = yf.Ticker(etf_ticker)
+                        info_live = live_ticker.info or {}
                         etf_name = info_live.get('longName') or info_live.get('shortName') or etf_ticker
                     except:
                         etf_name = etf_ticker
@@ -1922,8 +1913,7 @@ elif st.session_state.stage == 'analyzer':
                 avg_monthly_volume = None
                 etf_hist = None
                 try:
-                    # USANDO LA SESIÓN PERSONALIZADA DE REQUESTS
-                    etf_stock = yf.Ticker(etf_ticker, session=st.session_state.custom_session)
+                    etf_stock = yf.Ticker(etf_ticker)
                     etf_hist = etf_stock.history(period="3mo")
                     if not etf_hist.empty and 'Close' in etf_hist.columns:
                         valid_c = etf_hist['Close'].dropna()
