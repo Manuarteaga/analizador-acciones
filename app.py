@@ -613,7 +613,6 @@ ETF_DB = {
     }
 }
 
-# Catálogo de Cuentas Remuneradas populares para añadir directamente en el Simulador de Cartera
 CUENTAS_REMUNERADAS_DB = [
     {"name": "Renault Bank (Cuenta Tú)", "default_interest": 2.75, "category": "Cuenta Remunerada"},
     {"name": "Banco Sabadell (Cuenta Online)", "default_interest": 2.50, "category": "Cuenta Remunerada"},
@@ -903,7 +902,6 @@ elif st.session_state.stage == 'portfolio_view':
 
     st.title("💼 Simulador Global de Cartera Consolidada")
     
-    # OPCIÓN PARA AÑADIR CUENTA REMUNERADA DENTRO DEL SIMULADOR DE CARTERA
     with st.container():
         st.markdown("### ➕ Añadir Cuenta Remunerada a la Cartera")
         col_add1, col_add2 = st.columns([2, 1])
@@ -1330,52 +1328,9 @@ elif st.session_state.stage == 'analyzer':
 
         default_input = st.session_state.selected_eval_input
 
-                    if st.session_state.asset_type == "Acciones":
-                st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
-                user_input = st.text_input("Ticker, Nombre de la Empresa o Pega el enlace de Yahoo Finance:", value=default_input).strip()
-
-                ticker_input = ""
-                if user_input:
-                    # 1. Si el usuario pega una URL de Yahoo Finance, extraemos el ticker automáticamente
-                    import re
-                    url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
-                    if url_match:
-                        ticker_input = url_match.group(1).upper()
-                    else:
-                        clean_input = user_input.upper()
-                        # 2. Intentamos primero acceder directamente por si es un ticker válido
-                        try:
-                            test_ticker = yf.Ticker(clean_input)
-                            test_hist = test_ticker.history(period="1d")
-                            if not test_hist.empty:
-                                ticker_input = clean_input
-                        except:
-                            pass
-                        
-                        # 3. Si falla o es un nombre comercial, usamos la búsqueda inteligente de yfinance
-                        if not ticker_input:
-                            st.info("🔍 Buscando coincidencia exacta en Yahoo Finance...")
-                            try:
-                                search_res = yf.Search(user_input, max_results=5)
-                                quotes = search_res.quotes
-                                if quotes:
-                                    options = {f"{q.get('longname', q.get('shortname', ''))} ({q['symbol']}) - {q.get('exchange', '')}": q['symbol'] for q in quotes}
-                                    selected_label = st.selectbox("Selecciona la empresa correcta:", list(options.keys()), key="select_stock_search_fix")
-                                    ticker_input = options[selected_label]
-                                else:
-                                    ticker_input = clean_input # Fallback final
-                            except:
-                                ticker_input = clean_input
-
-                if ticker_input:
-                    try:
-                        stock = yf.Ticker(ticker_input)
-                        hist_price = stock.history(period="3mo")
-                        
-                        info = stock.info or {}
-                        name = info.get('longName', ticker_input.title())
-                        native_currency = info.get('currency', 'EUR')
-                        # ... (el resto de tu lógica de acciones continúa exactamente igual aquí abajo)
+        if st.session_state.asset_type == "Acciones":
+            st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
+            user_input = st.text_input("Ticker, Nombre de la Empresa o Pega el enlace de Yahoo Finance:", value=default_input).strip()
 
         elif st.session_state.asset_type == "Fondos Monetarios":
             st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
@@ -1458,215 +1413,244 @@ elif st.session_state.stage == 'analyzer':
             else: return "D"
 
         if not user_input:
-            st.info("👆 Escribe el ticker o nombre de la acción en la barra superior para calcular su nota y métricas con Yahoo Finance.")
+            st.info("👆 Escribe el ticker, nombre de la acción o pega el enlace de Yahoo Finance en la barra superior.")
         else:
             if st.session_state.asset_type == "Acciones":
-                ticker_input = user_input
-                try:
-                    stock = yf.Ticker(ticker_input)
-                    hist_price = stock.history(period="3mo")
+                ticker_input = ""
+                import re
+                url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
+                if url_match:
+                    ticker_input = url_match.group(1).upper()
+                else:
+                    clean_input = user_input.upper()
+                    try:
+                        test_ticker = yf.Ticker(clean_input)
+                        test_hist = test_ticker.history(period="1d")
+                        if not test_hist.empty:
+                            ticker_input = clean_input
+                    except:
+                        pass
                     
-                    info = stock.info or {}
-                    name = info.get('longName', ticker_input.title())
-                    native_currency = info.get('currency', 'EUR')
-
-                    current_price_native = None
-                    if not hist_price.empty and 'Close' in hist_price.columns:
-                        valid_closes = hist_price['Close'].dropna()
-                        if not valid_closes.empty:
-                            current_price_native = float(valid_closes.iloc[-1])
-
-                    eur_usd_rate = get_eur_usd_rate()
-                    if native_currency == 'USD' and current_price_native is not None:
-                        current_price_eur = current_price_native / eur_usd_rate
-                    else:
-                        current_price_eur = current_price_native
-
-                    price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
-                    trend_html = get_trend_chain_stream(hist_price)
-
-                    raw_yield = info.get('dividendYield', 0) or 0.0
-                    if raw_yield > 0:
-                        if raw_yield < 0.1:
-                            div_y_val = raw_yield * 100
-                        else:
-                            div_y_val = raw_yield
-                    else:
-                        div_y_val = 0.0
-
-                    per_y = info.get('trailingPE') or info.get('forwardPE') or 18.0
-                    pfcf_y = info.get('priceToFreeCashflow') or 18.0
-                    roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
-                    beta_val = info.get('beta') or 1.0
-                    raw_payout = info.get('payoutRatio')
-                    payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
-                    recommendation = info.get('recommendationKey', 'hold').lower()
-
-                    score_calc = 2.5
-                    if 0 < per_y <= 18: score_calc += 1.0
-                    elif 18 < per_y <= 28: score_calc += 0.5
-                    elif per_y > 45: score_calc -= 0.5
-
-                    if roe_val >= 20: score_calc += 1.0
-                    elif roe_val >= 12: score_calc += 0.5
-
-                    if 0.5 <= beta_val <= 1.1: score_calc += 0.5
-
-                    if recommendation in ['buy', 'strong_buy']: score_calc += 0.5
-
-                    total_score = min(5.0, max(1.0, score_calc))
-
-                    grade = get_letter_grade(total_score)
-                    deg = int((total_score / 5.0) * 360)
-                    progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 2.8 else "#ef4444")
-
-                    col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
-                    with col_n1:
-                        st.subheader(f"📊 Informe: {name} ({ticker_input})")
-                    with col_n2:
-                        if st.button("⭐ Añadir a Favoritos", use_container_width=True):
-                            st.session_state.favorites.append({
-                                "type": "Acción", "name": name, "ticker": ticker_input,
-                                "ter": 0.0, "currency": "EUR", "category": "Renta Variable (Acción)"
-                            })
-                            guardar_en_url()
-                            st.success("¡Añadido a Favoritos!")
-                    with col_n3:
-                        if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
-                            st.session_state.portfolio.append({
-                                "type": "Acción", "name": name, "ticker": ticker_input,
-                                "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True,
-                                "category": "Renta Variable (Acción)"
-                            })
-                            guardar_en_url()
-                            st.success(f"¡{name} añadido a tu Cartera!")
-
-                    st.markdown(f"""
-                    <div class="score-container">
-                        <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Yahoo Finance</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
-                        <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual (€)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
-                    </div>
-                    """, unsafe_allow_html=True)
-
-                    render_traffic_light_recommendation(
-                        total_score, "Acción",
-                        f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
-                    )
-
-                    df_metrics = pd.DataFrame({
-                        "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividend Yield", "Payout Ratio", "Beta"],
-                        "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
-                    })
-                    st.table(df_metrics)
-
-                    st.markdown("---")
-                    st.subheader(f"🧮 Simulador de Interés Compuesto para: {name}")
-                    toggle_stock_sim = st.toggle("Activar calculadora individual de esta acción", value=False, key="tg_stock_sim")
-
-                    if toggle_stock_sim:
-                        sel_b_stock = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_stock")
-                        b_stock_data = ETF_BROKER_PROFILES[sel_b_stock]
-                        plan_stock_free = st.checkbox("Plan de aportación automática sin comisión", value=b_stock_data["supports_free_plans"], key="plan_stock_free")
-
-                        cs1, cs2 = st.columns(2)
-                        with cs1:
-                            inv_i_stock = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_stock")
-                            app_p_stock = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_stock")
-                            freq_stock = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_stock")
-                        with cs2:
-                            anos_stock = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_stock")
-                            rent_stock = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=8.0, step=0.5, key="rent_stock")
-
-                        spct = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_percent"]
-                        sfix = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_fixed"]
-                        sspr = b_stock_data["spread_percent"]
-                        sfx = 0.0 if native_currency == 'EUR' or ticker_input.endswith('.DE') or ticker_input.endswith('.MC') else b_stock_data["fx_fee_percent"]
-
-                        per_ano_stock = 12 if freq_stock == "Mensual" else 1
-                        t_neta_stock = rent_stock - 0.0
-                        t_per_stock = (t_neta_stock / 100.0) / per_ano_stock
-                        tot_per_stock = anos_stock * per_ano_stock
-
-                        c_broker_i_stock = (inv_i_stock * (b_stock_data["fee_percent"] / 100.0)) + b_stock_data["fee_fixed"]
-                        c_spread_i_stock = inv_i_stock * (sspr / 100.0)
-                        c_fx_i_stock = inv_i_stock * (sfx / 100.0)
-                        c_ini_stock = c_broker_i_stock + c_spread_i_stock + c_fx_i_stock
-
-                        saldo_stock = max(0.0, inv_i_stock - c_ini_stock)
-                        aport_stock = inv_i_stock
-                        a_broker_stock = c_broker_i_stock
-                        a_spread_stock = c_spread_i_stock
-                        a_fx_stock = c_fx_i_stock
-
-                        div_bruto_stock_total = 0.0
-                        historial_stock = []
-
-                        for p in range(1, tot_per_stock + 1):
-                            if p > 1:
-                                cb = (app_p_stock * (spct / 100.0)) + sfix
-                                cs = app_p_stock * (sspr / 100.0)
-                                cf = app_p_stock * (sfx / 100.0)
-                                ct = cb + cs + cf
-
-                                net_app_stock = max(0.0, app_p_stock - ct)
-                                aport_stock += app_p_stock
-                                a_broker_stock += cb
-                                a_spread_stock += cs
-                                a_fx_stock += cf
-                                saldo_stock = saldo_stock * (1 + t_per_stock) + net_app_stock
+                    if not ticker_input:
+                        st.info("🔍 Buscando coincidencia exacta en Yahoo Finance...")
+                        try:
+                            search_res = yf.Search(user_input, max_results=5)
+                            quotes = search_res.quotes
+                            if quotes:
+                                options = {f"{q.get('longname', q.get('shortname', ''))} ({q['symbol']}) - {q.get('exchange', '')}": q['symbol'] for q in quotes}
+                                selected_label = st.selectbox("Selecciona la empresa correcta:", list(options.keys()), key="select_stock_search_fix")
+                                ticker_input = options[selected_label]
                             else:
-                                saldo_stock = saldo_stock * (1 + t_per_stock)
+                                ticker_input = clean_input
+                        except:
+                            ticker_input = clean_input
 
-                            if p % per_ano_stock == 0:
-                                ano_act_stock = p // per_ano_stock
-                                c_tot_stock = a_broker_stock + a_spread_stock + a_fx_stock
-                                int_b_stock = saldo_stock - (aport_stock - c_tot_stock)
-                                
-                                div_bruto_anual_s = saldo_stock * (div_y_val / 100.0)
-                                div_bruto_stock_total += div_bruto_anual_s
+                if ticker_input:
+                    try:
+                        stock = yf.Ticker(ticker_input)
+                        hist_price = stock.history(period="3mo")
+                        
+                        info = stock.info or {}
+                        name = info.get('longName', ticker_input.title())
+                        native_currency = info.get('currency', 'EUR')
 
-                                historial_stock.append({
-                                    "Año": f"Año {ano_act_stock}",
-                                    "Capital Aportado Bruto (€)": round(aport_stock, 2),
-                                    "Comisiones Bróker (€)": round(a_broker_stock, 2),
-                                    "Coste Spread (€)": round(a_spread_stock, 2),
-                                    "Coste Cambio Divisa (€)": round(a_fx_stock, 2),
-                                    "Beneficio Neto (€)": round(max(0.0, int_b_stock), 2),
-                                    "Dividendo Bruto Anual (€)": round(div_bruto_anual_s, 2),
-                                    "Capital Total Neto (€)": round(saldo_stock, 2)
+                        current_price_native = None
+                        if not hist_price.empty and 'Close' in hist_price.columns:
+                            valid_closes = hist_price['Close'].dropna()
+                            if not valid_closes.empty:
+                                current_price_native = float(valid_closes.iloc[-1])
+
+                        eur_usd_rate = get_eur_usd_rate()
+                        if native_currency == 'USD' and current_price_native is not None:
+                            current_price_eur = current_price_native / eur_usd_rate
+                        else:
+                            current_price_eur = current_price_native
+
+                        price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
+                        trend_html = get_trend_chain_stream(hist_price)
+
+                        raw_yield = info.get('dividendYield', 0) or 0.0
+                        if raw_yield > 0:
+                            if raw_yield < 0.1:
+                                div_y_val = raw_yield * 100
+                            else:
+                                div_y_val = raw_yield
+                        else:
+                            div_y_val = 0.0
+
+                        per_y = info.get('trailingPE') or info.get('forwardPE') or 18.0
+                        pfcf_y = info.get('priceToFreeCashflow') or 18.0
+                        roe_val = (info.get('returnOnEquity', 0.15) * 100) if info.get('returnOnEquity') else 15.0
+                        beta_val = info.get('beta') or 1.0
+                        raw_payout = info.get('payoutRatio')
+                        payout_val = (raw_payout * 100) if raw_payout is not None else 50.0
+                        recommendation = info.get('recommendationKey', 'hold').lower()
+
+                        score_calc = 2.5
+                        if 0 < per_y <= 18: score_calc += 1.0
+                        elif 18 < per_y <= 28: score_calc += 0.5
+                        elif per_y > 45: score_calc -= 0.5
+
+                        if roe_val >= 20: score_calc += 1.0
+                        elif roe_val >= 12: score_calc += 0.5
+
+                        if 0.5 <= beta_val <= 1.1: score_calc += 0.5
+
+                        if recommendation in ['buy', 'strong_buy']: score_calc += 0.5
+
+                        total_score = min(5.0, max(1.0, score_calc))
+
+                        grade = get_letter_grade(total_score)
+                        deg = int((total_score / 5.0) * 360)
+                        progress_color = "#22c55e" if total_score >= 4.0 else ("#eab308" if total_score >= 2.8 else "#ef4444")
+
+                        col_n1, col_n2, col_n3 = st.columns([2, 1, 1])
+                        with col_n1:
+                            st.subheader(f"📊 Informe: {name} ({ticker_input})")
+                        with col_n2:
+                            if st.button("⭐ Añadir a Favoritos", use_container_width=True):
+                                st.session_state.favorites.append({
+                                    "type": "Acción", "name": name, "ticker": ticker_input,
+                                    "ter": 0.0, "currency": "EUR", "category": "Renta Variable (Acción)"
                                 })
-
-                        df_sim_stock = pd.DataFrame(historial_stock)
-                        with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
-                            st.dataframe(df_sim_stock, use_container_width=True)
-
-                        c_tot_acum_stock = a_broker_stock + a_spread_stock + a_fx_stock
-                        net_aport_stock = aport_stock - c_tot_acum_stock
-                        bruto_stock = max(0.0, saldo_stock - net_aport_stock)
-                        imp_stock = bruto_stock * 0.19
-                        neto_stock = bruto_stock - imp_stock
-                        div_neto_stock = div_bruto_stock_total * (1 - 0.19)
-                        liquido_stock = net_aport_stock + neto_stock + div_neto_stock
-
-                        sm1, sm2, sm3, sm4, sm5, sm6 = st.columns(6)
-                        sm1.metric("Capital Invertido Neto", f"{net_aport_stock:,.2f} €")
-                        sm2.metric("Costes Totales", f"{c_tot_acum_stock:,.2f} €")
-                        sm3.metric("Beneficio Bruto", f"{bruto_stock:,.2f} €")
-                        sm4.metric("Beneficio Neto (19%)", f"{neto_stock:,.2f} €")
-                        sm5.metric("Div. Brutos Total", f"{div_bruto_stock_total:,.2f} €")
-                        sm6.metric("Div. Netos Total", f"{div_neto_stock:,.2f} €")
+                                guardar_en_url()
+                                st.success("¡Añadido a Favoritos!")
+                        with col_n3:
+                            if st.button("➕ Añadir a Cartera", type="primary", use_container_width=True):
+                                st.session_state.portfolio.append({
+                                    "type": "Acción", "name": name, "ticker": ticker_input,
+                                    "est_rent": 8.0, "ter": 0.0, "currency": "EUR", "is_dist": True,
+                                    "category": "Renta Variable (Acción)"
+                                })
+                                guardar_en_url()
+                                st.success(f"¡{name} añadido a tu Cartera!")
 
                         st.markdown(f"""
-                        <div class="final-net-card">
-                            <div class="final-net-title">💰 Capital Total Líquido Final de la Acción (Con Dividendos en €)</div>
-                            <div class="final-net-value">{liquido_stock:,.2f} €</div>
+                        <div class="score-container">
+                            <div style="text-align: center;"><div class="circular-progress" style="--deg: {deg}deg; --progress-color: {progress_color};"><div class="progress-value">{total_score:.1f}/5</div></div><div style="margin-top: 10px; color: #94a3b8; font-size: 0.85rem;">Puntuación Yahoo Finance</div></div>
+                            <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Tendencia en Cadena</div><div style="margin-top: 15px;">{trend_html}</div></div>
+                            <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Calificación</div><div class="pure-stamp-grade" style="--stamp-color: {progress_color};">{grade}</div></div>
+                            <div style="text-align: center;"><div style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 5px;">Precio Actual (€)</div><div style="font-size: 2.2rem; font-weight: bold; color: #f8fafc; margin-top: 20px;">{price_display}</div></div>
                         </div>
                         """, unsafe_allow_html=True)
 
-                except Exception as e:
-                    st.error(f"No se han podido encontrar datos para el ticker '{ticker_input}'. Comprueba que sea correcto en Yahoo Finance.")
+                        render_traffic_light_recommendation(
+                            total_score, "Acción",
+                            f"PER de {per_y:.1f}, ROE de {roe_val:.1f}%, Beta de {beta_val:.2f} y Dividend Yield del {div_y_val:.2f}%."
+                        )
+
+                        df_metrics = pd.DataFrame({
+                            "Métrica Clave": ["PER (Valoración)", "Precio / FCF", "ROE", "Dividend Yield", "Payout Ratio", "Beta"],
+                            "Valor Evaluado": [f"{per_y:.2f}", f"{pfcf_y:.2f}", f"{roe_val:.2f}%", f"{div_y_val:.2f}%", f"{payout_val:.1f}%", f"{beta_val:.2f}"]
+                        })
+                        st.table(df_metrics)
+
+                        st.markdown("---")
+                        st.subheader(f"🧮 Simulador de Interés Compuesto para: {name}")
+                        toggle_stock_sim = st.toggle("Activar calculadora individual de esta acción", value=False, key="tg_stock_sim")
+
+                        if toggle_stock_sim:
+                            sel_b_stock = st.selectbox("Selecciona tu Bróker", options=list(ETF_BROKER_PROFILES.keys()), key="sel_b_stock")
+                            b_stock_data = ETF_BROKER_PROFILES[sel_b_stock]
+                            plan_stock_free = st.checkbox("Plan de aportación automática sin comisión", value=b_stock_data["supports_free_plans"], key="plan_stock_free")
+
+                            cs1, cs2 = st.columns(2)
+                            with cs1:
+                                inv_i_stock = st.number_input("Inversión Inicial (€)", min_value=0.0, value=1000.0, step=500.0, key="inv_i_stock")
+                                app_p_stock = st.number_input("Aportación Periódica (€)", min_value=0.0, value=150.0, step=50.0, key="app_p_stock")
+                                freq_stock = st.selectbox("Frecuencia", options=["Mensual", "Anual"], key="freq_stock")
+                            with cs2:
+                                anos_stock = st.slider("Plazo (Años)", min_value=1, max_value=40, value=15, key="anos_stock")
+                                rent_stock = st.slider("Rentabilidad anual estimada (%)", min_value=0.0, max_value=20.0, value=8.0, step=0.5, key="rent_stock")
+
+                            spct = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_percent"]
+                            sfix = 0.0 if (b_stock_data["supports_free_plans"] and plan_stock_free) else b_stock_data["fee_fixed"]
+                            sspr = b_stock_data["spread_percent"]
+                            sfx = 0.0 if native_currency == 'EUR' or ticker_input.endswith('.DE') or ticker_input.endswith('.MC') else b_stock_data["fx_fee_percent"]
+
+                            per_ano_stock = 12 if freq_stock == "Mensual" else 1
+                            t_neta_stock = rent_stock - 0.0
+                            t_per_stock = (t_neta_stock / 100.0) / per_ano_stock
+                            tot_per_stock = anos_stock * per_ano_stock
+
+                            c_broker_i_stock = (inv_i_stock * (b_stock_data["fee_percent"] / 100.0)) + b_stock_data["fee_fixed"]
+                            c_spread_i_stock = inv_i_stock * (sspr / 100.0)
+                            c_fx_i_stock = inv_i_stock * (sfx / 100.0)
+                            c_ini_stock = c_broker_i_stock + c_spread_i_stock + c_fx_i_stock
+
+                            saldo_stock = max(0.0, inv_i_stock - c_ini_stock)
+                            aport_stock = inv_i_stock
+                            a_broker_stock = c_broker_i_stock
+                            a_spread_stock = c_spread_i_stock
+                            a_fx_stock = c_fx_i_stock
+
+                            div_bruto_stock_total = 0.0
+                            historial_stock = []
+
+                            for p in range(1, tot_per_stock + 1):
+                                if p > 1:
+                                    cb = (app_p_stock * (spct / 100.0)) + sfix
+                                    cs = app_p_stock * (sspr / 100.0)
+                                    cf = app_p_stock * (sfx / 100.0)
+                                    ct = cb + cs + cf
+
+                                    net_app_stock = max(0.0, app_p_stock - ct)
+                                    aport_stock += app_p_stock
+                                    a_broker_stock += cb
+                                    a_spread_stock += cs
+                                    a_fx_stock += cf
+                                    saldo_stock = saldo_stock * (1 + t_per_stock) + net_app_stock
+                                else:
+                                    saldo_stock = saldo_stock * (1 + t_per_stock)
+
+                                if p % per_ano_stock == 0:
+                                    ano_act_stock = p // per_ano_stock
+                                    c_tot_stock = a_broker_stock + a_spread_stock + a_fx_stock
+                                    int_b_stock = saldo_stock - (aport_stock - c_tot_stock)
+                                    
+                                    div_bruto_anual_s = saldo_stock * (div_y_val / 100.0)
+                                    div_bruto_stock_total += div_bruto_anual_s
+
+                                    historial_stock.append({
+                                        "Año": f"Año {ano_act_stock}",
+                                        "Capital Aportado Bruto (€)": round(aport_stock, 2),
+                                        "Comisiones Bróker (€)": round(a_broker_stock, 2),
+                                        "Coste Spread (€)": round(a_spread_stock, 2),
+                                        "Coste Cambio Divisa (€)": round(a_fx_stock, 2),
+                                        "Beneficio Neto (€)": round(max(0.0, int_b_stock), 2),
+                                        "Dividendo Bruto Anual (€)": round(div_bruto_anual_s, 2),
+                                        "Capital Total Neto (€)": round(saldo_stock, 2)
+                                    })
+
+                            df_sim_stock = pd.DataFrame(historial_stock)
+                            with st.expander("Ver desglose anual detallado con comisiones, spreads y dividendos (€)", expanded=True):
+                                st.dataframe(df_sim_stock, use_container_width=True)
+
+                            c_tot_acum_stock = a_broker_stock + a_spread_stock + a_fx_stock
+                            net_aport_stock = aport_stock - c_tot_acum_stock
+                            bruto_stock = max(0.0, saldo_stock - net_aport_stock)
+                            imp_stock = bruto_stock * 0.19
+                            neto_stock = bruto_stock - imp_stock
+                            div_neto_stock = div_bruto_stock_total * (1 - 0.19)
+                            liquido_stock = net_aport_stock + neto_stock + div_neto_stock
+
+                            sm1, sm2, sm3, sm4, sm5, sm6 = st.columns(6)
+                            sm1.metric("Capital Invertido Neto", f"{net_aport_stock:,.2f} €")
+                            sm2.metric("Costes Totales", f"{c_tot_acum_stock:,.2f} €")
+                            sm3.metric("Beneficio Bruto", f"{bruto_stock:,.2f} €")
+                            sm4.metric("Beneficio Neto (19%)", f"{neto_stock:,.2f} €")
+                            sm5.metric("Div. Brutos Total", f"{div_bruto_stock_total:,.2f} €")
+                            sm6.metric("Div. Netos Total", f"{div_neto_stock:,.2f} €")
+
+                            st.markdown(f"""
+                            <div class="final-net-card">
+                                <div class="final-net-title">💰 Capital Total Líquido Final de la Acción (Con Dividendos en €)</div>
+                                <div class="final-net-value">{liquido_stock:,.2f} €</div>
+                            </div>
+                            """, unsafe_allow_html=True)
+
+                    except Exception as e:
+                        st.error(f"No se han podido encontrar datos para el ticker '{ticker_input}'. Comprueba que sea correcto en Yahoo Finance.")
 
             elif st.session_state.asset_type in ["Fondos indexados", "Fondos Monetarios"]:
                 matched_fund = next((data for key, data in FUND_DB.items() if data["ticker"].upper() == user_input.upper() or data["name"].lower() in user_input.lower() or key in user_input.lower()), None)
