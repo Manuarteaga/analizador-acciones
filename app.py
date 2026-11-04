@@ -739,6 +739,8 @@ with st.sidebar:
     st.header("Enlaces Relacionados")
     st.markdown("[Comparador Fondos Monetarios](https://compara-bonos.streamlit.app/)")
     st.markdown("---")
+     st.markdown("[Calculadora Capacidad Inversión](https://calculadoradeinversion.streamlit.app/)")
+    st.markdown("---")
     
     st.header("📖 Glosario Financiero")
     st.caption("Consulta los conceptos económicos y métricas clave que aparecen en pantalla:")
