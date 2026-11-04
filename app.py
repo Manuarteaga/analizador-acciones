@@ -737,7 +737,7 @@ st.markdown("---")
 
 with st.sidebar:
     st.header("Enlaces Relacionados")
-    st.markdown("[Fondos Monetarios VS Deuda Tecnológicas](https://comparafondostesoro.streamlit.app/)")
+    st.markdown("[Comparador Fondos Monetarios](https://compara-bonos.streamlit.app/)")
     st.markdown("---")
     
     st.header("📖 Glosario Financiero")
