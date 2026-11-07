@@ -1462,11 +1462,11 @@ elif st.session_state.stage == 'analyzer':
                             if not valid_closes.empty:
                                 current_price_native = float(valid_closes.iloc[-1])
 
-                        eur_usd_rate = get_eur_usd_rate()
+                        # Conversión dinámica en tiempo real usando get_eur_usd_rate()
+                        current_price_eur = current_price_native
                         if native_currency == 'USD' and current_price_native is not None:
+                            eur_usd_rate = get_eur_usd_rate()
                             current_price_eur = current_price_native / eur_usd_rate
-                        else:
-                            current_price_eur = current_price_native
 
                         price_display = f"{current_price_eur:,.2f} €" if current_price_eur is not None else "—"
                         trend_html = get_trend_chain_stream(hist_price)
