@@ -1366,6 +1366,39 @@ elif st.session_state.stage == 'analyzer':
         if st.session_state.asset_type == "Acciones":
             st.markdown("### 📊 Analizador de Acciones en Tiempo Real")
             user_input = st.text_input("Ticker, Nombre de la Empresa o Pega el enlace de Yahoo Finance:", value=default_input).strip()
+    if ticker_usuario:
+    
+    # 1. CREAMOS LAS DOS COLUMNAS
+    # El ratio [2, 1] hace que tu info sea el doble de ancha que la nota de opciones
+    col_info_actual, col_nota_opciones = st.columns([2, 1])
+
+    # 2. EN LA COLUMNA DE LA IZQUIERDA METES LO QUE YA TENÍAS
+    with col_info_actual:
+        # Pega aquí DENTRO (respetando la indentación / tabulación)
+        # todas las líneas de código que ya tenías escritas para mostrar tus gráficos,
+        # tablas de fondos, balances y ratios de la acción.
+        st.write("TUS GRÁFICOS Y ANÁLISIS ACTUALES VAN AQUÍ") 
+
+    # 3. EN LA COLUMNA DE LA DERECHA COLOCAMOS EL NUEVO APARTADO
+    with col_nota_opciones:
+        st.subheader("Análisis de Opciones")
+        
+        # Llamamos a la función que pegamos en el Paso 1
+        score, mensaje = calcular_score_opcionable(ticker_usuario)
+        
+        if score is not None:
+            if score >= 70:
+                color_metrica = "🟢 Alta viabilidad"
+            elif 40 <= score < 70:
+                color_metrica = "🟡 Viabilidad moderada"
+            else:
+                color_metrica = "🔴 Baja viabilidad"
+                
+            st.metric(label=f"Score Opcionable ({color_metrica})", value=f"{score} / 100")
+            st.warning(mensaje) if score < 50 else st.success(mensaje)
+            st.caption("Nota: Evalúa la volatilidad y la existencia de contratos líquidos en el mercado.")
+        else:
+            st.error(mensaje)
 
         elif st.session_state.asset_type == "Fondos Monetarios":
             st.markdown("### 🏦 Biblioteca de Fondos Monetarios (Bajo Riesgo / Corto Plazo)")
