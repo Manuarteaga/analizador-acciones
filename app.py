@@ -1461,6 +1461,68 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Escribe el ticker, nombre de la acción o pega el enlace de Yahoo Finance en la barra superior.")
         else:
             if st.session_state.asset_type == "Acciones":
+                if not user_input:
+            st.info("👆 Escribe el ticker, nombre de la acción o pega el enlace de Yahoo Finance en la barra superior.")
+        else:
+            if st.session_state.asset_type == "Acciones":
+                
+                # 1. CREAMOS LAS DOS COLUMNAS ELEGANTES
+                col_info_actual, col_nota_opciones = st.columns([2, 1])
+
+                # 2. EN LA COLUMNA DE LA IZQUIERDA METEMOS TU CÓDIGO ORIGINAL
+                with col_info_actual:
+                    ticker_input = ""
+                    import re
+                    url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
+                    if url_match:
+                        ticker_input = url_match.group(1).upper()
+                    else:
+                        clean_input = user_input.upper()
+                        try:
+                            test_ticker = yf.Ticker(clean_input)
+                            test_hist = test_ticker.history(period="1d")
+                            if not test_hist.empty:
+                                ticker_input = clean_input
+                        except:
+                            pass
+                        
+                        if not ticker_input:
+                            st.info("🔍 Buscando coincidencia exacta en Yahoo Finance...")
+                            try:
+                                search_res = yf.Search(user_input, max_results=5)
+                                quotes = search_res.quotes
+                                if quotes:
+                                    options = {f"{q.get('longname', q.get('shortname', ''))} ({q['symbol']}) - {q.get('exchange', '')}": q['symbol'] for q in quotes}
+                                    selected_label = st.selectbox("Selecciona la empresa correcta:", list(options.keys()), key="select_stock_search_fix")
+                                    ticker_input = options[selected_label]
+                                else:
+                                    ticker_input = clean_input
+                            except:
+                                ticker_input = clean_input
+
+                # 3. EN LA COLUMNA DE LA DERECHA COLOCAMOS EL ANÁLISIS DE OPCIONES
+                with col_nota_opciones:
+                    st.subheader("Análisis de Opciones")
+                    
+                    # Limpiamos el texto por si el usuario pegó una URL completa
+                    ticker_limpio = ticker_input if ticker_input else user_input.split("/")[-1].split("?")[0].strip().upper()
+                    
+                    if ticker_limpio:
+                        score, mensaje = calcular_score_opcionable(ticker_limpio)
+                        
+                        if score is not None:
+                            if score >= 70:
+                                color_metrica = "🟢 Alta viabilidad"
+                            elif 40 <= score < 70:
+                                color_metrica = "🟡 Viabilidad moderada"
+                            else:
+                                color_metrica = "🔴 Baja viabilidad"
+                                
+                            st.metric(label=f"Score Opcionable ({color_metrica})", value=f"{score} / 100")
+                            st.warning(mensaje) if score < 50 else st.success(mensaje)
+                            st.caption("Nota: Evalúa la volatilidad y la existencia de contratos líquidos en el mercado.")
+                        else:
+                            st.error(mensaje)
                 ticker_input = ""
                 import re
                 url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
