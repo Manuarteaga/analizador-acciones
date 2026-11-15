@@ -1,52 +1,9 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import numpy as np
-
-def calcular_score_opcionable(ticker_symbol):
-    """
-    Calcula una puntuación de 0 a 100 para evaluar si la acción 
-    es buena candidata para vender opciones en este momento.
-    """
-    try:
-        ticker = yf.Ticker(ticker_symbol)
-        # Obtenemos el histórico reciente para medir movimientos reales
-        hist = ticker.history(period="3mo")
-        
-        if hist.empty:
-            return None, "Sin datos de mercado disponibles."
-
-        # 1. Medimos la volatilidad histórica de los últimos 20 días
-        hist['Retornos'] = hist['Close'].pct_change()
-        volatilidad_historica = hist['Retornos'].tail(20).std() * np.sqrt(252) * 100
-        
-        # 2. Comprobamos si tiene cadena de opciones disponible en Yahoo Finance
-        opciones_disponibles = len(ticker.options) > 0
-        
-        if not opciones_disponibles:
-            return 0, "Esta acción NO tiene mercado de opciones disponible."
-
-        # 3. Lógica del Score (Algoritmo básico de puntuación)
-        score = 50  # Puntuación base si tiene opciones
-        
-        # Ponderación por volatilidad (Nos interesan volatilidades medias-altas para cobrar buenas primas)
-        if volatilidad_historica > 40:
-            score += 30  # Primas muy caras (Excelente para el vendedor)
-            diagnostico = "Primas muy altas por alta volatilidad. Ideal para収ingresos altos, pero vigila el riesgo."
-        elif 20 <= volatilidad_historica <= 40:
-            score += 15  # Primas equilibradas
-            diagnostico = "Volatilidad moderada. Primas decentes con un riesgo controlado."
-        else:
-            score -= 20  # Primas muy baratas
-            diagnostico = "Primas muy baratas debido a la baja volatilidad. Puede no valer la pena el riesgo."
-            
-        # Limitamos el score entre 0 y 100 por seguridad
-        score = max(0, min(100, score))
-        return int(score), diagnostico
-
-    except Exception as e:
-        return None, f"Error al procesar los datos de opciones: {str(e)}"
-
+import io
+import json
+import urllib.parse
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
@@ -1461,68 +1418,6 @@ elif st.session_state.stage == 'analyzer':
             st.info("👆 Escribe el ticker, nombre de la acción o pega el enlace de Yahoo Finance en la barra superior.")
         else:
             if st.session_state.asset_type == "Acciones":
-                if not user_input:
-            st.info("👆 Escribe el ticker, nombre de la acción o pega el enlace de Yahoo Finance en la barra superior.")
-        else:
-            if st.session_state.asset_type == "Acciones":
-                
-                # 1. CREAMOS LAS DOS COLUMNAS ELEGANTES
-                col_info_actual, col_nota_opciones = st.columns([2, 1])
-
-                # 2. EN LA COLUMNA DE LA IZQUIERDA METEMOS TU CÓDIGO ORIGINAL
-                with col_info_actual:
-                    ticker_input = ""
-                    import re
-                    url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
-                    if url_match:
-                        ticker_input = url_match.group(1).upper()
-                    else:
-                        clean_input = user_input.upper()
-                        try:
-                            test_ticker = yf.Ticker(clean_input)
-                            test_hist = test_ticker.history(period="1d")
-                            if not test_hist.empty:
-                                ticker_input = clean_input
-                        except:
-                            pass
-                        
-                        if not ticker_input:
-                            st.info("🔍 Buscando coincidencia exacta en Yahoo Finance...")
-                            try:
-                                search_res = yf.Search(user_input, max_results=5)
-                                quotes = search_res.quotes
-                                if quotes:
-                                    options = {f"{q.get('longname', q.get('shortname', ''))} ({q['symbol']}) - {q.get('exchange', '')}": q['symbol'] for q in quotes}
-                                    selected_label = st.selectbox("Selecciona la empresa correcta:", list(options.keys()), key="select_stock_search_fix")
-                                    ticker_input = options[selected_label]
-                                else:
-                                    ticker_input = clean_input
-                            except:
-                                ticker_input = clean_input
-
-                # 3. EN LA COLUMNA DE LA DERECHA COLOCAMOS EL ANÁLISIS DE OPCIONES
-                with col_nota_opciones:
-                    st.subheader("Análisis de Opciones")
-                    
-                    # Limpiamos el texto por si el usuario pegó una URL completa
-                    ticker_limpio = ticker_input if ticker_input else user_input.split("/")[-1].split("?")[0].strip().upper()
-                    
-                    if ticker_limpio:
-                        score, mensaje = calcular_score_opcionable(ticker_limpio)
-                        
-                        if score is not None:
-                            if score >= 70:
-                                color_metrica = "🟢 Alta viabilidad"
-                            elif 40 <= score < 70:
-                                color_metrica = "🟡 Viabilidad moderada"
-                            else:
-                                color_metrica = "🔴 Baja viabilidad"
-                                
-                            st.metric(label=f"Score Opcionable ({color_metrica})", value=f"{score} / 100")
-                            st.warning(mensaje) if score < 50 else st.success(mensaje)
-                            st.caption("Nota: Evalúa la volatilidad y la existencia de contratos líquidos en el mercado.")
-                        else:
-                            st.error(mensaje)
                 ticker_input = ""
                 import re
                 url_match = re.search(r'finance\.yahoo\.com/quote/([A-Za-z0-9\.\-]+)', user_input)
