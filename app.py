@@ -1,9 +1,52 @@
 import streamlit as st
 import yfinance as yf
 import pandas as pd
-import io
-import json
-import urllib.parse
+import numpy as np
+
+def calcular_score_opcionable(ticker_symbol):
+    """
+    Calcula una puntuación de 0 a 100 para evaluar si la acción 
+    es buena candidata para vender opciones en este momento.
+    """
+    try:
+        ticker = yf.Ticker(ticker_symbol)
+        # Obtenemos el histórico reciente para medir movimientos reales
+        hist = ticker.history(period="3mo")
+        
+        if hist.empty:
+            return None, "Sin datos de mercado disponibles."
+
+        # 1. Medimos la volatilidad histórica de los últimos 20 días
+        hist['Retornos'] = hist['Close'].pct_change()
+        volatilidad_historica = hist['Retornos'].tail(20).std() * np.sqrt(252) * 100
+        
+        # 2. Comprobamos si tiene cadena de opciones disponible en Yahoo Finance
+        opciones_disponibles = len(ticker.options) > 0
+        
+        if not opciones_disponibles:
+            return 0, "Esta acción NO tiene mercado de opciones disponible."
+
+        # 3. Lógica del Score (Algoritmo básico de puntuación)
+        score = 50  # Puntuación base si tiene opciones
+        
+        # Ponderación por volatilidad (Nos interesan volatilidades medias-altas para cobrar buenas primas)
+        if volatilidad_historica > 40:
+            score += 30  # Primas muy caras (Excelente para el vendedor)
+            diagnostico = "Primas muy altas por alta volatilidad. Ideal para収ingresos altos, pero vigila el riesgo."
+        elif 20 <= volatilidad_historica <= 40:
+            score += 15  # Primas equilibradas
+            diagnostico = "Volatilidad moderada. Primas decentes con un riesgo controlado."
+        else:
+            score -= 20  # Primas muy baratas
+            diagnostico = "Primas muy baratas debido a la baja volatilidad. Puede no valer la pena el riesgo."
+            
+        # Limitamos el score entre 0 y 100 por seguridad
+        score = max(0, min(100, score))
+        return int(score), diagnostico
+
+    except Exception as e:
+        return None, f"Error al procesar los datos de opciones: {str(e)}"
+
 
 st.set_page_config(page_title="Analizador Bursátil Multifuente", page_icon="📈", layout="wide")
 
